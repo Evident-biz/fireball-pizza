@@ -236,6 +236,9 @@ section.tight{ padding: 64px 0; }
   font-family: var(--font-body); font-size: 0.95rem; color: var(--ink); border-radius: 3px;
 }
 .calc-field input:focus{ outline: none; border-color: var(--ember); }
+.pac-container{ font-family: var(--font-body); z-index: 300; border-radius: 4px; margin-top: 4px; }
+.pac-item{ padding: 8px 12px; font-size: 0.9rem; }
+.pac-item-query{ font-size: 0.9rem; }
 .calc-hint{ font-size: 0.85rem; color: var(--stone); margin: 10px 0 0; min-height: 1.2em; }
 .calc-results{
   display: none; margin-top: 24px; border-top: 1px dashed var(--line); padding-top: 20px;

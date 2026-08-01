@@ -12,7 +12,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
 <link rel="stylesheet" href="assets/style.css">
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGylyq1OAQuI5eHLVYrKKk_zJfcfi4MvE" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGylyq1OAQuI5eHLVYrKKk_zJfcfi4MvE&libraries=places&loading=async" async defer></script>
 </head>
 <body>
 
@@ -227,9 +227,26 @@ const runBtn = document.getElementById('calcRunBtn');
 const calcHint = document.getElementById('calcHint');
 const calcResults = document.getElementById('calcResults');
 
+let autocompleteReady = false;
+function initAddressAutocomplete(){
+  if(autocompleteReady) return;
+  if(typeof google === 'undefined' || !google.maps || !google.maps.places) return;
+  try{
+    const input = document.getElementById('calcAddress');
+    new google.maps.places.Autocomplete(input, {
+      types: ['address'],
+      componentRestrictions: { country: 'us' }
+    });
+    autocompleteReady = true;
+  } catch(err){
+    console.error('Fireball estimator: address autocomplete failed to init', err);
+  }
+}
+
 function openCalc(){
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
+  initAddressAutocomplete();
 }
 function closeCalc(){
   overlay.classList.remove('open');
