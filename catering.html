@@ -162,18 +162,6 @@
         <input type="number" id="calcGuests" min="20" placeholder="e.g. 100">
       </div>
       <div class="calc-field">
-        <label>Required Service Time</label>
-        <div id="calcRequiredTime" class="calc-required-time">Enter guest count above</div>
-      </div>
-      <div class="calc-field">
-        <label>Extra Time <span style="text-transform:none; letter-spacing:0;">(optional — can only add, not reduce required time)</span></label>
-        <div class="calc-stepper">
-          <button type="button" id="calcTimeMinus" class="calc-stepper-btn" aria-label="Remove an hour">−</button>
-          <span id="calcExtraHoursDisplay" class="calc-stepper-value">+0 hr</span>
-          <button type="button" id="calcTimePlus" class="calc-stepper-btn" aria-label="Add an hour">+</button>
-        </div>
-      </div>
-      <div class="calc-field">
         <label for="calcAddress">Event Address</label>
         <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
         <div id="calcAddressSuggestions" class="calc-suggestions"></div>
@@ -183,8 +171,15 @@
       <p class="calc-hint" id="calcHint">Fill in guest count and event address, then calculate.</p>
 
       <div class="calc-results" id="calcResults">
+        <div class="calc-row calc-row-stepper">
+          <span>Service time</span>
+          <div class="calc-stepper-inline">
+            <button type="button" id="calcTimeMinus" class="calc-stepper-btn" aria-label="Remove an hour">−</button>
+            <strong id="calcServiceHoursValue">—</strong>
+            <button type="button" id="calcTimePlus" class="calc-stepper-btn" aria-label="Add an hour">+</button>
+          </div>
+        </div>
         <div class="calc-row"><span>Base food price</span><strong id="calcBase">—</strong></div>
-        <div class="calc-row"><span>Total service time</span><strong id="calcTotalServiceTime">—</strong></div>
         <div class="calc-row"><span>Distance (round trip)</span><strong id="calcMiles">—</strong></div>
         <div class="calc-row" style="display:none;"><span>Mileage fee</span><strong id="calcMileageFee">—</strong></div>
         <div class="calc-row"><span>Drive time (round trip)</span><strong id="calcDriveTime">—</strong></div>
@@ -201,32 +196,12 @@
             <input type="hidden" name="subject" id="sendSubject" value="New Catering Estimate Request">
             <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
 
-            <input type="hidden" name="guestCount" id="sendGuestCount">
-            <input type="hidden" name="_0a_requiredServiceHours" id="sendRequiredHours">
-            <input type="hidden" name="_0b_extraHoursAdded" id="sendExtraHours">
-            <input type="hidden" name="_0c_totalServiceHours" id="sendTotalHours">
-            <input type="hidden" name="_0d_extraTimeFee" id="sendExtraTimeFee">
-            <input type="hidden" name="eventAddress" id="sendAddress">
-            <input type="hidden" name="baseLocation" value="401 Downey Ave, Modesto, CA 95354">
-
-            <input type="hidden" name="_1_oneWayMiles" id="sendOneWayMiles">
-            <input type="hidden" name="_2_roundTripMiles" id="sendMiles">
-            <input type="hidden" name="_3_freeMilesIncluded" value="40">
-            <input type="hidden" name="_4_billableMiles" id="sendBillableMiles">
-            <input type="hidden" name="_5_ratePerMile" value="$1.75">
-            <input type="hidden" name="_6_mileageFee" id="sendMileageFee">
-
-            <input type="hidden" name="_7_oneWayDriveTime" id="sendOneWayDriveTime">
-            <input type="hidden" name="_8_roundTripDriveTime" id="sendDriveTime">
-            <input type="hidden" name="_9_driveLaborTriggered" id="sendDriveLaborTriggered">
-            <input type="hidden" name="_10_crewSize" id="sendCrewSize">
-            <input type="hidden" name="_11_laborRatePerHour" value="$25/hr per crew member">
-            <input type="hidden" name="_12_driveTimeLaborFee" id="sendDriveLaborFee">
-
-            <input type="hidden" name="_13_pricePerGuest" value="$19">
-            <input type="hidden" name="_14_basePrice" id="sendBasePrice">
-            <input type="hidden" name="_15_travelFeeTotal" id="sendTravelFee">
-            <input type="hidden" name="_16_grandTotal" id="sendGrandTotal">
+            <input type="hidden" name="Guest Count" id="sendGuestCount">
+            <input type="hidden" name="Service Time" id="sendServiceTime">
+            <input type="hidden" name="Event Address" id="sendAddress">
+            <input type="hidden" name="Distance and Mileage" id="sendDistance">
+            <input type="hidden" name="Drive-Time Labor" id="sendDriveLabor">
+            <input type="hidden" name="Pricing Summary" id="sendPricing">
 
             <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
             <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required></div>
@@ -315,43 +290,76 @@ const runBtn = document.getElementById('calcRunBtn');
 const calcHint = document.getElementById('calcHint');
 const calcResults = document.getElementById('calcResults');
 
-// --- Required service time + extra-time stepper (add-only, never below required) ---
+// --- Service time stepper: shows up populated after a calculation, can only go up from there ---
 let extraHours = 0;
-const guestsInput = document.getElementById('calcGuests');
-const requiredTimeDisplay = document.getElementById('calcRequiredTime');
-const extraHoursDisplay = document.getElementById('calcExtraHoursDisplay');
+let lastCalc = null; // cached results of the most recent distance calculation
+const serviceHoursValueEl = document.getElementById('calcServiceHoursValue');
 const timeMinusBtn = document.getElementById('calcTimeMinus');
 const timePlusBtn = document.getElementById('calcTimePlus');
 
-function currentRequiredHours(){
-  const guests = parseFloat(guestsInput.value);
-  return requiredHoursForGuests(guests);
-}
+function renderTotals(){
+  if(!lastCalc) return;
+  const {
+    guestCount, address, crew, requiredHours,
+    basePrice, mileageFee, driveLaborFee, driveLaborTriggered,
+    roundTripMiles, roundTripDriveHours, oneWayMiles, oneWayDriveHours, billableMiles
+  } = lastCalc;
 
-function updateTimeDisplay(){
-  const guests = parseFloat(guestsInput.value);
-  if(!guests){
-    requiredTimeDisplay.textContent = 'Enter guest count above';
-  } else {
-    const req = requiredHoursForGuests(guests);
-    requiredTimeDisplay.textContent = req + ' hr' + (req !== 1 ? 's' : '') + ' (minimum for ' + guests + ' guests)';
-  }
-  extraHoursDisplay.textContent = '+' + extraHours + ' hr';
+  const totalServiceHours = requiredHours + extraHours;
+  const extraTimeFee = extraHours * crew * LABOR_RATE_PER_HOUR;
+  const laborTravelTotal = mileageFee + driveLaborFee;
+  const grandTotal = basePrice + laborTravelTotal + extraTimeFee;
+
+  serviceHoursValueEl.textContent = totalServiceHours + ' hr' + (totalServiceHours !== 1 ? 's' : '');
   timeMinusBtn.disabled = extraHours <= 0;
+
+  document.getElementById('calcBase').textContent = formatCurrency(basePrice) + ' (' + guestCount + ' × $' + PRICE_PER_GUEST + ')';
+  document.getElementById('calcMiles').textContent = roundTripMiles.toFixed(1) + ' mi';
+  document.getElementById('calcMileageFee').textContent = formatCurrency(mileageFee);
+  document.getElementById('calcDriveTime').textContent = roundTripDriveHours.toFixed(1) + ' hr';
+  document.getElementById('calcCrew').textContent = crew + ' people';
+  document.getElementById('calcDriveLabor').textContent = formatCurrency(driveLaborFee);
+  document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
+  document.getElementById('calcExtraTimeFee').textContent = formatCurrency(extraTimeFee);
+  document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
+
+  // Grouped, plain-language summaries sent to Fireball for internal double-checking.
+  document.getElementById('sendGuestCount').value = guestCount;
+
+  document.getElementById('sendServiceTime').value =
+    totalServiceHours + ' hr total (' + requiredHours + ' hr required + ' + extraHours + ' hr extra). ' +
+    'Extra time fee: ' + formatCurrency(extraTimeFee) + (extraHours > 0 ? ' (' + extraHours + ' hr × ' + crew + ' crew × $25/hr)' : ' (no extra time added)');
+
+  document.getElementById('sendAddress').value = address;
+
+  document.getElementById('sendDistance').value =
+    oneWayMiles.toFixed(2) + ' mi one-way (' + roundTripMiles.toFixed(2) + ' mi round trip) from 401 Downey Ave, Modesto. ' +
+    '40 mi free, ' + billableMiles.toFixed(2) + ' mi billable × $1.75/mi = ' + formatCurrency(mileageFee) + ' mileage fee';
+
+  document.getElementById('sendDriveLabor').value =
+    oneWayDriveHours.toFixed(2) + ' hr one-way (' + roundTripDriveHours.toFixed(2) + ' hr round trip). ' +
+    'Triggered: ' + (driveLaborTriggered ? 'Yes (round trip > 40 mi)' : 'No (round trip \u2264 40 mi)') + '. ' +
+    'Crew: ' + crew + ' people × $25/hr = ' + formatCurrency(driveLaborFee);
+
+  document.getElementById('sendPricing').value =
+    'Base: ' + guestCount + ' guests × $19 = ' + formatCurrency(basePrice) + ' | ' +
+    'Travel fee (mileage + drive labor): ' + formatCurrency(laborTravelTotal) + ' | ' +
+    'Extra time fee: ' + formatCurrency(extraTimeFee) + ' | ' +
+    'Grand Total: ' + formatCurrency(grandTotal);
+
+  document.getElementById('sendSubject').value = 'New Catering Estimate — ' + guestCount + ' guests, ' + formatCurrency(grandTotal) + ' total';
 }
 
-guestsInput.addEventListener('input', updateTimeDisplay);
 timePlusBtn.addEventListener('click', function(){
   extraHours += 1;
-  updateTimeDisplay();
+  renderTotals();
 });
 timeMinusBtn.addEventListener('click', function(){
   if(extraHours > 0){
     extraHours -= 1;
-    updateTimeDisplay();
+    renderTotals();
   }
 });
-updateTimeDisplay();
 
 // Address suggestions using the current (non-deprecated) Places API.
 // google.maps.places.Autocomplete is blocked for API keys created after March 2025,
@@ -447,7 +455,8 @@ function openCalc(){
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   extraHours = 0;
-  updateTimeDisplay();
+  lastCalc = null;
+  calcResults.classList.remove('show');
   getPlacesLib().then(function(){ newSessionToken(); });
 }
 function closeCalc(){
@@ -533,10 +542,7 @@ runBtn.addEventListener('click', function(){
       const roundTripMiles = oneWayMiles * 2;
       const roundTripDriveHours = oneWayDriveHours * 2;
       const crew = crewSizeForGuests(guestCount);
-
       const requiredHours = requiredHoursForGuests(guestCount);
-      const totalServiceHours = requiredHours + extraHours;
-      const extraTimeFee = extraHours * crew * LABOR_RATE_PER_HOUR;
 
       const basePrice = guestCount * PRICE_PER_GUEST;
       let billableMiles = 0;
@@ -553,45 +559,23 @@ runBtn.addEventListener('click', function(){
         driveLaborFee = roundTripDriveHours * crew * LABOR_RATE_PER_HOUR;
       }
 
-      const laborTravelTotal = mileageFee + driveLaborFee;
-      const grandTotal = basePrice + laborTravelTotal + extraTimeFee;
-
-      document.getElementById('calcBase').textContent = formatCurrency(basePrice) + ' (' + guestCount + ' × $' + PRICE_PER_GUEST + ')';
-      document.getElementById('calcTotalServiceTime').textContent = totalServiceHours + ' hr' + (totalServiceHours !== 1 ? 's' : '') + (extraHours > 0 ? (' (' + requiredHours + ' required + ' + extraHours + ' extra)') : ' (required minimum)');
-      document.getElementById('calcMiles').textContent = roundTripMiles.toFixed(1) + ' mi';
-      document.getElementById('calcMileageFee').textContent = formatCurrency(mileageFee);
-      document.getElementById('calcDriveTime').textContent = roundTripDriveHours.toFixed(1) + ' hr';
-      document.getElementById('calcCrew').textContent = crew + ' people';
-      document.getElementById('calcDriveLabor').textContent = formatCurrency(driveLaborFee);
-      document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
-      document.getElementById('calcExtraTimeFee').textContent = extraHours > 0
-        ? (formatCurrency(extraTimeFee) + ' (' + extraHours + ' hr × ' + crew + ' crew × $25/hr)')
-        : formatCurrency(0);
-      document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
-
-      // Full breakdown sent to Fireball for internal double-checking — customer never sees this detail.
-      document.getElementById('sendGuestCount').value = guestCount;
-      document.getElementById('sendRequiredHours').value = requiredHours + ' hr (min 1, ~1 hr per 50 guests)';
-      document.getElementById('sendExtraHours').value = extraHours + ' hr (customer-added, can only increase)';
-      document.getElementById('sendTotalHours').value = totalServiceHours + ' hr';
-      document.getElementById('sendExtraTimeFee').value = formatCurrency(extraTimeFee) + (extraHours > 0 ? (' (' + extraHours + ' hr × ' + crew + ' crew × $25/hr)') : ' (no extra time added)');
-      document.getElementById('sendAddress').value = address;
-
-      document.getElementById('sendOneWayMiles').value = oneWayMiles.toFixed(2) + ' mi';
-      document.getElementById('sendMiles').value = roundTripMiles.toFixed(2) + ' mi';
-      document.getElementById('sendBillableMiles').value = billableMiles.toFixed(2) + ' mi (round trip minus 40 free)';
-      document.getElementById('sendMileageFee').value = formatCurrency(mileageFee) + ' (' + billableMiles.toFixed(2) + ' mi × $1.75)';
-
-      document.getElementById('sendOneWayDriveTime').value = oneWayDriveHours.toFixed(2) + ' hr';
-      document.getElementById('sendDriveTime').value = roundTripDriveHours.toFixed(2) + ' hr';
-      document.getElementById('sendDriveLaborTriggered').value = driveLaborTriggered ? 'Yes (round trip > 40 mi)' : 'No (round trip ≤ 40 mi)';
-      document.getElementById('sendCrewSize').value = crew + ' people (guest count: ' + guestCount + ')';
-      document.getElementById('sendDriveLaborFee').value = formatCurrency(driveLaborFee) + (driveLaborTriggered ? (' (' + roundTripDriveHours.toFixed(2) + ' hr × ' + crew + ' crew × $25/hr)') : '');
-
-      document.getElementById('sendBasePrice').value = formatCurrency(basePrice) + ' (' + guestCount + ' guests × $19)';
-      document.getElementById('sendTravelFee').value = formatCurrency(laborTravelTotal) + ' (mileage fee + drive-time labor fee)';
-      document.getElementById('sendGrandTotal').value = formatCurrency(grandTotal) + ' (base price + travel fee + extra time fee)';
-      document.getElementById('sendSubject').value = 'New Catering Estimate — ' + guestCount + ' guests, ' + formatCurrency(grandTotal) + ' total';
+      extraHours = 0;
+      lastCalc = {
+        guestCount: guestCount,
+        address: address,
+        crew: crew,
+        requiredHours: requiredHours,
+        basePrice: basePrice,
+        mileageFee: mileageFee,
+        driveLaborFee: driveLaborFee,
+        driveLaborTriggered: driveLaborTriggered,
+        roundTripMiles: roundTripMiles,
+        roundTripDriveHours: roundTripDriveHours,
+        oneWayMiles: oneWayMiles,
+        oneWayDriveHours: oneWayDriveHours,
+        billableMiles: billableMiles
+      };
+      renderTotals();
 
       calcResults.classList.add('show');
       calcHint.textContent = '';

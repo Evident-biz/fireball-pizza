@@ -236,23 +236,19 @@ section.tight{ padding: 64px 0; }
   font-family: var(--font-body); font-size: 0.95rem; color: var(--ink); border-radius: 3px;
 }
 .calc-field input:focus{ outline: none; border-color: var(--ember); }
-.calc-required-time{
-  padding: 13px 14px; border: 1px solid var(--line); border-radius: 3px;
-  background: var(--paper); font-size: 0.95rem; color: var(--ink); font-weight: 600;
-}
-.calc-stepper{
-  display: flex; align-items: center; gap: 16px;
-  border: 1px solid var(--line); border-radius: 3px; padding: 8px 14px; width: fit-content;
+.calc-row-stepper{ align-items: center; }
+.calc-stepper-inline{
+  display: flex; align-items: center; gap: 12px;
 }
 .calc-stepper-btn{
-  width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line);
-  background: var(--white); font-size: 1.1rem; line-height: 1; cursor: pointer;
+  width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line);
+  background: var(--white); font-size: 1rem; line-height: 1; cursor: pointer;
   display: flex; align-items: center; justify-content: center; color: var(--ink);
   transition: all 0.2s ease;
 }
 .calc-stepper-btn:hover:not(:disabled){ border-color: var(--ember); color: var(--ember); }
 .calc-stepper-btn:disabled{ opacity: 0.35; cursor: not-allowed; }
-.calc-stepper-value{ font-family: var(--font-utility); font-size: 0.95rem; min-width: 48px; text-align: center; }
+.calc-stepper-inline strong{ font-family: var(--font-utility); font-size: 0.95rem; min-width: 44px; text-align: center; }
 .calc-suggestions{
   display: none;
   position: absolute;
