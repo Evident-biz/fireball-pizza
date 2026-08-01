@@ -7,10 +7,10 @@
 <meta name="description" content="Book Fireball Pizza's fresh, gas-fired catering for your wedding, corporate event, or private party in Modesto, CA.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
-<link rel="icon" href="assets/favicon/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+<link rel="icon" href="assets/favicon/favicon.ico?v=2" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png?v=2">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png?v=2">
 <link rel="stylesheet" href="assets/style.css">
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGylyq1OAQuI5eHLVYrKKk_zJfcfi4MvE&libraries=places&loading=async" async defer></script>
 </head>
@@ -177,12 +177,34 @@
       <div class="calc-results" id="calcResults">
         <div class="calc-row"><span>Base food price</span><strong id="calcBase">—</strong></div>
         <div class="calc-row"><span>Distance (round trip)</span><strong id="calcMiles">—</strong></div>
-        <div class="calc-row"><span>Mileage fee</span><strong id="calcMileageFee">—</strong></div>
+        <div class="calc-row" style="display:none;"><span>Mileage fee</span><strong id="calcMileageFee">—</strong></div>
         <div class="calc-row"><span>Drive time (round trip)</span><strong id="calcDriveTime">—</strong></div>
-        <div class="calc-row"><span>Crew size</span><strong id="calcCrew">—</strong></div>
-        <div class="calc-row"><span>Drive-time labor fee</span><strong id="calcDriveLabor">—</strong></div>
-        <div class="calc-row"><span>Total labor + travel</span><strong id="calcLaborTravelTotal">—</strong></div>
+        <div class="calc-row" style="display:none;"><span>Crew size</span><strong id="calcCrew">—</strong></div>
+        <div class="calc-row" style="display:none;"><span>Drive-time labor fee</span><strong id="calcDriveLabor">—</strong></div>
+        <div class="calc-row"><span>Travel fee</span><strong id="calcLaborTravelTotal">—</strong></div>
         <div class="calc-row calc-total"><span>Estimated Grand Total</span><strong id="calcGrandTotal">—</strong></div>
+
+        <div class="calc-send-block">
+          <p style="margin:0 0 14px; font-weight:600;">Want us to follow up on this estimate?</p>
+          <form id="calcSendForm" name="estimate-request" data-netlify="true" netlify-honeypot="bot-field">
+            <input type="hidden" name="form-name" value="estimate-request">
+            <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
+
+            <input type="hidden" name="guestCount" id="sendGuestCount">
+            <input type="hidden" name="eventAddress" id="sendAddress">
+            <input type="hidden" name="roundTripMiles" id="sendMiles">
+            <input type="hidden" name="travelFee" id="sendTravelFee">
+            <input type="hidden" name="basePrice" id="sendBasePrice">
+            <input type="hidden" name="grandTotal" id="sendGrandTotal">
+
+            <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
+            <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required></div>
+            <div class="calc-field"><label for="sendPhone">Phone — optional</label><input type="tel" id="sendPhone" name="phone"></div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Send This Estimate</button>
+            <p class="calc-hint" id="calcSendStatus"></p>
+          </form>
+        </div>
       </div>
       <p class="calc-hint" style="margin-top:14px;">This is an estimate only — food, package, and final pricing confirmed when we follow up.</p>
     </div>
@@ -199,6 +221,34 @@ document.getElementById('cateringForm').addEventListener('submit', function(e){
   status.className = 'form-status show ok';
   status.textContent = "Thanks — your inquiry is in. We'll follow up within 1–2 business days.";
   this.reset();
+});
+
+document.getElementById('calcSendForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const form = this;
+  const status = document.getElementById('calcSendStatus');
+  status.style.color = 'var(--stone)';
+  status.textContent = 'Sending...';
+
+  const data = new FormData(form);
+  const params = new URLSearchParams();
+  data.forEach(function(value, key){ params.append(key, value); });
+
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  })
+  .then(function(){
+    status.style.color = '#2E7D32';
+    status.textContent = "Sent — we'll follow up within 1–2 business days.";
+    form.reset();
+  })
+  .catch(function(err){
+    console.error('Fireball estimator: estimate-request submission failed', err);
+    status.style.color = 'var(--ember)';
+    status.textContent = "Couldn't send automatically — please call or email us directly with these numbers.";
+  });
 });
 
 // --- Travel & Labor Estimate Calculator (modal) ---
@@ -422,6 +472,13 @@ runBtn.addEventListener('click', function(){
       document.getElementById('calcDriveLabor').textContent = formatCurrency(driveLaborFee);
       document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
       document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
+
+      document.getElementById('sendGuestCount').value = guestCount;
+      document.getElementById('sendAddress').value = address;
+      document.getElementById('sendMiles').value = roundTripMiles.toFixed(1) + ' mi';
+      document.getElementById('sendTravelFee').value = formatCurrency(laborTravelTotal);
+      document.getElementById('sendBasePrice').value = formatCurrency(basePrice);
+      document.getElementById('sendGrandTotal').value = formatCurrency(grandTotal);
 
       calcResults.classList.add('show');
       calcHint.textContent = '';

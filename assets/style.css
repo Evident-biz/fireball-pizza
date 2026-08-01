@@ -276,6 +276,19 @@ section.tight{ padding: 64px 0; }
 }
 .calc-row.calc-total span{ color: var(--ink); font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.04em; }
 .calc-row.calc-total strong{ color: var(--ember); font-size: 1.3rem; }
+.calc-send-block{
+  margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--line);
+}
+.calc-send-block .calc-field{ margin-bottom: 14px; }
+.calc-send-block .calc-field label{
+  display: block; font-family: var(--font-utility); font-size: 0.72rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone); margin-bottom: 6px;
+}
+.calc-send-block .calc-field input{
+  width: 100%; padding: 12px 14px; border: 1px solid var(--line);
+  font-family: var(--font-body); font-size: 0.9rem; color: var(--ink); border-radius: 3px;
+}
+.calc-send-block .calc-field input:focus{ outline: none; border-color: var(--ember); }
 
 /* --- Review carousel --- */
 .carousel{ position: relative; }
