@@ -53,9 +53,6 @@
       <span class="chip">San Joaquin County</span>
     </div>
   </div>
-  <div class="wrap" style="padding-top:10px;">
-    <span style="font-size:0.85rem; color:rgba(255,255,255,0.55);">Will travel further for weddings and large corporate events — ask about Calaveras, Mariposa, Madera, or the Bay Area.</span>
-  </div>
 </div>
 
 <section id="about">
@@ -64,7 +61,7 @@
       <span class="eyebrow">About</span>
       <h2>Flavor That Leaves A Mark</h2>
       <p>At Fireball Pizza, we're all about flavor that leaves a mark. From our hand-crafted pizzas to our fully loaded calzones, every pie comes out of our gas-fired oven hot, fast, and built for maximum satisfaction. Our panuozzos and pizza rolls offer a bold twist on tradition, blending classic Italian inspiration with our own fiery flair.</p>
-      <p>Whether you're planning a private event or just craving something fresh and hot, Fireball Pizza brings the heat. If you're in Modesto, catch us at the Farmers Market every Thursday and Saturday.</p>
+      <p>Whether you're planning a private event or just craving something fresh and hot, Fireball Pizza brings the heat. If you're in Modesto, catch us at the Farmers Market every Thursday and Saturday — <a href="https://cash.app/$fireballpizzas" style="color:var(--ember); text-decoration:underline;">order ahead via Cash App</a>.</p>
       <a href="catering.html" class="btn btn-outline">Explore Catering →</a>
     </div>
     <div>
@@ -124,16 +121,104 @@
       <span class="eyebrow">Testimonials</span>
       <h2>Trusted For The Big Days</h2>
     </div>
-    <div class="grid-2">
-      <div class="testimonial">
-        <span class="stars">★★★★★</span>
-        <p>"I wish I could give the crew at Fireball Pizza 10 stars. They saved my son's wedding rehearsal dinner from disaster. Fireball Pizza stepped in on short notice and delivered an incredible experience."</p>
-        <span class="who">— Kelli L.</span>
+
+    <div class="carousel" id="reviewCarousel">
+      <div class="carousel-track" id="carouselTrack">
+
+        <div class="carousel-slide">
+          <div class="testimonial">
+            <span class="stars">★★★★★</span>
+            <p>"I wish I could give the crew at Fireball Pizza 10 stars. They saved my son's wedding rehearsal dinner from disaster. Fireball Pizza stepped in on short notice and delivered an incredible experience."</p>
+            <span class="who">— Kelli L., Google Review</span>
+          </div>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="testimonial">
+            <span class="stars">★★★★★</span>
+            <p>"The pizza was already amazing in its own... but the fact that you could pick the spice level with homemade local hot sauces took it over the edge! Caught them at Tapped Apple in Salida, and can't wait for the next time they are here."</p>
+            <span class="who">— Lindsey Perkins, Google Review</span>
+          </div>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="testimonial">
+            <span class="stars">★★★★★</span>
+            <p>"Amazing customer service and great pizza! They catered my parents anniversary party and everything was ready when he said it would be. Definitely recommending to everyone!"</p>
+            <span class="who">— Erica Bates, Google Review</span>
+          </div>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="testimonial">
+            <span class="stars">★★★★★</span>
+            <p>"Amazing pizza and amazing staff!! They were quick and easy to order with. Some of the best pizza I've had!"</p>
+            <span class="who">— Madie Leavitt, Google Review</span>
+          </div>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="testimonial">
+            <span class="stars">★★★★★</span>
+            <p>"We hired Fireball Pizza to cater our rehearsal dinner. They had wonderful customer service and the owner even came out before our event to find the best location for setup. They came around to the tables and took our guests' orders like we were at a restaurant. Highly recommend!"</p>
+            <span class="who">— Annie Michelotti, Google Review</span>
+          </div>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="testimonial">
+            <span class="stars">★★★★★</span>
+            <p>"Such nice owners and pizza is always so good! Would definitely recommend to give them a try! My favorite is the Fireball, perfect kick of heat on a classic pizza."</p>
+            <span class="who">— Lauren Ashlie, Google Review</span>
+          </div>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="testimonial">
+            <span class="stars">★★★★★</span>
+            <p>"This is by far my favorite pizza around. I drive 30 minutes to order pizza from here. Love the spicy sauce and how you can choose the amount of heat you want."</p>
+            <span class="who">— Eric Grasso, Google Review</span>
+          </div>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="testimonial">
+            <span class="stars">★★★★★</span>
+            <p>"Great pizza, awesome service. Highly recommend!"</p>
+            <span class="who">— Danielle S., Google Review</span>
+          </div>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="testimonial">
+            <span class="stars">★★★★★</span>
+            <p>"Pizza was awesome as well as the service. Scones were bomb!!"</p>
+            <span class="who">— Daniel Dixon, Google Review</span>
+          </div>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="testimonial">
+            <span class="stars">★★★★★</span>
+            <p>"Great service, prices and above all else, PIZZA!"</p>
+            <span class="who">— Alan Atkins, Google Review</span>
+          </div>
+        </div>
+
+        <div class="carousel-slide">
+          <div class="testimonial">
+            <span class="stars">★★★★★</span>
+            <p>"Hands down greatest pizza!"</p>
+            <span class="who">— Sammy Sanchez, Google Review</span>
+          </div>
+        </div>
+
       </div>
-      <div class="testimonial">
-        <span class="stars">★★★★★</span>
-        <p>"They had wonderful customer service and the owner even came out before our event to find the best location for the pizza truck. Highly recommend!"</p>
-        <span class="who">— Annie M.</span>
+
+      <div class="carousel-controls">
+        <button class="carousel-btn" id="carouselPrev" aria-label="Previous review">←</button>
+        <div class="carousel-dots" id="carouselDots"></div>
+        <button class="carousel-btn" id="carouselNext" aria-label="Next review">→</button>
       </div>
     </div>
   </div>
@@ -183,6 +268,9 @@
   </div>
   <div class="foot-bottom">
     <span>© 2026 Fireball Pizza</span>
+    <a href="http://www.fliprogram.com" target="_blank" rel="noopener" class="flip-badge" title="Protected by FLIP - Food Liability Insurance Program">
+      <img src="https://www.fliprogram.com/u/2024/05/09141224/256x256-normal.png" alt="FLIP insurance Seal" width="256" height="256">
+    </a>
     <span>Site by <a href="https://evident.biz">Evident Business Solutions</a></span>
   </div>
 </footer>
@@ -191,6 +279,65 @@
 document.getElementById('navToggle')?.addEventListener('click', ()=>{
   document.getElementById('navLinks').classList.toggle('open');
 });
+
+(function(){
+  const track = document.getElementById('carouselTrack');
+  const dotsWrap = document.getElementById('carouselDots');
+  const prevBtn = document.getElementById('carouselPrev');
+  const nextBtn = document.getElementById('carouselNext');
+  if(!track) return;
+
+  const slides = track.children.length;
+  let perView = window.innerWidth >= 860 ? 2 : 1;
+  let index = 0;
+
+  function maxIndex(){ return Math.max(0, slides - perView); }
+
+  function renderDots(){
+    dotsWrap.innerHTML = '';
+    for(let i=0; i<=maxIndex(); i++){
+      const dot = document.createElement('button');
+      dot.className = 'carousel-dot' + (i===index ? ' active' : '');
+      dot.setAttribute('aria-label', 'Go to review ' + (i+1));
+      dot.addEventListener('click', ()=>{ index = i; update(); });
+      dotsWrap.appendChild(dot);
+    }
+  }
+
+  function update(){
+    const slideWidth = 100 / perView;
+    track.style.transform = 'translateX(-' + (index * slideWidth) + '%)';
+    [...dotsWrap.children].forEach((d,i)=> d.classList.toggle('active', i===index));
+  }
+
+  prevBtn.addEventListener('click', ()=>{
+    index = index <= 0 ? maxIndex() : index - 1;
+    update();
+  });
+  nextBtn.addEventListener('click', ()=>{
+    index = index >= maxIndex() ? 0 : index + 1;
+    update();
+  });
+
+  window.addEventListener('resize', ()=>{
+    const newPerView = window.innerWidth >= 860 ? 2 : 1;
+    if(newPerView !== perView){
+      perView = newPerView;
+      index = Math.min(index, maxIndex());
+      renderDots();
+      update();
+    }
+  });
+
+  renderDots();
+  update();
+
+  // Auto-advance every 7s, paused on hover/focus
+  let auto = setInterval(()=>{ nextBtn.click(); }, 7000);
+  const carousel = document.getElementById('reviewCarousel');
+  carousel.addEventListener('mouseenter', ()=> clearInterval(auto));
+  carousel.addEventListener('mouseleave', ()=>{ auto = setInterval(()=>{ nextBtn.click(); }, 7000); });
+})();
 </script>
 </body>
 </html>
