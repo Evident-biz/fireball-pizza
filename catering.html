@@ -67,12 +67,23 @@
   </div>
 </section>
 
+<section class="tight">
+  <div class="wrap">
+    <div class="calc-cta">
+      <span class="eyebrow" style="color:var(--gold);">Instant Estimate</span>
+      <h2 style="color:var(--white);">Curious What Travel &amp; Labor Might Cost?</h2>
+      <p style="color:rgba(255,255,255,0.75); max-width:480px; margin:0 auto 24px;">Get a real-time estimate based on driving distance from Modesto — no form, no obligation, just the numbers.</p>
+      <button type="button" class="btn btn-primary" id="openCalculatorBtn">Try The Estimate Calculator</button>
+    </div>
+  </div>
+</section>
+
 <section id="form" class="tight" style="background:var(--paper);">
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">Start Your Booking</span>
       <h2>Tell Us About Your Event</h2>
-      <p class="muted">Send the details below and we'll follow up within 1–2 business days with availability and a quote. A full cost calculator is coming soon — for now, this gets us everything we need to respond fast.</p>
+      <p class="muted">Send the details below and we'll follow up within 1–2 business days with availability and a quote.</p>
     </div>
 
     <form class="inquiry card" id="cateringForm">
@@ -91,18 +102,7 @@
       </div>
       <div class="field"><label for="eventDate">Event Date</label><input type="date" id="eventDate" name="eventDate" required></div>
       <div class="field"><label for="guestCount">Estimated Guest Count</label><input type="number" id="guestCount" name="guestCount" min="1" required></div>
-      <div class="field"><label for="eventDuration">Event Duration (hours)</label><input type="number" id="eventDuration" name="eventDuration" min="1" step="0.5" placeholder="e.g. 3"></div>
-      <div class="field"><label for="location">Event Address / City</label><input type="text" id="location" name="location" placeholder="Full address gives the most accurate estimate"></div>
-
-      <div class="field full">
-        <button type="button" class="btn btn-outline" id="estimateBtn">Estimate Travel &amp; Labor</button>
-        <p class="form-note" id="estimateHint">Enter guest count, duration, and event address above, then click to estimate.</p>
-        <div id="estimateResult" style="display:none; margin-top:16px; padding:20px; background:var(--paper); border:1px solid var(--line); border-radius:4px;"></div>
-        <input type="hidden" id="estDistance" name="estimatedDistanceMiles">
-        <input type="hidden" id="estTravelFee" name="estimatedTravelFee">
-        <input type="hidden" id="estLaborFee" name="estimatedLaborFee">
-      </div>
-
+      <div class="field full"><label for="location">Event Location / City</label><input type="text" id="location" name="location" placeholder="e.g. Modesto, CA"></div>
       <div class="field full"><label for="message">Anything else we should know?</label><textarea id="message" name="message" placeholder="Venue, timing, dietary needs, budget range..."></textarea></div>
       <div class="full">
         <button type="submit" class="btn btn-primary">Send Inquiry</button>
@@ -143,6 +143,48 @@
   </div>
 </footer>
 
+<div class="calc-modal-overlay" id="calcOverlay">
+  <div class="calc-modal" role="dialog" aria-modal="true" aria-labelledby="calcModalTitle">
+    <button type="button" class="calc-modal-close" id="calcClose" aria-label="Close calculator">&times;</button>
+
+    <div class="calc-modal-header">
+      <span class="eyebrow" style="color:var(--gold);">Testing Mode — Full Breakdown Shown</span>
+      <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.6rem; color:var(--white); margin:0;">Estimate Calculator</h3>
+    </div>
+
+    <div class="calc-modal-body">
+      <div class="calc-field">
+        <label for="calcGuests">Guest Count</label>
+        <input type="number" id="calcGuests" min="1" placeholder="e.g. 100">
+      </div>
+      <div class="calc-field">
+        <label for="calcDuration">Event Duration (hours)</label>
+        <input type="number" id="calcDuration" min="1" step="0.5" placeholder="e.g. 3">
+      </div>
+      <div class="calc-field">
+        <label for="calcAddress">Event Address</label>
+        <input type="text" id="calcAddress" placeholder="Full address for the most accurate result">
+      </div>
+
+      <button type="button" class="btn btn-primary" id="calcRunBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate Estimate</button>
+      <p class="calc-hint" id="calcHint">Fill in all three fields, then calculate.</p>
+
+      <div class="calc-results" id="calcResults">
+        <div class="calc-row"><span>Base food price</span><strong id="calcBase">—</strong></div>
+        <div class="calc-row"><span>Distance (one-way)</span><strong id="calcMiles">—</strong></div>
+        <div class="calc-row"><span>Mileage fee</span><strong id="calcMileageFee">—</strong></div>
+        <div class="calc-row"><span>Drive time (one-way)</span><strong id="calcDriveTime">—</strong></div>
+        <div class="calc-row"><span>Crew size</span><strong id="calcCrew">—</strong></div>
+        <div class="calc-row"><span>Event labor fee</span><strong id="calcEventLabor">—</strong></div>
+        <div class="calc-row"><span>Drive-time labor fee</span><strong id="calcDriveLabor">—</strong></div>
+        <div class="calc-row"><span>Total labor + travel</span><strong id="calcLaborTravelTotal">—</strong></div>
+        <div class="calc-row calc-total"><span>Estimated Grand Total</span><strong id="calcGrandTotal">—</strong></div>
+      </div>
+      <p class="calc-hint" style="margin-top:14px;">This is an estimate only — food, package, and final pricing confirmed when we follow up.</p>
+    </div>
+  </div>
+</div>
+
 <script>
 document.getElementById('navToggle')?.addEventListener('click', ()=>{
   document.getElementById('navLinks').classList.toggle('open');
@@ -153,16 +195,16 @@ document.getElementById('cateringForm').addEventListener('submit', function(e){
   status.className = 'form-status show ok';
   status.textContent = "Thanks — your inquiry is in. We'll follow up within 1–2 business days.";
   this.reset();
-  document.getElementById('estimateResult').style.display = 'none';
 });
 
-// --- Travel & Labor Estimator ---
+// --- Travel & Labor Estimate Calculator (modal) ---
 const BASE_ADDRESS = '401 Downey Ave, Modesto, CA 95354';
 const FREE_RADIUS_MILES = 20;
 const TRAVEL_RATE_PER_MILE = 1.75;
 const LABOR_RATE_PER_HOUR = 25;
 const LABOR_TRIGGER_MILES = 20;
 const DRIVE_TIME_LABOR_TRIGGER_MILES = 30;
+const PRICE_PER_GUEST = 19;
 
 function crewSizeForGuests(guests){
   if(guests < 75) return 2;
@@ -174,37 +216,61 @@ function formatCurrency(n){
   return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
 
-document.getElementById('estimateBtn').addEventListener('click', function(){
-  const hint = document.getElementById('estimateHint');
-  const resultBox = document.getElementById('estimateResult');
-  const guestCount = parseFloat(document.getElementById('guestCount').value);
-  const duration = parseFloat(document.getElementById('eventDuration').value);
-  const location = document.getElementById('location').value.trim();
+const overlay = document.getElementById('calcOverlay');
+const openBtn = document.getElementById('openCalculatorBtn');
+const closeBtn = document.getElementById('calcClose');
+const runBtn = document.getElementById('calcRunBtn');
+const calcHint = document.getElementById('calcHint');
+const calcResults = document.getElementById('calcResults');
 
-  if(!guestCount || !duration || !location){
-    hint.textContent = 'Please fill in guest count, event duration, and event address first.';
-    hint.style.color = 'var(--ember)';
+function openCalc(){
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeCalc(){
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+openBtn?.addEventListener('click', openCalc);
+closeBtn?.addEventListener('click', closeCalc);
+overlay?.addEventListener('click', function(e){
+  if(e.target === overlay) closeCalc();
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeCalc();
+});
+
+runBtn.addEventListener('click', function(){
+  const guestCount = parseFloat(document.getElementById('calcGuests').value);
+  const duration = parseFloat(document.getElementById('calcDuration').value);
+  const address = document.getElementById('calcAddress').value.trim();
+
+  if(!guestCount || !duration || !address){
+    calcHint.textContent = 'Please fill in guest count, event duration, and event address first.';
+    calcHint.style.color = 'var(--ember)';
     return;
   }
   if(typeof google === 'undefined' || !google.maps){
-    hint.textContent = "Estimator is temporarily unavailable — we'll calculate travel and labor manually when we follow up.";
-    hint.style.color = 'var(--ember)';
+    calcHint.textContent = "Estimator is temporarily unavailable — we'll calculate travel and labor manually when we follow up.";
+    calcHint.style.color = 'var(--ember)';
     return;
   }
 
-  hint.textContent = 'Calculating driving distance...';
-  hint.style.color = 'var(--stone)';
+  calcHint.textContent = 'Calculating driving distance...';
+  calcHint.style.color = 'var(--stone)';
+  calcResults.classList.remove('show');
 
   const service = new google.maps.DistanceMatrixService();
   service.getDistanceMatrix({
     origins: [BASE_ADDRESS],
-    destinations: [location],
+    destinations: [address],
     travelMode: 'DRIVING',
     unitSystem: google.maps.UnitSystem.IMPERIAL
   }, function(response, status){
     if(status !== 'OK' || !response.rows[0] || response.rows[0].elements[0].status !== 'OK'){
-      hint.textContent = "Could not calculate distance for that address — double-check it, or we'll confirm travel cost manually.";
-      hint.style.color = 'var(--ember)';
+      calcHint.textContent = "Could not calculate distance for that address — double-check it, or we'll confirm manually.";
+      calcHint.style.color = 'var(--ember)';
       return;
     }
 
@@ -213,43 +279,37 @@ document.getElementById('estimateBtn').addEventListener('click', function(){
     const driveHoursOneWay = element.duration.value / 3600;
     const crew = crewSizeForGuests(guestCount);
 
-    let travelFee = 0;
-    let laborFee = 0;
+    const basePrice = guestCount * PRICE_PER_GUEST;
+    let mileageFee = 0;
+    let eventLaborFee = 0;
     let driveLaborFee = 0;
 
     if(miles > FREE_RADIUS_MILES){
-      travelFee = (miles - FREE_RADIUS_MILES) * TRAVEL_RATE_PER_MILE;
+      mileageFee = (miles - FREE_RADIUS_MILES) * TRAVEL_RATE_PER_MILE;
     }
     if(miles > LABOR_TRIGGER_MILES){
-      laborFee = duration * crew * LABOR_RATE_PER_HOUR;
+      eventLaborFee = duration * crew * LABOR_RATE_PER_HOUR;
     }
     if(miles > DRIVE_TIME_LABOR_TRIGGER_MILES){
       const roundTripHours = driveHoursOneWay * 2;
       driveLaborFee = roundTripHours * crew * LABOR_RATE_PER_HOUR;
     }
 
-    const totalAddOn = travelFee + laborFee + driveLaborFee;
+    const laborTravelTotal = mileageFee + eventLaborFee + driveLaborFee;
+    const grandTotal = basePrice + laborTravelTotal;
 
-    document.getElementById('estDistance').value = miles.toFixed(1);
-    document.getElementById('estTravelFee').value = travelFee.toFixed(2);
-    document.getElementById('estLaborFee').value = (laborFee + driveLaborFee).toFixed(2);
+    document.getElementById('calcBase').textContent = formatCurrency(basePrice) + ' (' + guestCount + ' × $' + PRICE_PER_GUEST + ')';
+    document.getElementById('calcMiles').textContent = miles.toFixed(1) + ' mi';
+    document.getElementById('calcMileageFee').textContent = formatCurrency(mileageFee);
+    document.getElementById('calcDriveTime').textContent = driveHoursOneWay.toFixed(1) + ' hr';
+    document.getElementById('calcCrew').textContent = crew + ' people';
+    document.getElementById('calcEventLabor').textContent = formatCurrency(eventLaborFee);
+    document.getElementById('calcDriveLabor').textContent = formatCurrency(driveLaborFee);
+    document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
+    document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
 
-    let html = '<p style="margin:0 0 10px; font-weight:600;">Estimated Travel &amp; Labor</p>';
-    html += '<p class="muted" style="margin:0 0 4px;">Distance from Modesto: <strong>' + miles.toFixed(1) + ' mi</strong> (' + driveHoursOneWay.toFixed(1) + ' hr each way)</p>';
-    html += '<p class="muted" style="margin:0 0 4px;">Crew size: <strong>' + crew + ' people</strong></p>';
-    html += '<p class="muted" style="margin:0 0 4px;">Travel fee: <strong>' + formatCurrency(travelFee) + '</strong>' + (miles <= FREE_RADIUS_MILES ? ' (within free ' + FREE_RADIUS_MILES + ' mi radius)' : '') + '</p>';
-    if(laborFee > 0){
-      html += '<p class="muted" style="margin:0 0 4px;">Event labor (' + duration + ' hrs × ' + crew + ' crew × $' + LABOR_RATE_PER_HOUR + '/hr): <strong>' + formatCurrency(laborFee) + '</strong></p>';
-    }
-    if(driveLaborFee > 0){
-      html += '<p class="muted" style="margin:0 0 4px;">Round-trip drive-time labor: <strong>' + formatCurrency(driveLaborFee) + '</strong></p>';
-    }
-    html += '<p style="margin:12px 0 0; font-size:1.1rem; font-weight:700; color:var(--ember);">Estimated add-on total: ' + formatCurrency(totalAddOn) + '</p>';
-    html += '<p class="form-note" style="margin-top:10px;">This is an estimate based on driving distance — food and package pricing confirmed separately when we follow up.</p>';
-
-    resultBox.innerHTML = html;
-    resultBox.style.display = 'block';
-    hint.textContent = '';
+    calcResults.classList.add('show');
+    calcHint.textContent = '';
   });
 });
 </script>
