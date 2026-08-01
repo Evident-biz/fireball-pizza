@@ -162,7 +162,7 @@
         <input type="number" id="calcGuests" min="1" placeholder="e.g. 100">
       </div>
       <div class="calc-field">
-        <label for="calcDuration">Event Duration (hours)</label>
+        <label for="calcDuration">Event Duration (hours) — optional</label>
         <input type="number" id="calcDuration" min="1" step="0.5" placeholder="e.g. 3">
       </div>
       <div class="calc-field">
@@ -172,15 +172,14 @@
       </div>
 
       <button type="button" class="btn btn-primary" id="calcRunBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate Estimate</button>
-      <p class="calc-hint" id="calcHint">Fill in all three fields, then calculate.</p>
+      <p class="calc-hint" id="calcHint">Fill in guest count and event address, then calculate.</p>
 
       <div class="calc-results" id="calcResults">
         <div class="calc-row"><span>Base food price</span><strong id="calcBase">—</strong></div>
-        <div class="calc-row"><span>Distance (one-way)</span><strong id="calcMiles">—</strong></div>
+        <div class="calc-row"><span>Distance (round trip)</span><strong id="calcMiles">—</strong></div>
         <div class="calc-row"><span>Mileage fee</span><strong id="calcMileageFee">—</strong></div>
-        <div class="calc-row"><span>Drive time (one-way)</span><strong id="calcDriveTime">—</strong></div>
+        <div class="calc-row"><span>Drive time (round trip)</span><strong id="calcDriveTime">—</strong></div>
         <div class="calc-row"><span>Crew size</span><strong id="calcCrew">—</strong></div>
-        <div class="calc-row"><span>Event labor fee</span><strong id="calcEventLabor">—</strong></div>
         <div class="calc-row"><span>Drive-time labor fee</span><strong id="calcDriveLabor">—</strong></div>
         <div class="calc-row"><span>Total labor + travel</span><strong id="calcLaborTravelTotal">—</strong></div>
         <div class="calc-row calc-total"><span>Estimated Grand Total</span><strong id="calcGrandTotal">—</strong></div>
@@ -204,11 +203,10 @@ document.getElementById('cateringForm').addEventListener('submit', function(e){
 
 // --- Travel & Labor Estimate Calculator (modal) ---
 const BASE_ADDRESS = '401 Downey Ave, Modesto, CA 95354';
-const FREE_RADIUS_MILES = 20;
+const FREE_RADIUS_ROUND_TRIP_MILES = 40;
 const TRAVEL_RATE_PER_MILE = 1.75;
 const LABOR_RATE_PER_HOUR = 25;
-const LABOR_TRIGGER_MILES = 20;
-const DRIVE_TIME_LABOR_TRIGGER_MILES = 30;
+const DRIVE_TIME_LABOR_TRIGGER_ROUND_TRIP_MILES = 40;
 const PRICE_PER_GUEST = 19;
 
 function crewSizeForGuests(guests){
@@ -340,11 +338,10 @@ document.addEventListener('keydown', function(e){
 
 runBtn.addEventListener('click', function(){
   const guestCount = parseFloat(document.getElementById('calcGuests').value);
-  const duration = parseFloat(document.getElementById('calcDuration').value);
   const address = document.getElementById('calcAddress').value.trim();
 
-  if(!guestCount || !duration || !address){
-    calcHint.textContent = 'Please fill in guest count, event duration, and event address first.';
+  if(!guestCount || !address){
+    calcHint.textContent = 'Please fill in guest count and event address first.';
     calcHint.style.color = 'var(--ember)';
     return;
   }
@@ -397,35 +394,31 @@ runBtn.addEventListener('click', function(){
       }
 
       const element = response.rows[0].elements[0];
-      const miles = element.distance.value / 1609.34;
-      const driveHoursOneWay = element.duration.value / 3600;
+      const oneWayMiles = element.distance.value / 1609.34;
+      const oneWayDriveHours = element.duration.value / 3600;
+      const roundTripMiles = oneWayMiles * 2;
+      const roundTripDriveHours = oneWayDriveHours * 2;
       const crew = crewSizeForGuests(guestCount);
 
       const basePrice = guestCount * PRICE_PER_GUEST;
       let mileageFee = 0;
-      let eventLaborFee = 0;
       let driveLaborFee = 0;
 
-      if(miles > FREE_RADIUS_MILES){
-        mileageFee = (miles - FREE_RADIUS_MILES) * TRAVEL_RATE_PER_MILE;
+      if(roundTripMiles > FREE_RADIUS_ROUND_TRIP_MILES){
+        mileageFee = (roundTripMiles - FREE_RADIUS_ROUND_TRIP_MILES) * TRAVEL_RATE_PER_MILE;
       }
-      if(miles > LABOR_TRIGGER_MILES){
-        eventLaborFee = duration * crew * LABOR_RATE_PER_HOUR;
-      }
-      if(miles > DRIVE_TIME_LABOR_TRIGGER_MILES){
-        const roundTripHours = driveHoursOneWay * 2;
-        driveLaborFee = roundTripHours * crew * LABOR_RATE_PER_HOUR;
+      if(roundTripMiles > DRIVE_TIME_LABOR_TRIGGER_ROUND_TRIP_MILES){
+        driveLaborFee = roundTripDriveHours * crew * LABOR_RATE_PER_HOUR;
       }
 
-      const laborTravelTotal = mileageFee + eventLaborFee + driveLaborFee;
+      const laborTravelTotal = mileageFee + driveLaborFee;
       const grandTotal = basePrice + laborTravelTotal;
 
       document.getElementById('calcBase').textContent = formatCurrency(basePrice) + ' (' + guestCount + ' × $' + PRICE_PER_GUEST + ')';
-      document.getElementById('calcMiles').textContent = miles.toFixed(1) + ' mi';
+      document.getElementById('calcMiles').textContent = roundTripMiles.toFixed(1) + ' mi';
       document.getElementById('calcMileageFee').textContent = formatCurrency(mileageFee);
-      document.getElementById('calcDriveTime').textContent = driveHoursOneWay.toFixed(1) + ' hr';
+      document.getElementById('calcDriveTime').textContent = roundTripDriveHours.toFixed(1) + ' hr';
       document.getElementById('calcCrew').textContent = crew + ' people';
-      document.getElementById('calcEventLabor').textContent = formatCurrency(eventLaborFee);
       document.getElementById('calcDriveLabor').textContent = formatCurrency(driveLaborFee);
       document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
       document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
