@@ -167,7 +167,8 @@
       </div>
       <div class="calc-field">
         <label for="calcAddress">Event Address</label>
-        <input type="text" id="calcAddress" placeholder="Full address for the most accurate result">
+        <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
+        <div id="calcAddressSuggestions" class="calc-suggestions"></div>
       </div>
 
       <button type="button" class="btn btn-primary" id="calcRunBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate Estimate</button>
@@ -227,30 +228,105 @@ const runBtn = document.getElementById('calcRunBtn');
 const calcHint = document.getElementById('calcHint');
 const calcResults = document.getElementById('calcResults');
 
-let autocompleteReady = false;
-function initAddressAutocomplete(){
-  if(autocompleteReady) return;
-  if(typeof google === 'undefined' || !google.maps || !google.maps.places) return;
+// Address suggestions using the current (non-deprecated) Places API.
+// google.maps.places.Autocomplete is blocked for API keys created after March 2025,
+// so we build a small custom dropdown on top of AutocompleteSuggestion instead.
+let placesLib = null;
+let sessionToken = null;
+let suggestDebounce = null;
+let activeSuggestionIndex = -1;
+
+async function getPlacesLib(){
+  if(placesLib) return placesLib;
+  if(typeof google === 'undefined' || !google.maps || !google.maps.importLibrary) return null;
   try{
-    const input = document.getElementById('calcAddress');
-    new google.maps.places.Autocomplete(input, {
-      types: ['address'],
-      componentRestrictions: { country: 'us' }
-    });
-    autocompleteReady = true;
+    placesLib = await google.maps.importLibrary('places');
+    return placesLib;
   } catch(err){
-    console.error('Fireball estimator: address autocomplete failed to init', err);
+    console.error('Fireball estimator: failed to load Places library', err);
+    return null;
   }
 }
+
+function newSessionToken(){
+  if(placesLib && placesLib.AutocompleteSessionToken){
+    sessionToken = new placesLib.AutocompleteSessionToken();
+  }
+}
+
+function renderSuggestions(items){
+  const box = document.getElementById('calcAddressSuggestions');
+  activeSuggestionIndex = -1;
+  if(!items || items.length === 0){
+    box.innerHTML = '';
+    box.classList.remove('open');
+    return;
+  }
+  box.innerHTML = items.map(function(item, i){
+    return '<div class="calc-suggestion-item" data-index="' + i + '">' + item.label + '</div>';
+  }).join('');
+  box.classList.add('open');
+
+  [...box.children].forEach(function(el, i){
+    el.addEventListener('click', function(){
+      document.getElementById('calcAddress').value = items[i].label;
+      box.innerHTML = '';
+      box.classList.remove('open');
+      newSessionToken(); // start a fresh session after a selection, per Google's guidance
+    });
+  });
+}
+
+async function fetchSuggestions(query){
+  const lib = await getPlacesLib();
+  if(!lib || !lib.AutocompleteSuggestion){
+    return;
+  }
+  if(!sessionToken) newSessionToken();
+
+  try{
+    const { suggestions } = await lib.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+      input: query,
+      includedRegionCodes: ['us'],
+      sessionToken: sessionToken
+    });
+    const items = (suggestions || [])
+      .filter(function(s){ return s.placePrediction; })
+      .map(function(s){
+        return { label: s.placePrediction.text.text };
+      });
+    renderSuggestions(items);
+  } catch(err){
+    console.error('Fireball estimator: address suggestion fetch failed', err);
+  }
+}
+
+const addressInput = document.getElementById('calcAddress');
+addressInput.addEventListener('input', function(){
+  const query = this.value.trim();
+  clearTimeout(suggestDebounce);
+  if(query.length < 4){
+    renderSuggestions([]);
+    return;
+  }
+  suggestDebounce = setTimeout(function(){ fetchSuggestions(query); }, 250);
+});
+document.addEventListener('click', function(e){
+  const box = document.getElementById('calcAddressSuggestions');
+  if(!box.contains(e.target) && e.target !== addressInput){
+    box.classList.remove('open');
+  }
+});
 
 function openCalc(){
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-  initAddressAutocomplete();
+  getPlacesLib().then(function(){ newSessionToken(); });
 }
 function closeCalc(){
   overlay.classList.remove('open');
   document.body.style.overflow = '';
+  document.getElementById('calcAddressSuggestions').classList.remove('open');
 }
 
 openBtn?.addEventListener('click', openCalc);
