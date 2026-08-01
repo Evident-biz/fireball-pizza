@@ -128,12 +128,14 @@ nav.links a.cta:hover{ background: var(--ember-dark); color: var(--white); }
   font-family: var(--font-utility); font-size: 0.75rem; letter-spacing: 0.1em;
   text-transform: uppercase; color: var(--gold); white-space: nowrap;
 }
-.chip-row{ display: flex; gap: 12px; flex-wrap: wrap; }
+.chip-row{ display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .chip{
   font-size: 0.85rem; color: rgba(255,255,255,0.85);
   border: 1px solid rgba(255,255,255,0.25); border-radius: 20px;
   padding: 6px 16px;
 }
+.chip.primary{ background: var(--ember); border-color: var(--ember); color: var(--white); font-weight: 600; }
+.service-divider{ color: rgba(255,255,255,0.35); font-size: 0.8rem; margin: 0 2px; }
 
 /* --- Section rhythm --- */
 section{ padding: 100px 0; }
