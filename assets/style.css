@@ -328,7 +328,7 @@ footer.site img.foot-logo{ height: 42px; margin-bottom: 16px; }
 .foot-bottom{
   max-width: var(--max-w); margin: 0 auto; padding: 24px 32px;
   border-top: 1px solid rgba(255,255,255,0.12);
-  display: flex; justify-content: space-between; font-size: 0.82rem; color: rgba(255,255,255,0.45); flex-wrap: wrap; gap: 10px;
+  display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: rgba(255,255,255,0.45); flex-wrap: wrap; gap: 16px;
 }
 .foot-bottom a{ color: rgba(255,255,255,0.45); }
 .social-row{ display: flex; gap: 14px; margin-top: 14px; }
@@ -336,7 +336,7 @@ footer.site img.foot-logo{ height: 42px; margin-bottom: 16px; }
 .social-row a:hover{ border-color: var(--gold); }
 
 .flip-badge{ display: flex; align-items: center; }
-.flip-badge img{ width: 46px; height: 46px; display: block; border-radius: 4px; }
+.flip-badge img{ width: 110px; height: 110px; display: block; border-radius: 4px; }
 
 /* --- Responsive --- */
 @media (max-width: 860px){

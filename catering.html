@@ -7,8 +7,12 @@
 <meta name="description" content="Book Fireball Pizza's fresh, gas-fired catering for your wedding, corporate event, or private party in Modesto, CA.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/favicon/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
 <link rel="stylesheet" href="assets/style.css">
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGylyq1OAQuI5eHLVYrKKk_zJfcfi4MvE&libraries=places" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGylyq1OAQuI5eHLVYrKKk_zJfcfi4MvE" async defer></script>
 </head>
 <body>
 
@@ -261,55 +265,85 @@ runBtn.addEventListener('click', function(){
   calcHint.style.color = 'var(--stone)';
   calcResults.classList.remove('show');
 
-  const service = new google.maps.DistanceMatrixService();
+  let settled = false;
+  const timeoutId = setTimeout(function(){
+    if(settled) return;
+    settled = true;
+    calcHint.textContent = "That's taking too long — check your connection, or we'll confirm travel cost manually when we follow up.";
+    calcHint.style.color = 'var(--ember)';
+  }, 10000);
+
+  let service;
+  try{
+    service = new google.maps.DistanceMatrixService();
+  } catch(err){
+    console.error('Fireball estimator: failed to init DistanceMatrixService', err);
+    settled = true;
+    clearTimeout(timeoutId);
+    calcHint.textContent = "Estimator failed to load — we'll confirm travel cost manually when we follow up.";
+    calcHint.style.color = 'var(--ember)';
+    return;
+  }
+
   service.getDistanceMatrix({
     origins: [BASE_ADDRESS],
     destinations: [address],
     travelMode: 'DRIVING',
     unitSystem: google.maps.UnitSystem.IMPERIAL
   }, function(response, status){
-    if(status !== 'OK' || !response.rows[0] || response.rows[0].elements[0].status !== 'OK'){
-      calcHint.textContent = "Could not calculate distance for that address — double-check it, or we'll confirm manually.";
+    if(settled) return;
+    settled = true;
+    clearTimeout(timeoutId);
+
+    try{
+      if(status !== 'OK' || !response.rows[0] || response.rows[0].elements[0].status !== 'OK'){
+        console.error('Fireball estimator: Distance Matrix returned status', status, response);
+        calcHint.textContent = "Could not calculate distance for that address — double-check it, or we'll confirm manually.";
+        calcHint.style.color = 'var(--ember)';
+        return;
+      }
+
+      const element = response.rows[0].elements[0];
+      const miles = element.distance.value / 1609.34;
+      const driveHoursOneWay = element.duration.value / 3600;
+      const crew = crewSizeForGuests(guestCount);
+
+      const basePrice = guestCount * PRICE_PER_GUEST;
+      let mileageFee = 0;
+      let eventLaborFee = 0;
+      let driveLaborFee = 0;
+
+      if(miles > FREE_RADIUS_MILES){
+        mileageFee = (miles - FREE_RADIUS_MILES) * TRAVEL_RATE_PER_MILE;
+      }
+      if(miles > LABOR_TRIGGER_MILES){
+        eventLaborFee = duration * crew * LABOR_RATE_PER_HOUR;
+      }
+      if(miles > DRIVE_TIME_LABOR_TRIGGER_MILES){
+        const roundTripHours = driveHoursOneWay * 2;
+        driveLaborFee = roundTripHours * crew * LABOR_RATE_PER_HOUR;
+      }
+
+      const laborTravelTotal = mileageFee + eventLaborFee + driveLaborFee;
+      const grandTotal = basePrice + laborTravelTotal;
+
+      document.getElementById('calcBase').textContent = formatCurrency(basePrice) + ' (' + guestCount + ' × $' + PRICE_PER_GUEST + ')';
+      document.getElementById('calcMiles').textContent = miles.toFixed(1) + ' mi';
+      document.getElementById('calcMileageFee').textContent = formatCurrency(mileageFee);
+      document.getElementById('calcDriveTime').textContent = driveHoursOneWay.toFixed(1) + ' hr';
+      document.getElementById('calcCrew').textContent = crew + ' people';
+      document.getElementById('calcEventLabor').textContent = formatCurrency(eventLaborFee);
+      document.getElementById('calcDriveLabor').textContent = formatCurrency(driveLaborFee);
+      document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
+      document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
+
+      calcResults.classList.add('show');
+      calcHint.textContent = '';
+    } catch(err){
+      console.error('Fireball estimator: error processing result', err);
+      calcHint.textContent = "Something went wrong calculating the estimate — we'll confirm manually when we follow up.";
       calcHint.style.color = 'var(--ember)';
-      return;
     }
-
-    const element = response.rows[0].elements[0];
-    const miles = element.distance.value / 1609.34;
-    const driveHoursOneWay = element.duration.value / 3600;
-    const crew = crewSizeForGuests(guestCount);
-
-    const basePrice = guestCount * PRICE_PER_GUEST;
-    let mileageFee = 0;
-    let eventLaborFee = 0;
-    let driveLaborFee = 0;
-
-    if(miles > FREE_RADIUS_MILES){
-      mileageFee = (miles - FREE_RADIUS_MILES) * TRAVEL_RATE_PER_MILE;
-    }
-    if(miles > LABOR_TRIGGER_MILES){
-      eventLaborFee = duration * crew * LABOR_RATE_PER_HOUR;
-    }
-    if(miles > DRIVE_TIME_LABOR_TRIGGER_MILES){
-      const roundTripHours = driveHoursOneWay * 2;
-      driveLaborFee = roundTripHours * crew * LABOR_RATE_PER_HOUR;
-    }
-
-    const laborTravelTotal = mileageFee + eventLaborFee + driveLaborFee;
-    const grandTotal = basePrice + laborTravelTotal;
-
-    document.getElementById('calcBase').textContent = formatCurrency(basePrice) + ' (' + guestCount + ' × $' + PRICE_PER_GUEST + ')';
-    document.getElementById('calcMiles').textContent = miles.toFixed(1) + ' mi';
-    document.getElementById('calcMileageFee').textContent = formatCurrency(mileageFee);
-    document.getElementById('calcDriveTime').textContent = driveHoursOneWay.toFixed(1) + ' hr';
-    document.getElementById('calcCrew').textContent = crew + ' people';
-    document.getElementById('calcEventLabor').textContent = formatCurrency(eventLaborFee);
-    document.getElementById('calcDriveLabor').textContent = formatCurrency(driveLaborFee);
-    document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
-    document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
-
-    calcResults.classList.add('show');
-    calcHint.textContent = '';
   });
 });
 </script>
