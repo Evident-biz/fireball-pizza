@@ -74,10 +74,10 @@
 <section class="tight">
   <div class="wrap">
     <div class="calc-cta">
-      <span class="eyebrow" style="color:var(--gold);">Instant Estimate</span>
-      <h2 style="color:var(--white);">Curious What Travel &amp; Labor Might Cost?</h2>
-      <p style="color:rgba(255,255,255,0.75); max-width:480px; margin:0 auto 24px;">Get a real-time estimate based on driving distance from Modesto — no form, no obligation, just the numbers.</p>
-      <button type="button" class="btn btn-primary" id="openCalculatorBtn">Try The Estimate Calculator</button>
+      <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
+      <h2 style="color:var(--white);">Get Your Instant Quote — Book Now</h2>
+      <p style="color:rgba(255,255,255,0.75); max-width:480px; margin:0 auto 24px;">See your exact price in seconds and lock in your date before it's booked. No waiting on a callback.</p>
+      <button type="button" class="btn btn-primary" id="openCalculatorBtn">Get My Instant Quote</button>
     </div>
   </div>
 </section>
@@ -152,11 +152,19 @@
     <button type="button" class="calc-modal-close" id="calcClose" aria-label="Close calculator">&times;</button>
 
     <div class="calc-modal-header">
-      <span class="eyebrow" style="color:var(--gold);">Testing Mode — Full Breakdown Shown</span>
-      <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.6rem; color:var(--white); margin:0;">Estimate Calculator</h3>
+      <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
+      <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.6rem; color:var(--white); margin:0;">Get Your Quote</h3>
     </div>
 
-    <div class="calc-modal-body">
+    <form class="calc-modal-body" id="calcForm" name="estimate-request" data-netlify="true" data-remove-prefix netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="estimate-request">
+      <input type="hidden" name="subject" id="sendSubject" value="New Catering Estimate Request">
+      <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
+
+      <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
+      <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required></div>
+      <div class="calc-field"><label for="sendPhone">Phone — optional</label><input type="tel" id="sendPhone" name="phone"></div>
+
       <div class="calc-field">
         <label for="calcGuests">Guest Count (20 minimum)</label>
         <input type="number" id="calcGuests" min="20" placeholder="e.g. 100">
@@ -167,8 +175,8 @@
         <div id="calcAddressSuggestions" class="calc-suggestions"></div>
       </div>
 
-      <button type="button" class="btn btn-primary" id="calcRunBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate Estimate</button>
-      <p class="calc-hint" id="calcHint">Fill in guest count and event address, then calculate.</p>
+      <button type="button" class="btn btn-primary" id="calcRunBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate My Quote</button>
+      <p class="calc-hint" id="calcHint">Fill in your info above, then calculate.</p>
 
       <div class="calc-results" id="calcResults">
         <div class="calc-row calc-row-stepper">
@@ -187,33 +195,21 @@
         <div class="calc-row" style="display:none;"><span>Drive-time labor fee</span><strong id="calcDriveLabor">—</strong></div>
         <div class="calc-row"><span>Travel fee</span><strong id="calcLaborTravelTotal">—</strong></div>
         <div class="calc-row"><span>Extra time fee</span><strong id="calcExtraTimeFee">—</strong></div>
-        <div class="calc-row calc-total"><span>Estimated Grand Total</span><strong id="calcGrandTotal">—</strong></div>
+        <div class="calc-row calc-total"><span>Total Quote</span><strong id="calcGrandTotal">—</strong></div>
+        <div class="calc-row calc-deposit"><span>Deposit Due Today (50%)</span><strong id="calcDeposit">—</strong></div>
 
-        <div class="calc-send-block">
-          <p style="margin:0 0 14px; font-weight:600;">Want us to follow up on this estimate?</p>
-          <form id="calcSendForm" name="estimate-request" data-netlify="true" data-remove-prefix netlify-honeypot="bot-field">
-            <input type="hidden" name="form-name" value="estimate-request">
-            <input type="hidden" name="subject" id="sendSubject" value="New Catering Estimate Request">
-            <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
+        <input type="hidden" name="Guest Count" id="sendGuestCount">
+        <input type="hidden" name="Service Time" id="sendServiceTime">
+        <input type="hidden" name="Event Address" id="sendAddress">
+        <input type="hidden" name="Distance and Mileage" id="sendDistance">
+        <input type="hidden" name="Drive-Time Labor" id="sendDriveLabor">
+        <input type="hidden" name="Pricing Summary" id="sendPricing">
 
-            <input type="hidden" name="Guest Count" id="sendGuestCount">
-            <input type="hidden" name="Service Time" id="sendServiceTime">
-            <input type="hidden" name="Event Address" id="sendAddress">
-            <input type="hidden" name="Distance and Mileage" id="sendDistance">
-            <input type="hidden" name="Drive-Time Labor" id="sendDriveLabor">
-            <input type="hidden" name="Pricing Summary" id="sendPricing">
-
-            <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
-            <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required></div>
-            <div class="calc-field"><label for="sendPhone">Phone — optional</label><input type="tel" id="sendPhone" name="phone"></div>
-
-            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Send This Estimate</button>
-            <p class="calc-hint" id="calcSendStatus"></p>
-          </form>
-        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:20px;">Lock In My Date</button>
+        <p class="calc-hint" id="calcSendStatus"></p>
       </div>
-      <p class="calc-hint" style="margin-top:14px;">This is an estimate only — food, package, and final pricing confirmed when we follow up.</p>
-    </div>
+      <p class="calc-hint" style="margin-top:14px;">This is an estimate only — final pricing and deposit confirmed when we follow up.</p>
+    </form>
   </div>
 </div>
 
@@ -229,8 +225,13 @@ document.getElementById('cateringForm').addEventListener('submit', function(e){
   this.reset();
 });
 
-document.getElementById('calcSendForm').addEventListener('submit', function(e){
+document.getElementById('calcForm').addEventListener('submit', function(e){
   e.preventDefault();
+  if(!lastCalc){
+    calcHint.textContent = 'Please calculate your quote first.';
+    calcHint.style.color = 'var(--ember)';
+    return;
+  }
   const form = this;
   const status = document.getElementById('calcSendStatus');
   status.style.color = 'var(--stone)';
@@ -264,6 +265,7 @@ const TRAVEL_RATE_PER_MILE = 1.75;
 const LABOR_RATE_PER_HOUR = 25;
 const DRIVE_TIME_LABOR_TRIGGER_ROUND_TRIP_MILES = 40;
 const PRICE_PER_GUEST = 19;
+const DEPOSIT_RATE = 0.5;
 const MIN_GUEST_COUNT = 20;
 const MIN_SERVICE_HOURS = 1;
 const GUESTS_PER_HOUR = 50; // ~1 hour of service per 50 guests
@@ -280,7 +282,7 @@ function requiredHoursForGuests(guests){
 }
 
 function formatCurrency(n){
-  return '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  return '$' + Math.round(n).toLocaleString('en-US');
 }
 
 const overlay = document.getElementById('calcOverlay');
@@ -309,6 +311,7 @@ function renderTotals(){
   const extraTimeFee = extraHours * crew * LABOR_RATE_PER_HOUR;
   const laborTravelTotal = mileageFee + driveLaborFee;
   const grandTotal = basePrice + laborTravelTotal + extraTimeFee;
+  const depositDue = grandTotal * DEPOSIT_RATE;
 
   serviceHoursValueEl.textContent = totalServiceHours + ' hr' + (totalServiceHours !== 1 ? 's' : '');
   timeMinusBtn.disabled = extraHours <= 0;
@@ -322,6 +325,7 @@ function renderTotals(){
   document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
   document.getElementById('calcExtraTimeFee').textContent = formatCurrency(extraTimeFee);
   document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
+  document.getElementById('calcDeposit').textContent = formatCurrency(depositDue);
 
   // Grouped, plain-language summaries sent to Fireball for internal double-checking.
   document.getElementById('sendGuestCount').value = guestCount;
@@ -345,7 +349,8 @@ function renderTotals(){
     'Base: ' + guestCount + ' guests × $19 = ' + formatCurrency(basePrice) + ' | ' +
     'Travel fee (mileage + drive labor): ' + formatCurrency(laborTravelTotal) + ' | ' +
     'Extra time fee: ' + formatCurrency(extraTimeFee) + ' | ' +
-    'Grand Total: ' + formatCurrency(grandTotal);
+    'Grand Total: ' + formatCurrency(grandTotal) + ' | ' +
+    'Deposit Due (50%): ' + formatCurrency(depositDue);
 
   document.getElementById('sendSubject').value = 'New Catering Estimate — ' + guestCount + ' guests, ' + formatCurrency(grandTotal) + ' total';
 }
