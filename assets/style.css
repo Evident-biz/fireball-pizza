@@ -144,12 +144,34 @@ section.tight{ padding: 64px 0; }
 
 .card{ background: var(--white); border: 1px solid var(--line); padding: 32px; border-radius: 4px; }
 
+/* --- Photo menu grid (v3, real dish photography) --- */
+.photo-menu-grid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.photo-menu-card{ background: var(--white); border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.photo-menu-card img{ width: 100%; height: 190px; object-fit: cover; }
+.photo-menu-card .pm-body{ padding: 16px 18px; }
+.photo-menu-card h3{ font-size: 1rem; margin-bottom: 0.2em; }
+.photo-menu-card .desc{ font-size: 0.85rem; color: var(--stone); margin: 0; }
+@media (max-width: 960px){ .photo-menu-grid{ grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px){ .photo-menu-grid{ grid-template-columns: 1fr; } }
+
 /* --- Menu grid --- */
 .menu-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
 .menu-item{ background: var(--white); padding: 28px 32px; display: flex; justify-content: space-between; align-items: baseline; gap: 20px; }
 .menu-item h3{ font-size: 1.1rem; margin-bottom: 0.25em; }
 .menu-item .desc{ font-size: 0.9rem; color: var(--stone); margin: 0; }
 .menu-item .price{ font-family: var(--font-utility); font-size: 1rem; color: var(--ember); white-space: nowrap; }
+
+/* --- Live calendar embed --- */
+.calendar-embed{
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--white);
+}
+.calendar-embed iframe{ display: block; }
+@media (max-width: 640px){
+  .calendar-embed iframe{ height: 480px; }
+}
 
 /* --- Events / calendar grid --- */
 .event-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 28px; }

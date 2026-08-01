@@ -42,7 +42,7 @@ Same steps apply to `contact.html`'s form (`name="contact-message"`).
 
 ## Images
 
-See `assets/images/README.txt` for the exact file names each page expects.
+All real photography is in place under `assets/images/` (logo) and `assets/images/menu/` (dish photos). Nothing left to swap in — DoorDash watermarks were cropped off the source photos before adding them.
 
 ## Next up
 
