@@ -236,6 +236,17 @@ section.tight{ padding: 64px 0; }
   font-family: var(--font-body); font-size: 0.95rem; color: var(--ink); border-radius: 3px;
 }
 .calc-field input:focus{ outline: none; border-color: var(--ember); }
+.calc-style-options{ display: flex; flex-direction: column; gap: 10px; }
+.calc-radio-option, .calc-checkbox-option{
+  display: flex; align-items: flex-start; gap: 10px;
+  border: 1px solid var(--line); border-radius: 3px; padding: 12px 14px;
+  cursor: pointer; font-size: 0.88rem; color: var(--ink); transition: border-color 0.2s ease;
+}
+.calc-radio-option:has(input:checked), .calc-checkbox-option:has(input:checked){
+  border-color: var(--ember); background: var(--paper);
+}
+.calc-radio-option input, .calc-checkbox-option input{ margin-top: 3px; width: auto; flex-shrink: 0; }
+.calc-radio-option span, .calc-checkbox-option span{ line-height: 1.4; }
 .calc-row-stepper{ align-items: center; }
 .calc-stepper-inline{
   display: flex; align-items: center; gap: 12px;
@@ -330,6 +341,61 @@ section.tight{ padding: 64px 0; }
 @media (min-width: 860px){
   .carousel-slide{ flex: 0 0 50%; max-width: 50%; }
 }
+
+/* --- Quick facts strip --- */
+.quick-facts{
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: var(--line); border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
+}
+.quick-fact{
+  background: var(--white); padding: 24px 16px; text-align: center;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.quick-fact strong{ font-family: var(--font-display); font-size: 1.4rem; color: var(--ember); text-transform: uppercase; }
+.quick-fact span{ font-size: 0.78rem; color: var(--stone); text-transform: uppercase; letter-spacing: 0.04em; }
+@media (max-width: 700px){ .quick-facts{ grid-template-columns: repeat(2, 1fr); } }
+
+/* --- How it works steps --- */
+.how-it-works{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.how-step{ text-align: left; }
+.how-step-num{
+  display: inline-block; font-family: var(--font-utility); font-size: 0.85rem;
+  color: var(--ember); border: 1px solid var(--ember); border-radius: 50%;
+  width: 34px; height: 34px; line-height: 32px; text-align: center; margin-bottom: 14px;
+}
+.how-step h3{ margin-bottom: 0.4em; }
+@media (max-width: 860px){ .how-it-works{ grid-template-columns: 1fr; gap: 28px; } }
+
+/* --- What's Included list --- */
+.included-list{ list-style: none; margin: 0; padding: 0; }
+.included-list li{
+  position: relative; padding: 10px 0 10px 30px; border-bottom: 1px solid var(--line);
+  color: var(--ink); font-size: 0.96rem;
+}
+.included-list li:last-child{ border-bottom: none; }
+.included-list li::before{
+  content: "✓"; position: absolute; left: 0; top: 10px;
+  color: var(--ember); font-weight: 700;
+}
+
+/* --- FAQ accordion --- */
+.faq-list{ max-width: 760px; }
+.faq-item{
+  border-bottom: 1px solid var(--line);
+  padding: 6px 0;
+}
+.faq-item summary{
+  cursor: pointer; list-style: none; font-weight: 700; font-size: 1rem;
+  padding: 14px 28px 14px 0; position: relative; color: var(--ink);
+}
+.faq-item summary::-webkit-details-marker{ display: none; }
+.faq-item summary::after{
+  content: "+"; position: absolute; right: 0; top: 14px;
+  font-size: 1.3rem; color: var(--ember); transition: transform 0.2s ease;
+}
+.faq-item[open] summary::after{ content: "\2212"; }
+.faq-item summary:hover{ color: var(--ember); }
+.faq-item p{ color: var(--stone); padding: 0 0 16px; margin: 0; max-width: 620px; }
 
 /* --- Testimonials --- */
 .testimonial{ border-left: 3px solid var(--ember); padding-left: 28px; }
