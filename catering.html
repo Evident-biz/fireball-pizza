@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Catering — Fireball Pizza</title>
-<meta name="description" content="Book Fireball Pizza's fresh, gas-fired catering for your wedding, corporate event, or private party in Modesto, CA.">
+<meta name="description" content="Book Fireball Pizza's fresh, brick oven catering for your wedding, corporate event, or private party in Modesto, CA.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/favicon/favicon.ico?v=2" sizes="any">
@@ -23,6 +23,7 @@
     <nav class="links" id="navLinks">
       <a href="index.html">Home</a>
       <a href="catering.html" class="active">Catering</a>
+      <a href="#quote">Calculator</a>
       <a href="events.html">Calendar</a>
       <a href="contact.html">Contact</a>
       <a href="catering.html#quote" class="cta">Book Catering</a>
@@ -36,7 +37,7 @@
   <div class="hero-content">
     <span class="eyebrow">Catering</span>
     <h1 style="font-size:clamp(2.2rem,4vw,3.4rem);">Book Your Event Catering</h1>
-    <p class="lead">Weddings, corporate gatherings, and private parties. We bring the oven, the crew, and fresh, gas-fired pizza — you bring the guest list.</p>
+    <p class="lead">Weddings, corporate gatherings, and private parties. We bring the oven, the crew, and fresh, brick-oven pizza — you bring the guest list.</p>
   </div>
 </section>
 
@@ -69,9 +70,6 @@
       <p class="muted">Up to 250 guests. Choice of up to 5 pizzas, buffet style. $19/person, includes salad &amp; breadsticks.</p>
     </div>
   </div>
-  <div class="wrap" style="margin-top:20px;">
-    <p class="muted" style="text-align:center;">Add dessert for $4/person — Chocolate Mousse Cake or Cheesecake.</p>
-  </div>
 </section>
 
 <section class="tight">
@@ -99,8 +97,8 @@
       </div>
       <div class="how-step">
         <span class="how-step-num">02</span>
-        <h3>We Confirm Your Date</h3>
-        <p class="muted">We follow up within 1–2 business days to confirm availability and lock in the details.</p>
+        <h3>Pay Your Deposit</h3>
+        <p class="muted">Lock in your date with a 50% deposit — quick and secure, right after you submit your quote.</p>
       </div>
       <div class="how-step">
         <span class="how-step-num">03</span>
@@ -117,7 +115,7 @@
       <span class="eyebrow">What's Included</span>
       <h2>Everything's Handled</h2>
       <ul class="included-list">
-        <li>Gas-fired oven, delivered and set up on-site</li>
+        <li>Brick oven, delivered and set up on-site</li>
         <li>Fresh, hand-stretched dough made in-house</li>
         <li>Crew sized to your event — 2 to 4 staff based on guest count</li>
         <li>We arrive ~2 hours early to set up and preheat, so we're ready when your guests are</li>
@@ -167,7 +165,7 @@
       </details>
       <details class="faq-item">
         <summary>How does pricing work?</summary>
-        <p>Buffet style is $19/person (choice of up to 5 pizzas, up to 250 guests). Build Your Own is $25/person (each guest builds their own, up to 40 guests). Both include salad and breadsticks. Add dessert for $4/person. A 50% deposit is due at booking to lock in your date. Travel and labor fees may apply based on distance — use the instant quote calculator above for an exact number.</p>
+        <p>Buffet style is $19/person (choice of up to 5 pizzas, up to 250 guests). Build Your Own is $25/person (each guest builds their own, up to 40 guests). Both include salad and breadsticks. A 50% deposit is due at booking to lock in your date. Travel and labor fees may apply based on distance — use the instant quote calculator above for an exact number.</p>
       </details>
       <details class="faq-item">
         <summary>What payment methods do you accept?</summary>
@@ -234,8 +232,8 @@
       <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
 
       <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
-      <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required></div>
-      <div class="calc-field"><label for="sendPhone">Phone — optional</label><input type="tel" id="sendPhone" name="phone"></div>
+      <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address"></div>
+      <div class="calc-field"><label for="sendPhone">Phone</label><input type="tel" id="sendPhone" name="phone" required pattern="^[\d\s\-\(\)\+\.]{10,}$" title="Enter a valid phone number (at least 10 digits)"></div>
 
       <div class="calc-field">
         <label for="calcGuests">Guest Count (20 minimum)</label>
@@ -245,6 +243,14 @@
         <label for="calcAddress">Event Address</label>
         <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
         <div id="calcAddressSuggestions" class="calc-suggestions"></div>
+      </div>
+      <div class="calc-field">
+        <label for="eventDate">Event Date</label>
+        <input type="date" id="eventDate" name="Event Date" required>
+      </div>
+      <div class="calc-field">
+        <label for="eventTime">Event Time</label>
+        <input type="time" id="eventTime" name="Event Time" required>
       </div>
 
       <button type="button" class="btn btn-primary" id="calcRunBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate My Quote</button>
@@ -257,7 +263,7 @@
           <div class="calc-tiles">
             <button type="button" class="calc-tile is-selected" id="tileBuffet" data-style="buffet">
               <strong>Buffet</strong>
-              <span>$19/person · up to 5 pizzas</span>
+              <span>$19/person · up to 250 people</span>
             </button>
             <button type="button" class="calc-tile" id="tileBYO" data-style="byo">
               <strong>Build Your Own</strong>
@@ -288,16 +294,7 @@
         <div class="calc-row"><span>Travel fee</span><strong id="calcLaborTravelTotal">—</strong></div>
         <div class="calc-row"><span>Extra time fee</span><strong id="calcExtraTimeFee">—</strong></div>
         <div class="calc-row calc-total"><span>Total Quote</span><strong id="calcGrandTotal">—</strong></div>
-        <div class="calc-row calc-deposit"><span>Deposit Due Today (50%)</span><strong id="calcDeposit">—</strong></div>
-
-        <div class="calc-field" style="margin-top:20px;">
-          <label for="eventDate">Event Date</label>
-          <input type="date" id="eventDate" name="Event Date" required>
-        </div>
-        <div class="calc-field">
-          <label for="eventTime">Event Time</label>
-          <input type="time" id="eventTime" name="Event Time" required>
-        </div>
+        <div class="calc-row calc-deposit"><span>Deposit Due (50%)</span><strong id="calcDeposit">—</strong></div>
 
         <input type="hidden" name="Guest Count" id="sendGuestCount">
         <input type="hidden" name="Service Time" id="sendServiceTime">
@@ -308,6 +305,7 @@
 
         <button type="submit" class="btn btn-primary" id="calcSubmitBtn" style="width:100%; justify-content:center; margin-top:20px;">Lock In My Date</button>
         <p class="calc-hint" id="calcSendStatus"></p>
+        <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="payDepositBtn" style="display:none; width:100%; justify-content:center; margin-top:12px;">Pay Deposit — <span id="payDepositAmount"></span></a>
       </div>
       <p class="calc-hint" style="margin-top:14px;">This is an estimate only — final pricing and deposit confirmed when we follow up.</p>
     </form>
@@ -318,6 +316,22 @@
 document.getElementById('navToggle')?.addEventListener('click', ()=>{
   document.getElementById('navLinks').classList.toggle('open');
 });
+
+// Shared submitter — used both for the silent lead-capture on Calculate and the full Lock In submit.
+// Netlify Forms doesn't dedupe, so both stages land as separate submissions on purpose:
+// better to catch every opportunity (even if someone never finishes) than to risk missing one.
+function submitFormToNetlify(subjectOverride){
+  const form = document.getElementById('calcForm');
+  const data = new FormData(form);
+  if(subjectOverride) data.set('subject', subjectOverride);
+  const params = new URLSearchParams();
+  data.forEach(function(value, key){ params.append(key, value); });
+  return fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  });
+}
 
 document.getElementById('calcForm').addEventListener('submit', function(e){
   e.preventDefault();
@@ -332,26 +346,21 @@ document.getElementById('calcForm').addEventListener('submit', function(e){
     status.textContent = 'Please enter the event date and time to lock in your booking.';
     return;
   }
-  const form = this;
   const submitBtn = document.getElementById('calcSubmitBtn');
   const status = document.getElementById('calcSendStatus');
   status.style.color = 'var(--stone)';
   status.textContent = 'Sending...';
 
-  const data = new FormData(form);
-  const params = new URLSearchParams();
-  data.forEach(function(value, key){ params.append(key, value); });
-
-  fetch('/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString()
-  })
+  submitFormToNetlify(document.getElementById('sendSubject').value)
   .then(function(){
     submitBtn.textContent = 'Request Submitted';
     submitBtn.disabled = true;
     status.style.color = '#2E7D32';
     status.textContent = "Sent — we'll follow up within 1–2 business days.";
+
+    const depositAmount = document.getElementById('calcDeposit').textContent;
+    document.getElementById('payDepositAmount').textContent = depositAmount;
+    document.getElementById('payDepositBtn').style.display = 'flex';
   })
   .catch(function(err){
     console.error('Fireball estimator: estimate-request submission failed', err);
@@ -373,6 +382,7 @@ const DESSERT_PRICE_PER_GUEST = 4;
 const DEPOSIT_RATE = 0.5;
 const MIN_GUEST_COUNT = 20;
 const MIN_SERVICE_HOURS = 1;
+const MAX_INCLUDED_SERVICE_HOURS = 3;
 const GUESTS_PER_HOUR = 50; // ~1 hour of service per 50 guests
 
 function crewSizeForGuests(guests){
@@ -383,7 +393,8 @@ function crewSizeForGuests(guests){
 
 function requiredHoursForGuests(guests){
   if(!guests || guests < 1) return MIN_SERVICE_HOURS;
-  return Math.max(MIN_SERVICE_HOURS, Math.ceil(guests / GUESTS_PER_HOUR));
+  const raw = Math.max(MIN_SERVICE_HOURS, Math.ceil(guests / GUESTS_PER_HOUR));
+  return Math.min(raw, MAX_INCLUDED_SERVICE_HOURS);
 }
 
 function formatCurrency(n){
@@ -467,7 +478,7 @@ function renderTotals(){
   serviceHoursValueEl.textContent = totalServiceHours + ' hr' + (totalServiceHours !== 1 ? 's' : '');
   timeMinusBtn.disabled = extraHours <= 0;
 
-  document.getElementById('calcBase').textContent = formatCurrency(basePrice) + ' (' + styleLabel + ', ' + guestCount + ' × $' + pricePerGuest + (dessertAdded ? ' + dessert' : '') + ')';
+  document.getElementById('calcBase').textContent = formatCurrency(basePrice);
   document.getElementById('calcMiles').textContent = roundTripMiles.toFixed(1) + ' mi';
   document.getElementById('calcMileageFee').textContent = formatCurrency(mileageFee);
   document.getElementById('calcDriveTime').textContent = roundTripDriveHours.toFixed(1) + ' hr';
@@ -505,7 +516,7 @@ function renderTotals(){
     'Grand Total: ' + formatCurrency(grandTotal) + ' | ' +
     'Deposit Due (50%): ' + formatCurrency(depositDue);
 
-  document.getElementById('sendSubject').value = 'New Catering Estimate — ' + guestCount + ' guests, ' + formatCurrency(grandTotal) + ' total';
+  document.getElementById('sendSubject').value = 'Catering Booked — ' + guestCount + ' guests, ' + formatCurrency(grandTotal) + ' total';
 }
 
 timePlusBtn.addEventListener('click', function(){
@@ -619,6 +630,10 @@ function openCalc(){
   dessertToggle.classList.remove('is-active');
   dessertToggleLabel.textContent = '+ Add dessert for $4/person';
   calcResults.classList.remove('show');
+  document.getElementById('calcSubmitBtn').textContent = 'Lock In My Date';
+  document.getElementById('calcSubmitBtn').disabled = false;
+  document.getElementById('calcSendStatus').textContent = '';
+  document.getElementById('payDepositBtn').style.display = 'none';
   getPlacesLib().then(function(){ newSessionToken(); });
 }
 function closeCalc(){
@@ -641,11 +656,39 @@ if(window.location.hash === '#quote'){
 }
 
 runBtn.addEventListener('click', function(){
+  const name = document.getElementById('sendName').value.trim();
+  const email = document.getElementById('sendEmail').value.trim();
+  const phone = document.getElementById('sendPhone').value.trim();
   const guestCount = parseFloat(document.getElementById('calcGuests').value);
   const address = document.getElementById('calcAddress').value.trim();
+  const eventDate = document.getElementById('eventDate').value;
+  const eventTime = document.getElementById('eventTime').value;
 
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phonePattern = /^[\d\s\-\(\)\+\.]{10,}$/;
+
+  if(!name || !email || !phone){
+    calcHint.textContent = 'Please fill in your name, email, and phone number first.';
+    calcHint.style.color = 'var(--ember)';
+    return;
+  }
+  if(!emailPattern.test(email)){
+    calcHint.textContent = 'Please enter a valid email address.';
+    calcHint.style.color = 'var(--ember)';
+    return;
+  }
+  if(!phonePattern.test(phone)){
+    calcHint.textContent = 'Please enter a valid phone number.';
+    calcHint.style.color = 'var(--ember)';
+    return;
+  }
   if(!guestCount || !address){
     calcHint.textContent = 'Please fill in guest count and event address first.';
+    calcHint.style.color = 'var(--ember)';
+    return;
+  }
+  if(!eventDate || !eventTime){
+    calcHint.textContent = 'Please fill in your event date and time first.';
     calcHint.style.color = 'var(--ember)';
     return;
   }
@@ -749,6 +792,11 @@ runBtn.addEventListener('click', function(){
 
       calcResults.classList.add('show');
       calcHint.textContent = '';
+
+      // Capture as a lead now — before they decide whether to lock in.
+      // Better to have a duplicate than to lose someone who calculates and never comes back.
+      submitFormToNetlify('Quote Viewed — ' + guestCount + ' guests, ' + address)
+        .catch(function(err){ console.error('Fireball estimator: lead capture failed', err); });
     } catch(err){
       console.error('Fireball estimator: error processing result', err);
       calcHint.textContent = "Something went wrong calculating the estimate — we'll confirm manually when we follow up.";
