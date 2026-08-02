@@ -236,17 +236,38 @@ section.tight{ padding: 64px 0; }
   font-family: var(--font-body); font-size: 0.95rem; color: var(--ink); border-radius: 3px;
 }
 .calc-field input:focus{ outline: none; border-color: var(--ember); }
-.calc-style-options{ display: flex; flex-direction: column; gap: 10px; }
-.calc-radio-option, .calc-checkbox-option{
-  display: flex; align-items: flex-start; gap: 10px;
-  border: 1px solid var(--line); border-radius: 3px; padding: 12px 14px;
-  cursor: pointer; font-size: 0.88rem; color: var(--ink); transition: border-color 0.2s ease;
+
+/* --- Post-calculation style tiles --- */
+.calc-tile-group{ margin-bottom: 16px; }
+.calc-tile-group > label{
+  display: block; font-family: var(--font-utility); font-size: 0.72rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone); margin-bottom: 8px;
 }
-.calc-radio-option:has(input:checked), .calc-checkbox-option:has(input:checked){
-  border-color: var(--ember); background: var(--paper);
+.calc-tiles{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.calc-tile{
+  display: flex; flex-direction: column; gap: 4px; text-align: left;
+  border: 2px solid var(--line); border-radius: 4px; padding: 14px; background: var(--white);
+  cursor: pointer; transition: all 0.2s ease;
 }
-.calc-radio-option input, .calc-checkbox-option input{ margin-top: 3px; width: auto; flex-shrink: 0; }
-.calc-radio-option span, .calc-checkbox-option span{ line-height: 1.4; }
+.calc-tile strong{ font-size: 0.95rem; color: var(--ink); }
+.calc-tile span{ font-size: 0.8rem; color: var(--stone); }
+.calc-tile:hover{ border-color: var(--ember); }
+.calc-tile.is-selected{ border-color: var(--ember); background: var(--paper); }
+.calc-tile.is-selected strong{ color: var(--ember); }
+.calc-tile[hidden]{ display: none; }
+@media (max-width: 480px){ .calc-tiles{ grid-template-columns: 1fr; } }
+
+.calc-addon-toggle{
+  display: block; width: 100%; text-align: left;
+  border: 1px dashed var(--line); border-radius: 4px; padding: 12px 14px; margin-bottom: 16px;
+  background: var(--white); cursor: pointer; font-size: 0.88rem; color: var(--stone);
+  transition: all 0.2s ease;
+}
+.calc-addon-toggle:hover{ border-color: var(--ember); color: var(--ember); }
+.calc-addon-toggle.is-active{
+  border-style: solid; border-color: var(--ember); background: var(--paper); color: var(--ember); font-weight: 600;
+}
+
 .calc-row-stepper{ align-items: center; }
 .calc-stepper-inline{
   display: flex; align-items: center; gap: 12px;

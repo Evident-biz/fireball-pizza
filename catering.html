@@ -25,7 +25,7 @@
       <a href="catering.html" class="active">Catering</a>
       <a href="events.html">Calendar</a>
       <a href="contact.html">Contact</a>
-      <a href="catering.html#form" class="cta">Book Catering</a>
+      <a href="catering.html#quote" class="cta">Book Catering</a>
     </nav>
   </div>
 </header>
@@ -177,7 +177,7 @@
   </div>
 </section>
 
-<section class="tight">
+<section class="tight" id="quote">
   <div class="wrap">
     <div class="calc-cta">
       <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
@@ -185,40 +185,6 @@
       <p style="color:rgba(255,255,255,0.75); max-width:480px; margin:0 auto 24px;">See your exact price in seconds and lock in your date before it's booked. No waiting on a callback.</p>
       <button type="button" class="btn btn-primary" id="openCalculatorBtn">Get My Instant Quote</button>
     </div>
-  </div>
-</section>
-
-<section id="form" class="tight" style="background:var(--paper);">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Start Your Booking</span>
-      <h2>Tell Us About Your Event</h2>
-      <p class="muted">Send the details below and we'll follow up within 1–2 business days with availability and a quote.</p>
-    </div>
-
-    <form class="inquiry card" id="cateringForm">
-      <div class="field"><label for="name">Full Name</label><input type="text" id="name" name="name" required></div>
-      <div class="field"><label for="email">Email</label><input type="email" id="email" name="email" required></div>
-      <div class="field"><label for="phone">Phone</label><input type="tel" id="phone" name="phone" required></div>
-      <div class="field">
-        <label for="eventType">Event Type</label>
-        <select id="eventType" name="eventType" required>
-          <option value="">Select one</option>
-          <option value="Wedding">Wedding</option>
-          <option value="Corporate Event">Corporate Event</option>
-          <option value="Private Party">Private Party</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div class="field"><label for="eventDate">Event Date</label><input type="date" id="eventDate" name="eventDate" required></div>
-      <div class="field"><label for="guestCount">Estimated Guest Count</label><input type="number" id="guestCount" name="guestCount" min="1" required></div>
-      <div class="field full"><label for="location">Event Location / City</label><input type="text" id="location" name="location" placeholder="e.g. Modesto, CA"></div>
-      <div class="field full"><label for="message">Anything else we should know?</label><textarea id="message" name="message" placeholder="Venue, timing, dietary needs, budget range..."></textarea></div>
-      <div class="full">
-        <button type="submit" class="btn btn-primary">Send Inquiry</button>
-        <div class="form-status" id="formStatus"></div>
-      </div>
-    </form>
   </div>
 </section>
 
@@ -262,9 +228,9 @@
       <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.6rem; color:var(--white); margin:0;">Get Your Quote</h3>
     </div>
 
-    <form class="calc-modal-body" id="calcForm" name="estimate-request" data-netlify="true" data-remove-prefix netlify-honeypot="bot-field">
-      <input type="hidden" name="form-name" value="estimate-request">
-      <input type="hidden" name="subject" id="sendSubject" value="New Catering Estimate Request">
+    <form class="calc-modal-body" id="calcForm" name="catering-booking-request" data-netlify="true" data-remove-prefix netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="catering-booking-request">
+      <input type="hidden" name="subject" id="sendSubject" value="New Catering Booking Request">
       <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
 
       <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
@@ -276,25 +242,6 @@
         <input type="number" id="calcGuests" min="20" placeholder="e.g. 100">
       </div>
       <div class="calc-field">
-        <label>Pizza Style</label>
-        <div class="calc-style-options">
-          <label class="calc-radio-option">
-            <input type="radio" name="pizzaStyle" id="styleBuffet" value="buffet" checked>
-            <span><strong>Buffet</strong> — $19/person, choice of up to 5 pizzas (up to 250 guests)</span>
-          </label>
-          <label class="calc-radio-option">
-            <input type="radio" name="pizzaStyle" id="styleBYO" value="byo">
-            <span><strong>Build Your Own</strong> — $25/person, each guest builds their own (up to 40 guests)</span>
-          </label>
-        </div>
-      </div>
-      <div class="calc-field">
-        <label class="calc-checkbox-option">
-          <input type="checkbox" id="calcDessert">
-          <span>Add dessert — <strong>+$4/person</strong> (Chocolate Mousse Cake or Cheesecake)</span>
-        </label>
-      </div>
-      <div class="calc-field">
         <label for="calcAddress">Event Address</label>
         <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
         <div id="calcAddressSuggestions" class="calc-suggestions"></div>
@@ -304,6 +251,26 @@
       <p class="calc-hint" id="calcHint">Fill in your info above, then calculate.</p>
 
       <div class="calc-results" id="calcResults">
+
+        <div class="calc-tile-group">
+          <label>Choose Your Style</label>
+          <div class="calc-tiles">
+            <button type="button" class="calc-tile is-selected" id="tileBuffet" data-style="buffet">
+              <strong>Buffet</strong>
+              <span>$19/person · up to 5 pizzas</span>
+            </button>
+            <button type="button" class="calc-tile" id="tileBYO" data-style="byo">
+              <strong>Build Your Own</strong>
+              <span>$25/person · up to 40 guests</span>
+            </button>
+          </div>
+          <p class="calc-hint" id="byoUnavailableNote" style="display:none;">Build Your Own is available for groups up to 40 guests.</p>
+        </div>
+
+        <button type="button" class="calc-addon-toggle" id="dessertToggle">
+          <span id="dessertToggleLabel">+ Add dessert for $4/person</span>
+        </button>
+
         <div class="calc-row calc-row-stepper">
           <span>Service time</span>
           <div class="calc-stepper-inline">
@@ -322,6 +289,15 @@
         <div class="calc-row"><span>Extra time fee</span><strong id="calcExtraTimeFee">—</strong></div>
         <div class="calc-row calc-total"><span>Total Quote</span><strong id="calcGrandTotal">—</strong></div>
         <div class="calc-row calc-deposit"><span>Deposit Due Today (50%)</span><strong id="calcDeposit">—</strong></div>
+
+        <div class="calc-field" style="margin-top:20px;">
+          <label for="eventDate">Event Date</label>
+          <input type="date" id="eventDate" name="Event Date" required>
+        </div>
+        <div class="calc-field">
+          <label for="eventTime">Event Time</label>
+          <input type="time" id="eventTime" name="Event Time" required>
+        </div>
 
         <input type="hidden" name="Guest Count" id="sendGuestCount">
         <input type="hidden" name="Service Time" id="sendServiceTime">
@@ -342,19 +318,18 @@
 document.getElementById('navToggle')?.addEventListener('click', ()=>{
   document.getElementById('navLinks').classList.toggle('open');
 });
-document.getElementById('cateringForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  const status = document.getElementById('formStatus');
-  status.className = 'form-status show ok';
-  status.textContent = "Thanks — your inquiry is in. We'll follow up within 1–2 business days.";
-  this.reset();
-});
 
 document.getElementById('calcForm').addEventListener('submit', function(e){
   e.preventDefault();
   if(!lastCalc){
     calcHint.textContent = 'Please calculate your quote first.';
     calcHint.style.color = 'var(--ember)';
+    return;
+  }
+  if(!document.getElementById('eventDate').value || !document.getElementById('eventTime').value){
+    const status = document.getElementById('calcSendStatus');
+    status.style.color = 'var(--ember)';
+    status.textContent = 'Please enter the event date and time to lock in your booking.';
     return;
   }
   const form = this;
@@ -429,20 +404,65 @@ const serviceHoursValueEl = document.getElementById('calcServiceHoursValue');
 const timeMinusBtn = document.getElementById('calcTimeMinus');
 const timePlusBtn = document.getElementById('calcTimePlus');
 
+// --- Style tiles + dessert toggle: shown after calculation, live-adjustable ---
+let selectedStyle = 'buffet';
+let dessertAdded = false;
+const tileBuffet = document.getElementById('tileBuffet');
+const tileBYO = document.getElementById('tileBYO');
+const byoUnavailableNote = document.getElementById('byoUnavailableNote');
+const dessertToggle = document.getElementById('dessertToggle');
+const dessertToggleLabel = document.getElementById('dessertToggleLabel');
+
+function updateStyleTileVisibility(){
+  if(!lastCalc) return;
+  const byoAllowed = lastCalc.guestCount <= BYO_MAX_GUESTS;
+  tileBYO.hidden = !byoAllowed;
+  byoUnavailableNote.style.display = byoAllowed ? 'none' : 'block';
+  if(!byoAllowed && selectedStyle === 'byo'){
+    selectedStyle = 'buffet';
+  }
+  tileBuffet.classList.toggle('is-selected', selectedStyle === 'buffet');
+  tileBYO.classList.toggle('is-selected', selectedStyle === 'byo');
+}
+
+tileBuffet.addEventListener('click', function(){
+  selectedStyle = 'buffet';
+  updateStyleTileVisibility();
+  renderTotals();
+});
+tileBYO.addEventListener('click', function(){
+  if(tileBYO.hidden) return;
+  selectedStyle = 'byo';
+  updateStyleTileVisibility();
+  renderTotals();
+});
+dessertToggle.addEventListener('click', function(){
+  dessertAdded = !dessertAdded;
+  dessertToggle.classList.toggle('is-active', dessertAdded);
+  dessertToggleLabel.textContent = dessertAdded
+    ? '\u2713 Dessert added (+$4/person)'
+    : '+ Add dessert for $4/person';
+  renderTotals();
+});
+
 function renderTotals(){
   if(!lastCalc) return;
   const {
-    guestCount, address, pizzaStyle, pricePerGuest, dessertAdded, dessertFee, crew, requiredHours,
-    basePrice, mileageFee, driveLaborFee, driveLaborTriggered,
+    guestCount, address, crew, requiredHours,
+    mileageFee, driveLaborFee, driveLaborTriggered,
     roundTripMiles, roundTripDriveHours, oneWayMiles, oneWayDriveHours, billableMiles
   } = lastCalc;
+
+  const pricePerGuest = selectedStyle === 'byo' ? PRICE_PER_GUEST_BYO : PRICE_PER_GUEST_BUFFET;
+  const dessertFee = dessertAdded ? guestCount * DESSERT_PRICE_PER_GUEST : 0;
+  const basePrice = (guestCount * pricePerGuest) + dessertFee;
+  const styleLabel = selectedStyle === 'byo' ? 'Build Your Own' : 'Buffet';
 
   const totalServiceHours = requiredHours + extraHours;
   const extraTimeFee = extraHours * crew * LABOR_RATE_PER_HOUR;
   const laborTravelTotal = mileageFee + driveLaborFee;
   const grandTotal = basePrice + laborTravelTotal + extraTimeFee;
   const depositDue = grandTotal * DEPOSIT_RATE;
-  const styleLabel = pizzaStyle === 'byo' ? 'Build Your Own' : 'Buffet';
 
   serviceHoursValueEl.textContent = totalServiceHours + ' hr' + (totalServiceHours !== 1 ? 's' : '');
   timeMinusBtn.disabled = extraHours <= 0;
@@ -594,6 +614,10 @@ function openCalc(){
   document.body.style.overflow = 'hidden';
   extraHours = 0;
   lastCalc = null;
+  selectedStyle = 'buffet';
+  dessertAdded = false;
+  dessertToggle.classList.remove('is-active');
+  dessertToggleLabel.textContent = '+ Add dessert for $4/person';
   calcResults.classList.remove('show');
   getPlacesLib().then(function(){ newSessionToken(); });
 }
@@ -612,11 +636,13 @@ document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closeCalc();
 });
 
+if(window.location.hash === '#quote'){
+  openCalc();
+}
+
 runBtn.addEventListener('click', function(){
   const guestCount = parseFloat(document.getElementById('calcGuests').value);
   const address = document.getElementById('calcAddress').value.trim();
-  const pizzaStyle = document.querySelector('input[name="pizzaStyle"]:checked').value;
-  const dessertAdded = document.getElementById('calcDessert').checked;
 
   if(!guestCount || !address){
     calcHint.textContent = 'Please fill in guest count and event address first.';
@@ -625,11 +651,6 @@ runBtn.addEventListener('click', function(){
   }
   if(guestCount < MIN_GUEST_COUNT){
     calcHint.textContent = 'Our minimum guest count is ' + MIN_GUEST_COUNT + '.';
-    calcHint.style.color = 'var(--ember)';
-    return;
-  }
-  if(pizzaStyle === 'byo' && guestCount > BYO_MAX_GUESTS){
-    calcHint.textContent = 'Build Your Own is available for up to ' + BYO_MAX_GUESTS + ' guests — please choose Buffet for larger groups.';
     calcHint.style.color = 'var(--ember)';
     return;
   }
@@ -689,9 +710,6 @@ runBtn.addEventListener('click', function(){
       const crew = crewSizeForGuests(guestCount);
       const requiredHours = requiredHoursForGuests(guestCount);
 
-      const pricePerGuest = pizzaStyle === 'byo' ? PRICE_PER_GUEST_BYO : PRICE_PER_GUEST_BUFFET;
-      const dessertFee = dessertAdded ? guestCount * DESSERT_PRICE_PER_GUEST : 0;
-      const basePrice = (guestCount * pricePerGuest) + dessertFee;
       let billableMiles = 0;
       let mileageFee = 0;
       let driveLaborTriggered = false;
@@ -707,16 +725,16 @@ runBtn.addEventListener('click', function(){
       }
 
       extraHours = 0;
+      selectedStyle = 'buffet';
+      dessertAdded = false;
+      dessertToggle.classList.remove('is-active');
+      dessertToggleLabel.textContent = '+ Add dessert for $4/person';
+
       lastCalc = {
         guestCount: guestCount,
         address: address,
-        pizzaStyle: pizzaStyle,
-        pricePerGuest: pricePerGuest,
-        dessertAdded: dessertAdded,
-        dessertFee: dessertFee,
         crew: crew,
         requiredHours: requiredHours,
-        basePrice: basePrice,
         mileageFee: mileageFee,
         driveLaborFee: driveLaborFee,
         driveLaborTriggered: driveLaborTriggered,
@@ -726,6 +744,7 @@ runBtn.addEventListener('click', function(){
         oneWayDriveHours: oneWayDriveHours,
         billableMiles: billableMiles
       };
+      updateStyleTileVisibility();
       renderTotals();
 
       calcResults.classList.add('show');
