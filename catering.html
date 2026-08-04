@@ -222,8 +222,19 @@
     <button type="button" class="calc-modal-close" id="calcClose" aria-label="Close calculator">&times;</button>
 
     <div class="calc-modal-header">
-      <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
-      <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.6rem; color:var(--white); margin:0;">Get Your Quote</h3>
+      <div class="calc-header-badge" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="26" height="26" fill="none">
+          <path d="M24 6 L42 38 A20 20 0 0 1 6 38 Z" fill="var(--ember)"/>
+          <path d="M24 6 L42 38 A20 20 0 0 1 6 38 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <circle cx="21" cy="24" r="2.6" fill="var(--gold)"/>
+          <circle cx="29" cy="28" r="2.6" fill="var(--gold)"/>
+          <circle cx="24" cy="33" r="2.6" fill="var(--gold)"/>
+        </svg>
+      </div>
+      <div>
+        <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
+        <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.6rem; color:var(--white); margin:0;">Get Your Quote</h3>
+      </div>
     </div>
 
     <form class="calc-modal-body" id="calcForm" name="catering-booking-request" data-netlify="true" data-remove-prefix netlify-honeypot="bot-field">
@@ -282,6 +293,7 @@
             </button>
           </div>
           <p class="calc-hint" id="byoUnavailableNote" style="display:none;">Build Your Own is available for groups up to 40 guests.</p>
+          <p class="calc-hint" id="buffetUnavailableNote" style="display:none;">Buffet is available for groups of 25 or more.</p>
         </div>
 
         <button type="button" class="calc-addon-toggle" id="dessertToggle">
@@ -398,6 +410,7 @@ const DRIVE_TIME_LABOR_TRIGGER_ROUND_TRIP_MILES = 40;
 const PRICE_PER_GUEST_BUFFET = 19;
 const PRICE_PER_GUEST_BYO = 25;
 const BYO_MAX_GUESTS = 40;
+const BUFFET_MIN_GUESTS = 25;
 const DESSERT_PRICE_PER_GUEST = 4;
 const DEPOSIT_RATE = 0.5;
 const TAX_RATE = 0.08875;
@@ -466,16 +479,25 @@ let dessertAdded = false;
 const tileBuffet = document.getElementById('tileBuffet');
 const tileBYO = document.getElementById('tileBYO');
 const byoUnavailableNote = document.getElementById('byoUnavailableNote');
+const buffetUnavailableNote = document.getElementById('buffetUnavailableNote');
 const dessertToggle = document.getElementById('dessertToggle');
 const dessertToggleLabel = document.getElementById('dessertToggleLabel');
 
 function updateStyleTileVisibility(){
   if(!lastCalc) return;
   const byoAllowed = currentGuestCount <= BYO_MAX_GUESTS;
+  const buffetAllowed = currentGuestCount >= BUFFET_MIN_GUESTS;
+
   tileBYO.hidden = !byoAllowed;
+  tileBuffet.hidden = !buffetAllowed;
   byoUnavailableNote.style.display = byoAllowed ? 'none' : 'block';
+  buffetUnavailableNote.style.display = buffetAllowed ? 'none' : 'block';
+
   if(!byoAllowed && selectedStyle === 'byo'){
     selectedStyle = 'buffet';
+  }
+  if(!buffetAllowed && selectedStyle === 'buffet'){
+    selectedStyle = 'byo';
   }
   tileBuffet.classList.toggle('is-selected', selectedStyle === 'buffet');
   tileBYO.classList.toggle('is-selected', selectedStyle === 'byo');
