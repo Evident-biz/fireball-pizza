@@ -23,7 +23,7 @@
     <nav class="links" id="navLinks">
       <a href="index.html">Home</a>
       <a href="catering.html" class="active">Catering</a>
-      <a href="#quote">Calculator</a>
+      <a href="#quote">Catering Builder</a>
       <a href="events.html">Calendar</a>
       <a href="contact.html">Contact</a>
       <a href="catering.html#quote" class="cta">Book Catering</a>
@@ -227,7 +227,7 @@
       </div>
       <div>
         <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
-        <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.6rem; color:var(--white); margin:0;">Get Your Quote</h3>
+        <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.6rem; color:var(--white); margin:0;">Catering Builder</h3>
       </div>
     </div>
 
@@ -236,32 +236,38 @@
       <input type="hidden" name="subject" id="sendSubject" value="New Catering Booking Request">
       <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
 
-      <div class="calc-stage" id="calcStage1">
-        <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
-        <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address"></div>
-        <div class="calc-field"><label for="sendPhone">Phone</label><input type="tel" id="sendPhone" name="phone" required pattern="^[\d\s\-\(\)\+\.]{10,}$" title="Enter a valid phone number (at least 10 digits)"></div>
-        <button type="button" class="btn btn-primary" id="calcContinueBtn" style="width:100%; justify-content:center; margin-top:8px;">Continue to Quote Builder</button>
-        <p class="calc-hint" id="calcStage1Hint">Just need a way to reach you — takes 10 seconds.</p>
-      </div>
-
-      <div class="calc-stage calc-stage2" id="calcStage2" style="display:none;">
+      <div class="calc-builder-grid">
         <div class="calc-input-col">
-          <div class="calc-field">
-            <label for="calcAddress">Event Address</label>
-            <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
-            <div id="calcAddressSuggestions" class="calc-suggestions"></div>
+
+          <div id="calcContactPanel">
+            <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
+            <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address"></div>
+            <div class="calc-field"><label for="sendPhone">Phone</label><input type="tel" id="sendPhone" name="phone" required pattern="^[\d\s\-\(\)\+\.]{10,}$" title="Enter a valid phone number (at least 10 digits)"></div>
+            <button type="button" class="btn btn-primary" id="calcContinueBtn" style="width:100%; justify-content:center; margin-top:8px;">Continue to Event Details</button>
+            <p class="calc-hint" id="calcStage1Hint"></p>
+            <button type="button" id="calcSkipContactBtn" class="calc-skip-link">Skip for testing →</button>
           </div>
-          <div class="calc-field-row">
+
+          <div id="calcEventPanel" style="display:none;">
             <div class="calc-field">
-              <label for="eventDate">Event Date</label>
-              <input type="date" id="eventDate" name="Event Date" required>
+              <label for="calcAddress">Event Address</label>
+              <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
+              <div id="calcAddressSuggestions" class="calc-suggestions"></div>
             </div>
-            <div class="calc-field">
-              <label for="eventTime">Event Time</label>
-              <input type="time" id="eventTime" name="Event Time" required>
+            <div class="calc-field-row">
+              <div class="calc-field">
+                <label for="eventDate">Event Date</label>
+                <input type="date" id="eventDate" name="Event Date" required>
+              </div>
+              <div class="calc-field">
+                <label for="eventTime">Event Time</label>
+                <input type="time" id="eventTime" name="Event Time" required>
+              </div>
             </div>
+            <p class="calc-hint" id="calcHint"></p>
+            <p class="calc-hint">This is an estimate only — final pricing and deposit confirmed when we follow up.</p>
           </div>
-          <p class="calc-hint" id="calcHint"></p>
+
         </div>
 
         <div class="calc-results" id="calcResults">
@@ -340,7 +346,6 @@
         <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="payDepositBtn" style="display:none; width:100%; justify-content:center; margin-top:12px;">Pay Deposit — <span id="payDepositAmount"></span></a>
         </div>
       </div>
-      <p class="calc-hint" style="margin-top:14px;">This is an estimate only — final pricing and deposit confirmed when we follow up.</p>
     </form>
   </div>
 </div>
@@ -730,27 +735,7 @@ document.addEventListener('click', function(e){
   }
 });
 
-function openCalc(){
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  document.getElementById('calcStage1').style.display = 'block';
-  document.getElementById('calcStage2').style.display = 'none';
-  calcHint.textContent = '';
-  document.getElementById('calcStage1Hint').textContent = "Just need a way to reach you — takes 10 seconds.";
-  document.getElementById('calcStage1Hint').style.color = 'var(--stone)';
-  document.getElementById('calcSubmitBtn').textContent = 'Lock In My Date';
-  document.getElementById('calcSubmitBtn').disabled = false;
-  document.getElementById('calcSendStatus').textContent = '';
-  document.getElementById('payDepositBtn').style.display = 'none';
-  getPlacesLib().then(function(){ newSessionToken(); });
-}
-function closeCalc(){
-  overlay.classList.remove('open');
-  document.body.style.overflow = '';
-  document.getElementById('calcAddressSuggestions').classList.remove('open');
-}
-
-function initStage2Defaults(){
+function resetBuilderDefaults(){
   extraHours = 0;
   extraHoursSlider.value = 0;
   selectedStyle = 'buffet';
@@ -772,6 +757,32 @@ function initStage2Defaults(){
   };
   updateStyleTileVisibility();
   renderTotals();
+}
+
+function openCalc(){
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('calcContactPanel').style.display = 'block';
+  document.getElementById('calcEventPanel').style.display = 'none';
+  calcHint.textContent = '';
+  document.getElementById('calcStage1Hint').textContent = '';
+  document.getElementById('calcSubmitBtn').textContent = 'Lock In My Date';
+  document.getElementById('calcSubmitBtn').disabled = false;
+  document.getElementById('calcSendStatus').textContent = '';
+  document.getElementById('payDepositBtn').style.display = 'none';
+  resetBuilderDefaults();
+  getPlacesLib().then(function(){ newSessionToken(); });
+}
+function closeCalc(){
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  document.getElementById('calcAddressSuggestions').classList.remove('open');
+}
+
+function advanceToEventDetails(){
+  document.getElementById('calcContactPanel').style.display = 'none';
+  document.getElementById('calcEventPanel').style.display = 'block';
+  document.getElementById('calcAddress').focus();
 }
 
 document.getElementById('calcContinueBtn').addEventListener('click', function(){
@@ -798,14 +809,16 @@ document.getElementById('calcContinueBtn').addEventListener('click', function(){
     return;
   }
 
-  document.getElementById('calcStage1').style.display = 'none';
-  document.getElementById('calcStage2').style.display = 'grid';
-  initStage2Defaults();
-  document.getElementById('calcAddress').focus();
+  advanceToEventDetails();
 
   // Capture contact info as a lead the moment they're through the gate — before we even know their event details.
   submitFormToNetlify('Contact Captured — ' + name)
     .catch(function(err){ console.error('Fireball estimator: contact capture failed', err); });
+});
+
+// Testing-only bypass — skips contact validation entirely, no lead fired since there's no real data yet.
+document.getElementById('calcSkipContactBtn').addEventListener('click', function(){
+  advanceToEventDetails();
 });
 
 openBtn?.addEventListener('click', openCalc);

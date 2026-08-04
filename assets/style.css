@@ -230,20 +230,25 @@ section.tight{ padding: 64px 0; }
 .calc-modal-body{
   padding: 36px 40px 40px;
 }
-.calc-stage1{
-  max-width: 420px; margin: 0 auto;
-}
-.calc-stage2{
+.calc-builder-grid{
   display: grid;
   grid-template-columns: 1fr;
   gap: 32px;
   align-items: start;
 }
 @media (min-width: 760px){
-  .calc-stage2{ grid-template-columns: 1fr 1.1fr; gap: 40px; }
+  .calc-builder-grid{ grid-template-columns: 1fr 1.1fr; gap: 40px; }
 }
 .calc-input-col{ display: flex; flex-direction: column; }
 .calc-field-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.calc-skip-link{
+  display: block; width: 100%; text-align: center; margin-top: 10px;
+  background: none; border: none; cursor: pointer;
+  font-family: var(--font-utility); font-size: 0.7rem; letter-spacing: 0.05em;
+  color: var(--stone); opacity: 0.5; text-decoration: underline;
+  transition: opacity 0.2s ease;
+}
+.calc-skip-link:hover{ opacity: 0.9; color: var(--ember); }
 .calc-modal-close{
   position: absolute; top: 16px; right: 16px;
   width: 34px; height: 34px; border-radius: 50%;
