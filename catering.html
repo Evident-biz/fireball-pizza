@@ -231,50 +231,61 @@
       <input type="hidden" name="subject" id="sendSubject" value="New Catering Booking Request">
       <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
 
-      <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
-      <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address"></div>
-      <div class="calc-field"><label for="sendPhone">Phone</label><input type="tel" id="sendPhone" name="phone" required pattern="^[\d\s\-\(\)\+\.]{10,}$" title="Enter a valid phone number (at least 10 digits)"></div>
+      <div class="calc-input-col">
+        <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
+        <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address"></div>
+        <div class="calc-field"><label for="sendPhone">Phone</label><input type="tel" id="sendPhone" name="phone" required pattern="^[\d\s\-\(\)\+\.]{10,}$" title="Enter a valid phone number (at least 10 digits)"></div>
 
-      <div class="calc-field">
-        <label for="calcGuests">Guest Count (20 minimum)</label>
-        <input type="number" id="calcGuests" min="20" placeholder="e.g. 100">
-      </div>
-      <div class="calc-field">
-        <label for="calcAddress">Event Address</label>
-        <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
-        <div id="calcAddressSuggestions" class="calc-suggestions"></div>
-      </div>
-      <div class="calc-field">
-        <label for="eventDate">Event Date</label>
-        <input type="date" id="eventDate" name="Event Date" required>
-      </div>
-      <div class="calc-field">
-        <label for="eventTime">Event Time</label>
-        <input type="time" id="eventTime" name="Event Time" required>
-      </div>
+        <div class="calc-field">
+          <label for="calcGuests">Guest Count (20 minimum)</label>
+          <input type="number" id="calcGuests" min="20" placeholder="e.g. 100">
+        </div>
+        <div class="calc-field">
+          <label for="calcAddress">Event Address</label>
+          <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
+          <div id="calcAddressSuggestions" class="calc-suggestions"></div>
+        </div>
+        <div class="calc-field-row">
+          <div class="calc-field">
+            <label for="eventDate">Event Date</label>
+            <input type="date" id="eventDate" name="Event Date" required>
+          </div>
+          <div class="calc-field">
+            <label for="eventTime">Event Time</label>
+            <input type="time" id="eventTime" name="Event Time" required>
+          </div>
+        </div>
 
-      <button type="button" class="btn btn-primary" id="calcRunBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate My Quote</button>
-      <p class="calc-hint" id="calcHint">Fill in your info above, then calculate.</p>
+        <button type="button" class="btn btn-primary" id="calcRunBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate My Quote</button>
+        <p class="calc-hint" id="calcHint">Fill in your info above, then calculate.</p>
+      </div>
 
       <div class="calc-results" id="calcResults">
+
+        <div class="calc-results-placeholder" id="calcResultsPlaceholder">
+          <span class="eyebrow" style="color:var(--gold);">Your Quote</span>
+          <p>Fill in your info and hit Calculate — your price shows up right here.</p>
+        </div>
+
+        <div class="calc-results-content" id="calcResultsContent">
 
         <div class="calc-tile-group">
           <label>Choose Your Style</label>
           <div class="calc-tiles">
             <button type="button" class="calc-tile is-selected" id="tileBuffet" data-style="buffet">
               <strong>Buffet</strong>
-              <span>$19/person · up to 250 people</span>
+              <span>$19/person</span>
             </button>
             <button type="button" class="calc-tile" id="tileBYO" data-style="byo">
               <strong>Build Your Own</strong>
-              <span>$25/person · up to 40 guests</span>
+              <span>$25/person</span>
             </button>
           </div>
           <p class="calc-hint" id="byoUnavailableNote" style="display:none;">Build Your Own is available for groups up to 40 guests.</p>
         </div>
 
         <button type="button" class="calc-addon-toggle" id="dessertToggle">
-          <span id="dessertToggleLabel">+ Add dessert for $4/person</span>
+          <span id="dessertToggleLabel">+ Add dessert for $4/person (Chocolate Mousse Cake or Cheesecake)</span>
         </button>
 
         <div class="calc-row calc-row-stepper">
@@ -292,7 +303,7 @@
         <div class="calc-row" style="display:none;"><span>Crew size</span><strong id="calcCrew">—</strong></div>
         <div class="calc-row" style="display:none;"><span>Drive-time labor fee</span><strong id="calcDriveLabor">—</strong></div>
         <div class="calc-row"><span>Travel fee</span><strong id="calcLaborTravelTotal">—</strong></div>
-        <div class="calc-row"><span>Extra time fee</span><strong id="calcExtraTimeFee">—</strong></div>
+        <div class="calc-row"><span>Sales Tax</span><strong id="calcSalesTax">—</strong></div>
         <div class="calc-row calc-total"><span>Total Quote</span><strong id="calcGrandTotal">—</strong></div>
         <div class="calc-row calc-deposit"><span>Deposit Due (50%)</span><strong id="calcDeposit">—</strong></div>
 
@@ -306,8 +317,9 @@
         <button type="submit" class="btn btn-primary" id="calcSubmitBtn" style="width:100%; justify-content:center; margin-top:20px;">Lock In My Date</button>
         <p class="calc-hint" id="calcSendStatus"></p>
         <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="payDepositBtn" style="display:none; width:100%; justify-content:center; margin-top:12px;">Pay Deposit — <span id="payDepositAmount"></span></a>
+        </div>
       </div>
-      <p class="calc-hint" style="margin-top:14px;">This is an estimate only — final pricing and deposit confirmed when we follow up.</p>
+      <p class="calc-hint" style="margin-top:14px; grid-column: 1 / -1;">This is an estimate only — final pricing and deposit confirmed when we follow up.</p>
     </form>
   </div>
 </div>
@@ -380,6 +392,8 @@ const PRICE_PER_GUEST_BYO = 25;
 const BYO_MAX_GUESTS = 40;
 const DESSERT_PRICE_PER_GUEST = 4;
 const DEPOSIT_RATE = 0.5;
+const TAX_RATE = 0.08875;
+const BYO_INCLUDED_HOURS = 2;
 const MIN_GUEST_COUNT = 20;
 const MIN_SERVICE_HOURS = 1;
 const MAX_INCLUDED_SERVICE_HOURS = 3;
@@ -451,15 +465,15 @@ dessertToggle.addEventListener('click', function(){
   dessertAdded = !dessertAdded;
   dessertToggle.classList.toggle('is-active', dessertAdded);
   dessertToggleLabel.textContent = dessertAdded
-    ? '\u2713 Dessert added (+$4/person)'
-    : '+ Add dessert for $4/person';
+    ? '\u2713 Dessert added (+$4/person, Chocolate Mousse Cake or Cheesecake)'
+    : '+ Add dessert for $4/person (Chocolate Mousse Cake or Cheesecake)';
   renderTotals();
 });
 
 function renderTotals(){
   if(!lastCalc) return;
   const {
-    guestCount, address, crew, requiredHours,
+    guestCount, address, crew,
     mileageFee, driveLaborFee, driveLaborTriggered,
     roundTripMiles, roundTripDriveHours, oneWayMiles, oneWayDriveHours, billableMiles
   } = lastCalc;
@@ -469,11 +483,15 @@ function renderTotals(){
   const basePrice = (guestCount * pricePerGuest) + dessertFee;
   const styleLabel = selectedStyle === 'byo' ? 'Build Your Own' : 'Buffet';
 
+  const requiredHours = selectedStyle === 'byo' ? BYO_INCLUDED_HOURS : requiredHoursForGuests(guestCount);
   const totalServiceHours = requiredHours + extraHours;
   const extraTimeFee = extraHours * crew * LABOR_RATE_PER_HOUR;
-  const laborTravelTotal = mileageFee + driveLaborFee;
-  const grandTotal = basePrice + laborTravelTotal + extraTimeFee;
-  const depositDue = grandTotal * DEPOSIT_RATE;
+  const laborTravelTotal = mileageFee + driveLaborFee + extraTimeFee;
+
+  const preTaxSubtotal = basePrice + laborTravelTotal;
+  const salesTax = preTaxSubtotal * TAX_RATE;
+  const grandTotal = preTaxSubtotal + salesTax;
+  const depositDue = preTaxSubtotal * DEPOSIT_RATE;
 
   serviceHoursValueEl.textContent = totalServiceHours + ' hr' + (totalServiceHours !== 1 ? 's' : '');
   timeMinusBtn.disabled = extraHours <= 0;
@@ -485,16 +503,16 @@ function renderTotals(){
   document.getElementById('calcCrew').textContent = crew + ' people';
   document.getElementById('calcDriveLabor').textContent = formatCurrency(driveLaborFee);
   document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
-  document.getElementById('calcExtraTimeFee').textContent = formatCurrency(extraTimeFee);
+  document.getElementById('calcSalesTax').textContent = formatCurrency(salesTax);
   document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
-  document.getElementById('calcDeposit').textContent = formatCurrency(depositDue);
+  document.getElementById('calcDeposit').textContent = formatCurrency(depositDue) + ' + tax';
 
   // Grouped, plain-language summaries sent to Fireball for internal double-checking.
   document.getElementById('sendGuestCount').value = guestCount;
 
   document.getElementById('sendServiceTime').value =
-    totalServiceHours + ' hr total (' + requiredHours + ' hr required + ' + extraHours + ' hr extra). ' +
-    'Extra time fee: ' + formatCurrency(extraTimeFee) + (extraHours > 0 ? ' (' + extraHours + ' hr × ' + crew + ' crew × $25/hr)' : ' (no extra time added)');
+    totalServiceHours + ' hr total (' + requiredHours + ' hr included' + (selectedStyle === 'byo' ? ' — Build Your Own' : '') + ' + ' + extraHours + ' hr extra). ' +
+    'Extra time cost: ' + formatCurrency(extraTimeFee) + (extraHours > 0 ? ' (' + extraHours + ' hr × ' + crew + ' crew × $25/hr, folded into travel fee)' : ' (no extra time added)');
 
   document.getElementById('sendAddress').value = address;
 
@@ -511,10 +529,11 @@ function renderTotals(){
     'Style: ' + styleLabel + ' ($' + pricePerGuest + '/guest) | ' +
     'Dessert: ' + (dessertAdded ? ('Yes (+' + formatCurrency(dessertFee) + ')') : 'No') + ' | ' +
     'Base: ' + guestCount + ' guests × $' + pricePerGuest + (dessertAdded ? (' + ' + formatCurrency(dessertFee) + ' dessert') : '') + ' = ' + formatCurrency(basePrice) + ' | ' +
-    'Travel fee (mileage + drive labor): ' + formatCurrency(laborTravelTotal) + ' | ' +
-    'Extra time fee: ' + formatCurrency(extraTimeFee) + ' | ' +
+    'Travel fee (mileage + drive labor + extra time): ' + formatCurrency(laborTravelTotal) + ' | ' +
+    'Pre-tax subtotal: ' + formatCurrency(preTaxSubtotal) + ' | ' +
+    'Sales tax (8.875%): ' + formatCurrency(salesTax) + ' | ' +
     'Grand Total: ' + formatCurrency(grandTotal) + ' | ' +
-    'Deposit Due (50%): ' + formatCurrency(depositDue);
+    'Deposit Due (50% of pre-tax, +tax at checkout): ' + formatCurrency(depositDue);
 
   document.getElementById('sendSubject').value = 'Catering Booked — ' + guestCount + ' guests, ' + formatCurrency(grandTotal) + ' total';
 }
@@ -628,8 +647,8 @@ function openCalc(){
   selectedStyle = 'buffet';
   dessertAdded = false;
   dessertToggle.classList.remove('is-active');
-  dessertToggleLabel.textContent = '+ Add dessert for $4/person';
-  calcResults.classList.remove('show');
+  dessertToggleLabel.textContent = '+ Add dessert for $4/person (Chocolate Mousse Cake or Cheesecake)';
+  calcResults.classList.remove('has-quote');
   document.getElementById('calcSubmitBtn').textContent = 'Lock In My Date';
   document.getElementById('calcSubmitBtn').disabled = false;
   document.getElementById('calcSendStatus').textContent = '';
@@ -705,7 +724,7 @@ runBtn.addEventListener('click', function(){
 
   calcHint.textContent = 'Calculating driving distance...';
   calcHint.style.color = 'var(--stone)';
-  calcResults.classList.remove('show');
+  calcResults.classList.remove('has-quote');
 
   let settled = false;
   const timeoutId = setTimeout(function(){
@@ -771,7 +790,7 @@ runBtn.addEventListener('click', function(){
       selectedStyle = 'buffet';
       dessertAdded = false;
       dessertToggle.classList.remove('is-active');
-      dessertToggleLabel.textContent = '+ Add dessert for $4/person';
+      dessertToggleLabel.textContent = '+ Add dessert for $4/person (Chocolate Mousse Cake or Cheesecake)';
 
       lastCalc = {
         guestCount: guestCount,
@@ -790,7 +809,7 @@ runBtn.addEventListener('click', function(){
       updateStyleTileVisibility();
       renderTotals();
 
-      calcResults.classList.add('show');
+      calcResults.classList.add('has-quote');
       calcHint.textContent = '';
 
       // Capture as a lead now — before they decide whether to lock in.
