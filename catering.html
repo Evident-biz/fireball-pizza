@@ -289,6 +289,14 @@
         </button>
 
         <div class="calc-row calc-row-stepper">
+          <span>Guests</span>
+          <div class="calc-stepper-inline">
+            <button type="button" id="calcGuestsMinus" class="calc-stepper-btn" aria-label="Decrease guest count">−</button>
+            <strong id="calcGuestsValue">—</strong>
+            <button type="button" id="calcGuestsPlus" class="calc-stepper-btn" aria-label="Increase guest count">+</button>
+          </div>
+        </div>
+        <div class="calc-row calc-row-stepper">
           <span>Service time</span>
           <div class="calc-stepper-inline">
             <button type="button" id="calcTimeMinus" class="calc-stepper-btn" aria-label="Remove an hour">−</button>
@@ -429,6 +437,29 @@ const serviceHoursValueEl = document.getElementById('calcServiceHoursValue');
 const timeMinusBtn = document.getElementById('calcTimeMinus');
 const timePlusBtn = document.getElementById('calcTimePlus');
 
+// --- Guest count stepper: live-adjustable after calculation, recalculates everything but distance ---
+let currentGuestCount = 0;
+const GUEST_STEP = 5;
+const guestsValueEl = document.getElementById('calcGuestsValue');
+const guestsMinusBtn = document.getElementById('calcGuestsMinus');
+const guestsPlusBtn = document.getElementById('calcGuestsPlus');
+
+function setGuestCount(newCount){
+  currentGuestCount = Math.max(MIN_GUEST_COUNT, newCount);
+  document.getElementById('calcGuests').value = currentGuestCount;
+  guestsValueEl.textContent = currentGuestCount;
+  guestsMinusBtn.disabled = currentGuestCount <= MIN_GUEST_COUNT;
+  updateStyleTileVisibility();
+  renderTotals();
+}
+
+guestsMinusBtn.addEventListener('click', function(){
+  setGuestCount(currentGuestCount - GUEST_STEP);
+});
+guestsPlusBtn.addEventListener('click', function(){
+  setGuestCount(currentGuestCount + GUEST_STEP);
+});
+
 // --- Style tiles + dessert toggle: shown after calculation, live-adjustable ---
 let selectedStyle = 'buffet';
 let dessertAdded = false;
@@ -440,7 +471,7 @@ const dessertToggleLabel = document.getElementById('dessertToggleLabel');
 
 function updateStyleTileVisibility(){
   if(!lastCalc) return;
-  const byoAllowed = lastCalc.guestCount <= BYO_MAX_GUESTS;
+  const byoAllowed = currentGuestCount <= BYO_MAX_GUESTS;
   tileBYO.hidden = !byoAllowed;
   byoUnavailableNote.style.display = byoAllowed ? 'none' : 'block';
   if(!byoAllowed && selectedStyle === 'byo'){
@@ -472,11 +503,13 @@ dessertToggle.addEventListener('click', function(){
 
 function renderTotals(){
   if(!lastCalc) return;
+  const guestCount = currentGuestCount;
+  const crew = crewSizeForGuests(guestCount);
   const {
-    guestCount, address, crew,
-    mileageFee, driveLaborFee, driveLaborTriggered,
+    address, mileageFee, driveLaborTriggered,
     roundTripMiles, roundTripDriveHours, oneWayMiles, oneWayDriveHours, billableMiles
   } = lastCalc;
+  const driveLaborFee = driveLaborTriggered ? roundTripDriveHours * crew * LABOR_RATE_PER_HOUR : 0;
 
   const pricePerGuest = selectedStyle === 'byo' ? PRICE_PER_GUEST_BYO : PRICE_PER_GUEST_BUFFET;
   const dessertFee = dessertAdded ? guestCount * DESSERT_PRICE_PER_GUEST : 0;
@@ -493,6 +526,8 @@ function renderTotals(){
   const grandTotal = preTaxSubtotal + salesTax;
   const depositDue = preTaxSubtotal * DEPOSIT_RATE;
 
+  guestsValueEl.textContent = guestCount;
+  guestsMinusBtn.disabled = guestCount <= MIN_GUEST_COUNT;
   serviceHoursValueEl.textContent = totalServiceHours + ' hr' + (totalServiceHours !== 1 ? 's' : '');
   timeMinusBtn.disabled = extraHours <= 0;
 
@@ -644,6 +679,7 @@ function openCalc(){
   document.body.style.overflow = 'hidden';
   extraHours = 0;
   lastCalc = null;
+  currentGuestCount = 0;
   selectedStyle = 'buffet';
   dessertAdded = false;
   dessertToggle.classList.remove('is-active');
@@ -769,13 +805,10 @@ runBtn.addEventListener('click', function(){
       const oneWayDriveHours = element.duration.value / 3600;
       const roundTripMiles = oneWayMiles * 2;
       const roundTripDriveHours = oneWayDriveHours * 2;
-      const crew = crewSizeForGuests(guestCount);
-      const requiredHours = requiredHoursForGuests(guestCount);
 
       let billableMiles = 0;
       let mileageFee = 0;
       let driveLaborTriggered = false;
-      let driveLaborFee = 0;
 
       if(roundTripMiles > FREE_RADIUS_ROUND_TRIP_MILES){
         billableMiles = roundTripMiles - FREE_RADIUS_ROUND_TRIP_MILES;
@@ -783,7 +816,6 @@ runBtn.addEventListener('click', function(){
       }
       if(roundTripMiles > DRIVE_TIME_LABOR_TRIGGER_ROUND_TRIP_MILES){
         driveLaborTriggered = true;
-        driveLaborFee = roundTripDriveHours * crew * LABOR_RATE_PER_HOUR;
       }
 
       extraHours = 0;
@@ -793,12 +825,8 @@ runBtn.addEventListener('click', function(){
       dessertToggleLabel.textContent = '+ Add dessert for $4/person (Chocolate Mousse Cake or Cheesecake)';
 
       lastCalc = {
-        guestCount: guestCount,
         address: address,
-        crew: crew,
-        requiredHours: requiredHours,
         mileageFee: mileageFee,
-        driveLaborFee: driveLaborFee,
         driveLaborTriggered: driveLaborTriggered,
         roundTripMiles: roundTripMiles,
         roundTripDriveHours: roundTripDriveHours,
@@ -806,6 +834,7 @@ runBtn.addEventListener('click', function(){
         oneWayDriveHours: oneWayDriveHours,
         billableMiles: billableMiles
       };
+      currentGuestCount = guestCount;
       updateStyleTileVisibility();
       renderTotals();
 
