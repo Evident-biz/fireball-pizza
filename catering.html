@@ -223,13 +223,7 @@
 
     <div class="calc-modal-header">
       <div class="calc-header-badge" aria-hidden="true">
-        <svg viewBox="0 0 48 48" width="26" height="26" fill="none">
-          <path d="M24 6 L42 38 A20 20 0 0 1 6 38 Z" fill="var(--ember)"/>
-          <path d="M24 6 L42 38 A20 20 0 0 1 6 38 Z" fill="none" stroke="var(--gold)" stroke-width="2"/>
-          <circle cx="21" cy="24" r="2.6" fill="var(--gold)"/>
-          <circle cx="29" cy="28" r="2.6" fill="var(--gold)"/>
-          <circle cx="24" cy="33" r="2.6" fill="var(--gold)"/>
-        </svg>
+        <img src="assets/images/logo.png" alt="" style="width:34px; height:auto;">
       </div>
       <div>
         <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
@@ -242,43 +236,40 @@
       <input type="hidden" name="subject" id="sendSubject" value="New Catering Booking Request">
       <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
 
-      <div class="calc-input-col">
+      <div class="calc-stage" id="calcStage1">
         <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
         <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address"></div>
         <div class="calc-field"><label for="sendPhone">Phone</label><input type="tel" id="sendPhone" name="phone" required pattern="^[\d\s\-\(\)\+\.]{10,}$" title="Enter a valid phone number (at least 10 digits)"></div>
-
-        <div class="calc-field">
-          <label for="calcGuests">Guest Count (20 minimum)</label>
-          <input type="number" id="calcGuests" min="20" placeholder="e.g. 100">
-        </div>
-        <div class="calc-field">
-          <label for="calcAddress">Event Address</label>
-          <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
-          <div id="calcAddressSuggestions" class="calc-suggestions"></div>
-        </div>
-        <div class="calc-field-row">
-          <div class="calc-field">
-            <label for="eventDate">Event Date</label>
-            <input type="date" id="eventDate" name="Event Date" required>
-          </div>
-          <div class="calc-field">
-            <label for="eventTime">Event Time</label>
-            <input type="time" id="eventTime" name="Event Time" required>
-          </div>
-        </div>
-
-        <button type="button" class="btn btn-primary" id="calcRunBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate My Quote</button>
-        <p class="calc-hint" id="calcHint">Fill in your info above, then calculate.</p>
+        <button type="button" class="btn btn-primary" id="calcContinueBtn" style="width:100%; justify-content:center; margin-top:8px;">Continue to Quote Builder</button>
+        <p class="calc-hint" id="calcStage1Hint">Just need a way to reach you — takes 10 seconds.</p>
       </div>
 
-      <div class="calc-results" id="calcResults">
-
-        <div class="calc-results-placeholder" id="calcResultsPlaceholder">
-          <span class="eyebrow" style="color:var(--gold);">Your Quote</span>
-          <p>Fill in your info and hit Calculate — your price shows up right here.</p>
+      <div class="calc-stage calc-stage2" id="calcStage2" style="display:none;">
+        <div class="calc-input-col">
+          <div class="calc-field">
+            <label for="calcAddress">Event Address</label>
+            <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
+            <div id="calcAddressSuggestions" class="calc-suggestions"></div>
+          </div>
+          <div class="calc-field-row">
+            <div class="calc-field">
+              <label for="eventDate">Event Date</label>
+              <input type="date" id="eventDate" name="Event Date" required>
+            </div>
+            <div class="calc-field">
+              <label for="eventTime">Event Time</label>
+              <input type="time" id="eventTime" name="Event Time" required>
+            </div>
+          </div>
+          <p class="calc-hint" id="calcHint"></p>
         </div>
 
-        <div class="calc-results-content" id="calcResultsContent">
+        <div class="calc-results" id="calcResults">
+
+        <div class="calc-sale-badge">
+          <span class="calc-sale-badge-tag">Book Now Bonus</span>
+          <p>Book online today and get <strong>Caesar Salad</strong> + <strong>Cheesy Garlic Breadsticks</strong> added to your event — <strong>free</strong>.</p>
+        </div>
 
         <div class="calc-tile-group">
           <label>Choose Your Style</label>
@@ -300,22 +291,31 @@
           <span id="dessertToggleLabel">+ Add dessert for $4/person (Chocolate Mousse Cake or Cheesecake)</span>
         </button>
 
-        <div class="calc-row calc-row-stepper">
-          <span>Guests</span>
-          <div class="calc-stepper-inline">
-            <button type="button" id="calcGuestsMinus" class="calc-stepper-btn" aria-label="Decrease guest count">−</button>
-            <strong id="calcGuestsValue">—</strong>
-            <button type="button" id="calcGuestsPlus" class="calc-stepper-btn" aria-label="Increase guest count">+</button>
+        <button type="button" class="calc-addon-toggle calc-addon-toggle-free is-active" id="caesarToggle">
+          <span>Caesar Salad <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
+        </button>
+        <button type="button" class="calc-addon-toggle calc-addon-toggle-free is-active" id="breadsticksToggle">
+          <span>Cheesy Garlic Breadsticks <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
+        </button>
+
+        <div class="calc-slider-field">
+          <div class="calc-slider-head">
+            <span>Guests</span>
+            <strong id="calcGuestsValue">20</strong>
           </div>
+          <input type="range" id="calcGuestsSlider" min="20" max="250" step="1" value="20" class="calc-slider">
+          <div class="calc-slider-range"><span>20</span><span>250</span></div>
         </div>
-        <div class="calc-row calc-row-stepper">
-          <span>Service time</span>
-          <div class="calc-stepper-inline">
-            <button type="button" id="calcTimeMinus" class="calc-stepper-btn" aria-label="Remove an hour">−</button>
+
+        <div class="calc-slider-field">
+          <div class="calc-slider-head">
+            <span>Service time</span>
             <strong id="calcServiceHoursValue">—</strong>
-            <button type="button" id="calcTimePlus" class="calc-stepper-btn" aria-label="Add an hour">+</button>
           </div>
+          <input type="range" id="calcExtraHoursSlider" min="0" max="6" step="1" value="0" class="calc-slider">
+          <div class="calc-slider-range"><span id="calcRequiredHoursLabel">Included</span><span>+6 hrs max</span></div>
         </div>
+
         <div class="calc-row"><span>Base food price</span><strong id="calcBase">—</strong></div>
         <div class="calc-row"><span>Distance (round trip)</span><strong id="calcMiles">—</strong></div>
         <div class="calc-row" style="display:none;"><span>Mileage fee</span><strong id="calcMileageFee">—</strong></div>
@@ -333,13 +333,14 @@
         <input type="hidden" name="Distance and Mileage" id="sendDistance">
         <input type="hidden" name="Drive-Time Labor" id="sendDriveLabor">
         <input type="hidden" name="Pricing Summary" id="sendPricing">
+        <input type="hidden" name="Free Appetizers" id="sendAppetizers">
 
         <button type="submit" class="btn btn-primary" id="calcSubmitBtn" style="width:100%; justify-content:center; margin-top:20px;">Lock In My Date</button>
         <p class="calc-hint" id="calcSendStatus"></p>
         <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="payDepositBtn" style="display:none; width:100%; justify-content:center; margin-top:12px;">Pay Deposit — <span id="payDepositAmount"></span></a>
         </div>
       </div>
-      <p class="calc-hint" style="margin-top:14px; grid-column: 1 / -1;">This is an estimate only — final pricing and deposit confirmed when we follow up.</p>
+      <p class="calc-hint" style="margin-top:14px;">This is an estimate only — final pricing and deposit confirmed when we follow up.</p>
     </form>
   </div>
 </div>
@@ -367,8 +368,8 @@ function submitFormToNetlify(subjectOverride){
 
 document.getElementById('calcForm').addEventListener('submit', function(e){
   e.preventDefault();
-  if(!lastCalc){
-    calcHint.textContent = 'Please calculate your quote first.';
+  if(!hasDistance){
+    calcHint.textContent = 'Please enter your event address to get your full quote first.';
     calcHint.style.color = 'var(--ember)';
     return;
   }
@@ -439,49 +440,64 @@ function formatCurrency(n){
 const overlay = document.getElementById('calcOverlay');
 const openBtn = document.getElementById('openCalculatorBtn');
 const closeBtn = document.getElementById('calcClose');
-const runBtn = document.getElementById('calcRunBtn');
 const calcHint = document.getElementById('calcHint');
 const calcResults = document.getElementById('calcResults');
 
-// --- Service time stepper: shows up populated after a calculation, can only go up from there ---
+// --- Service time slider: 0-6 extra hours on top of the included baseline ---
 let extraHours = 0;
 let lastCalc = null; // cached results of the most recent distance calculation
+let hasDistance = false; // whether lastCalc has real address-based numbers yet
+let quoteViewedCaptured = false; // only fire the "Quote Viewed" lead once per session
 const serviceHoursValueEl = document.getElementById('calcServiceHoursValue');
-const timeMinusBtn = document.getElementById('calcTimeMinus');
-const timePlusBtn = document.getElementById('calcTimePlus');
+const extraHoursSlider = document.getElementById('calcExtraHoursSlider');
+const requiredHoursLabelEl = document.getElementById('calcRequiredHoursLabel');
 
-// --- Guest count stepper: live-adjustable after calculation, recalculates everything but distance ---
+// --- Guest count slider: live-adjustable after calculation, recalculates everything but distance ---
 let currentGuestCount = 0;
-const GUEST_STEP = 5;
 const guestsValueEl = document.getElementById('calcGuestsValue');
-const guestsMinusBtn = document.getElementById('calcGuestsMinus');
-const guestsPlusBtn = document.getElementById('calcGuestsPlus');
+const guestsSlider = document.getElementById('calcGuestsSlider');
 
 function setGuestCount(newCount){
   currentGuestCount = Math.max(MIN_GUEST_COUNT, newCount);
-  document.getElementById('calcGuests').value = currentGuestCount;
+  guestsSlider.value = currentGuestCount;
   guestsValueEl.textContent = currentGuestCount;
-  guestsMinusBtn.disabled = currentGuestCount <= MIN_GUEST_COUNT;
   updateStyleTileVisibility();
   renderTotals();
 }
 
-guestsMinusBtn.addEventListener('click', function(){
-  setGuestCount(currentGuestCount - GUEST_STEP);
-});
-guestsPlusBtn.addEventListener('click', function(){
-  setGuestCount(currentGuestCount + GUEST_STEP);
+guestsSlider.addEventListener('input', function(){
+  setGuestCount(parseInt(this.value, 10));
 });
 
-// --- Style tiles + dessert toggle: shown after calculation, live-adjustable ---
+extraHoursSlider.addEventListener('input', function(){
+  extraHours = parseInt(this.value, 10);
+  renderTotals();
+});
+
+// --- Style tiles + dessert/appetizer toggles: shown after calculation, live-adjustable ---
 let selectedStyle = 'buffet';
 let dessertAdded = false;
+let caesarAdded = true;
+let breadsticksAdded = true;
 const tileBuffet = document.getElementById('tileBuffet');
 const tileBYO = document.getElementById('tileBYO');
 const byoUnavailableNote = document.getElementById('byoUnavailableNote');
 const buffetUnavailableNote = document.getElementById('buffetUnavailableNote');
 const dessertToggle = document.getElementById('dessertToggle');
 const dessertToggleLabel = document.getElementById('dessertToggleLabel');
+const caesarToggle = document.getElementById('caesarToggle');
+const breadsticksToggle = document.getElementById('breadsticksToggle');
+
+caesarToggle.addEventListener('click', function(){
+  caesarAdded = !caesarAdded;
+  caesarToggle.classList.toggle('is-active', caesarAdded);
+  renderTotals();
+});
+breadsticksToggle.addEventListener('click', function(){
+  breadsticksAdded = !breadsticksAdded;
+  breadsticksToggle.classList.toggle('is-active', breadsticksAdded);
+  renderTotals();
+});
 
 function updateStyleTileVisibility(){
   if(!lastCalc) return;
@@ -549,20 +565,32 @@ function renderTotals(){
   const depositDue = preTaxSubtotal * DEPOSIT_RATE;
 
   guestsValueEl.textContent = guestCount;
-  guestsMinusBtn.disabled = guestCount <= MIN_GUEST_COUNT;
+  guestsSlider.value = guestCount;
   serviceHoursValueEl.textContent = totalServiceHours + ' hr' + (totalServiceHours !== 1 ? 's' : '');
-  timeMinusBtn.disabled = extraHours <= 0;
+  requiredHoursLabelEl.textContent = requiredHours + ' hr included';
 
   document.getElementById('calcBase').textContent = formatCurrency(basePrice);
-  document.getElementById('calcMiles').textContent = roundTripMiles.toFixed(1) + ' mi';
-  document.getElementById('calcMileageFee').textContent = formatCurrency(mileageFee);
-  document.getElementById('calcDriveTime').textContent = roundTripDriveHours.toFixed(1) + ' hr';
-  document.getElementById('calcCrew').textContent = crew + ' people';
-  document.getElementById('calcDriveLabor').textContent = formatCurrency(driveLaborFee);
-  document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
-  document.getElementById('calcSalesTax').textContent = formatCurrency(salesTax);
-  document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
-  document.getElementById('calcDeposit').textContent = formatCurrency(depositDue) + ' + tax';
+  if(hasDistance){
+    document.getElementById('calcMiles').textContent = roundTripMiles.toFixed(1) + ' mi';
+    document.getElementById('calcMileageFee').textContent = formatCurrency(mileageFee);
+    document.getElementById('calcDriveTime').textContent = roundTripDriveHours.toFixed(1) + ' hr';
+    document.getElementById('calcCrew').textContent = crew + ' people';
+    document.getElementById('calcDriveLabor').textContent = formatCurrency(driveLaborFee);
+    document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
+    document.getElementById('calcSalesTax').textContent = formatCurrency(salesTax);
+    document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
+    document.getElementById('calcDeposit').textContent = formatCurrency(depositDue) + ' + tax';
+  } else {
+    document.getElementById('calcMiles').textContent = '—';
+    document.getElementById('calcMileageFee').textContent = '—';
+    document.getElementById('calcDriveTime').textContent = '—';
+    document.getElementById('calcCrew').textContent = crew + ' people';
+    document.getElementById('calcDriveLabor').textContent = '—';
+    document.getElementById('calcLaborTravelTotal').textContent = '—';
+    document.getElementById('calcSalesTax').textContent = '—';
+    document.getElementById('calcGrandTotal').textContent = '—';
+    document.getElementById('calcDeposit').textContent = '—';
+  }
 
   // Grouped, plain-language summaries sent to Fireball for internal double-checking.
   document.getElementById('sendGuestCount').value = guestCount;
@@ -573,14 +601,16 @@ function renderTotals(){
 
   document.getElementById('sendAddress').value = address;
 
-  document.getElementById('sendDistance').value =
-    oneWayMiles.toFixed(2) + ' mi one-way (' + roundTripMiles.toFixed(2) + ' mi round trip) from 401 Downey Ave, Modesto. ' +
-    '40 mi free, ' + billableMiles.toFixed(2) + ' mi billable × $1.75/mi = ' + formatCurrency(mileageFee) + ' mileage fee';
+  document.getElementById('sendDistance').value = hasDistance
+    ? (oneWayMiles.toFixed(2) + ' mi one-way (' + roundTripMiles.toFixed(2) + ' mi round trip) from 401 Downey Ave, Modesto. ' +
+       '40 mi free, ' + billableMiles.toFixed(2) + ' mi billable × $1.75/mi = ' + formatCurrency(mileageFee) + ' mileage fee')
+    : 'Not yet calculated';
 
-  document.getElementById('sendDriveLabor').value =
-    oneWayDriveHours.toFixed(2) + ' hr one-way (' + roundTripDriveHours.toFixed(2) + ' hr round trip). ' +
-    'Triggered: ' + (driveLaborTriggered ? 'Yes (round trip > 40 mi)' : 'No (round trip \u2264 40 mi)') + '. ' +
-    'Crew: ' + crew + ' people × $25/hr = ' + formatCurrency(driveLaborFee);
+  document.getElementById('sendDriveLabor').value = hasDistance
+    ? (oneWayDriveHours.toFixed(2) + ' hr one-way (' + roundTripDriveHours.toFixed(2) + ' hr round trip). ' +
+       'Triggered: ' + (driveLaborTriggered ? 'Yes (round trip > 40 mi)' : 'No (round trip \u2264 40 mi)') + '. ' +
+       'Crew: ' + crew + ' people × $25/hr = ' + formatCurrency(driveLaborFee))
+    : 'Not yet calculated';
 
   document.getElementById('sendPricing').value =
     'Style: ' + styleLabel + ' ($' + pricePerGuest + '/guest) | ' +
@@ -592,19 +622,12 @@ function renderTotals(){
     'Grand Total: ' + formatCurrency(grandTotal) + ' | ' +
     'Deposit Due (50% of pre-tax, +tax at checkout): ' + formatCurrency(depositDue);
 
+  document.getElementById('sendAppetizers').value =
+    'Caesar Salad: ' + (caesarAdded ? 'Yes (free booking bonus)' : 'No, declined') + ' | ' +
+    'Cheesy Garlic Breadsticks: ' + (breadsticksAdded ? 'Yes (free booking bonus)' : 'No, declined');
+
   document.getElementById('sendSubject').value = 'Catering Booked — ' + guestCount + ' guests, ' + formatCurrency(grandTotal) + ' total';
 }
-
-timePlusBtn.addEventListener('click', function(){
-  extraHours += 1;
-  renderTotals();
-});
-timeMinusBtn.addEventListener('click', function(){
-  if(extraHours > 0){
-    extraHours -= 1;
-    renderTotals();
-  }
-});
 
 // Address suggestions using the current (non-deprecated) Places API.
 // google.maps.places.Autocomplete is blocked for API keys created after March 2025,
@@ -651,6 +674,7 @@ function renderSuggestions(items){
       box.innerHTML = '';
       box.classList.remove('open');
       newSessionToken(); // start a fresh session after a selection, per Google's guidance
+      runDistanceLookup(items[i].label);
     });
   });
 }
@@ -679,15 +703,25 @@ async function fetchSuggestions(query){
   }
 }
 
+let distanceDebounce = null;
 const addressInput = document.getElementById('calcAddress');
 addressInput.addEventListener('input', function(){
   const query = this.value.trim();
   clearTimeout(suggestDebounce);
+  clearTimeout(distanceDebounce);
   if(query.length < 4){
     renderSuggestions([]);
     return;
   }
   suggestDebounce = setTimeout(function(){ fetchSuggestions(query); }, 250);
+  distanceDebounce = setTimeout(function(){ runDistanceLookup(query); }, 1000);
+});
+addressInput.addEventListener('blur', function(){
+  const query = this.value.trim();
+  if(query.length >= 8){
+    clearTimeout(distanceDebounce);
+    runDistanceLookup(query);
+  }
 });
 document.addEventListener('click', function(e){
   const box = document.getElementById('calcAddressSuggestions');
@@ -699,14 +733,11 @@ document.addEventListener('click', function(e){
 function openCalc(){
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-  extraHours = 0;
-  lastCalc = null;
-  currentGuestCount = 0;
-  selectedStyle = 'buffet';
-  dessertAdded = false;
-  dessertToggle.classList.remove('is-active');
-  dessertToggleLabel.textContent = '+ Add dessert for $4/person (Chocolate Mousse Cake or Cheesecake)';
-  calcResults.classList.remove('has-quote');
+  document.getElementById('calcStage1').style.display = 'block';
+  document.getElementById('calcStage2').style.display = 'none';
+  calcHint.textContent = '';
+  document.getElementById('calcStage1Hint').textContent = "Just need a way to reach you — takes 10 seconds.";
+  document.getElementById('calcStage1Hint').style.color = 'var(--stone)';
   document.getElementById('calcSubmitBtn').textContent = 'Lock In My Date';
   document.getElementById('calcSubmitBtn').disabled = false;
   document.getElementById('calcSendStatus').textContent = '';
@@ -718,6 +749,64 @@ function closeCalc(){
   document.body.style.overflow = '';
   document.getElementById('calcAddressSuggestions').classList.remove('open');
 }
+
+function initStage2Defaults(){
+  extraHours = 0;
+  extraHoursSlider.value = 0;
+  selectedStyle = 'buffet';
+  dessertAdded = false;
+  caesarAdded = true;
+  breadsticksAdded = true;
+  dessertToggle.classList.remove('is-active');
+  dessertToggleLabel.textContent = '+ Add dessert for $4/person (Chocolate Mousse Cake or Cheesecake)';
+  caesarToggle.classList.add('is-active');
+  breadsticksToggle.classList.add('is-active');
+  currentGuestCount = BUFFET_MIN_GUESTS;
+  guestsSlider.value = BUFFET_MIN_GUESTS;
+  guestsValueEl.textContent = BUFFET_MIN_GUESTS;
+  hasDistance = false;
+  quoteViewedCaptured = false;
+  lastCalc = {
+    address: '', mileageFee: 0, driveLaborTriggered: false,
+    roundTripMiles: 0, roundTripDriveHours: 0, oneWayMiles: 0, oneWayDriveHours: 0, billableMiles: 0
+  };
+  updateStyleTileVisibility();
+  renderTotals();
+}
+
+document.getElementById('calcContinueBtn').addEventListener('click', function(){
+  const name = document.getElementById('sendName').value.trim();
+  const email = document.getElementById('sendEmail').value.trim();
+  const phone = document.getElementById('sendPhone').value.trim();
+  const hint = document.getElementById('calcStage1Hint');
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phonePattern = /^[\d\s\-\(\)\+\.]{10,}$/;
+
+  if(!name || !email || !phone){
+    hint.textContent = 'Please fill in your name, email, and phone number first.';
+    hint.style.color = 'var(--ember)';
+    return;
+  }
+  if(!emailPattern.test(email)){
+    hint.textContent = 'Please enter a valid email address.';
+    hint.style.color = 'var(--ember)';
+    return;
+  }
+  if(!phonePattern.test(phone)){
+    hint.textContent = 'Please enter a valid phone number.';
+    hint.style.color = 'var(--ember)';
+    return;
+  }
+
+  document.getElementById('calcStage1').style.display = 'none';
+  document.getElementById('calcStage2').style.display = 'grid';
+  initStage2Defaults();
+  document.getElementById('calcAddress').focus();
+
+  // Capture contact info as a lead the moment they're through the gate — before we even know their event details.
+  submitFormToNetlify('Contact Captured — ' + name)
+    .catch(function(err){ console.error('Fireball estimator: contact capture failed', err); });
+});
 
 openBtn?.addEventListener('click', openCalc);
 closeBtn?.addEventListener('click', closeCalc);
@@ -732,48 +821,9 @@ if(window.location.hash === '#quote'){
   openCalc();
 }
 
-runBtn.addEventListener('click', function(){
-  const name = document.getElementById('sendName').value.trim();
-  const email = document.getElementById('sendEmail').value.trim();
-  const phone = document.getElementById('sendPhone').value.trim();
-  const guestCount = parseFloat(document.getElementById('calcGuests').value);
-  const address = document.getElementById('calcAddress').value.trim();
-  const eventDate = document.getElementById('eventDate').value;
-  const eventTime = document.getElementById('eventTime').value;
-
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phonePattern = /^[\d\s\-\(\)\+\.]{10,}$/;
-
-  if(!name || !email || !phone){
-    calcHint.textContent = 'Please fill in your name, email, and phone number first.';
-    calcHint.style.color = 'var(--ember)';
-    return;
-  }
-  if(!emailPattern.test(email)){
-    calcHint.textContent = 'Please enter a valid email address.';
-    calcHint.style.color = 'var(--ember)';
-    return;
-  }
-  if(!phonePattern.test(phone)){
-    calcHint.textContent = 'Please enter a valid phone number.';
-    calcHint.style.color = 'var(--ember)';
-    return;
-  }
-  if(!guestCount || !address){
-    calcHint.textContent = 'Please fill in guest count and event address first.';
-    calcHint.style.color = 'var(--ember)';
-    return;
-  }
-  if(!eventDate || !eventTime){
-    calcHint.textContent = 'Please fill in your event date and time first.';
-    calcHint.style.color = 'var(--ember)';
-    return;
-  }
-  if(guestCount < MIN_GUEST_COUNT){
-    calcHint.textContent = 'Our minimum guest count is ' + MIN_GUEST_COUNT + '.';
-    calcHint.style.color = 'var(--ember)';
-    return;
-  }
+function runDistanceLookup(address){
+  address = address.trim();
+  if(!address || address.length < 8) return;
   if(typeof google === 'undefined' || !google.maps){
     calcHint.textContent = "Estimator is temporarily unavailable — we'll calculate travel and labor manually when we follow up.";
     calcHint.style.color = 'var(--ember)';
@@ -782,7 +832,6 @@ runBtn.addEventListener('click', function(){
 
   calcHint.textContent = 'Calculating driving distance...';
   calcHint.style.color = 'var(--stone)';
-  calcResults.classList.remove('has-quote');
 
   let settled = false;
   const timeoutId = setTimeout(function(){
@@ -840,12 +889,6 @@ runBtn.addEventListener('click', function(){
         driveLaborTriggered = true;
       }
 
-      extraHours = 0;
-      selectedStyle = 'buffet';
-      dessertAdded = false;
-      dessertToggle.classList.remove('is-active');
-      dessertToggleLabel.textContent = '+ Add dessert for $4/person (Chocolate Mousse Cake or Cheesecake)';
-
       lastCalc = {
         address: address,
         mileageFee: mileageFee,
@@ -856,24 +899,25 @@ runBtn.addEventListener('click', function(){
         oneWayDriveHours: oneWayDriveHours,
         billableMiles: billableMiles
       };
-      currentGuestCount = guestCount;
+      hasDistance = true;
       updateStyleTileVisibility();
       renderTotals();
-
-      calcResults.classList.add('has-quote');
       calcHint.textContent = '';
 
       // Capture as a lead now — before they decide whether to lock in.
-      // Better to have a duplicate than to lose someone who calculates and never comes back.
-      submitFormToNetlify('Quote Viewed — ' + guestCount + ' guests, ' + address)
-        .catch(function(err){ console.error('Fireball estimator: lead capture failed', err); });
+      // Only once per session; editing the address further shouldn't spam duplicate leads.
+      if(!quoteViewedCaptured){
+        quoteViewedCaptured = true;
+        submitFormToNetlify('Quote Viewed — ' + currentGuestCount + ' guests, ' + address)
+          .catch(function(err){ console.error('Fireball estimator: lead capture failed', err); });
+      }
     } catch(err){
       console.error('Fireball estimator: error processing result', err);
       calcHint.textContent = "Something went wrong calculating the estimate — we'll confirm manually when we follow up.";
       calcHint.style.color = 'var(--ember)';
     }
   });
-});
+}
 </script>
 </body>
 </html>
