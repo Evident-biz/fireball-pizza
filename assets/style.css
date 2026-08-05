@@ -251,17 +251,19 @@ section.tight{ padding: 64px 0; }
 .calc-modal-header .eyebrow{ color: rgba(255,255,255,0.85); }
 .calc-header-offer{
   margin-left: auto;
-  border: 2px solid rgba(255,255,255,0.45);
+  background: var(--gold);
   border-radius: 10px;
-  padding: 10px 18px;
+  padding: 10px 20px;
   text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  transform: rotate(-2deg);
 }
 .calc-header-offer-tag{
   display: block;
   font-family: var(--font-utility); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--gold); margin-bottom: 3px;
+  color: var(--ember-dark); margin-bottom: 3px; font-weight: 800;
 }
-.calc-header-offer strong{ color: var(--white); font-size: 0.9rem; font-weight: 700; white-space: nowrap; }
+.calc-header-offer strong{ color: var(--panel); font-size: 1rem; font-weight: 800; white-space: nowrap; }
 .calc-header-badge{
   flex-shrink: 0;
   width: 56px; height: 56px; border-radius: 50%;
@@ -348,20 +350,12 @@ section.tight{ padding: 64px 0; }
 
 .calc-switch-row{
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  width: 100%; text-align: left; border: 1.5px solid var(--line); border-radius: 14px;
-  padding: 14px 18px; margin-bottom: 14px; background: var(--white); cursor: pointer;
-  font-size: 0.9rem; color: var(--ink); transition: border-color 0.2s ease;
+  width: 100%; text-align: left; border: none; background: none;
+  padding: 10px 0; cursor: pointer;
+  font-size: 0.9rem; color: var(--ink);
 }
-.calc-switch-row:hover{ border-color: var(--gold); }
 .calc-switch-row-text{ line-height: 1.4; }
 .calc-strike{ text-decoration: line-through; color: var(--stone); opacity: 0.7; margin: 0 4px; }
-.calc-free-tag{
-  display: inline-block; background: #A8A198; color: var(--white);
-  font-family: var(--font-utility); font-size: 0.68rem; letter-spacing: 0.05em;
-  padding: 2px 8px; border-radius: 999px; vertical-align: middle;
-  transition: background 0.2s ease;
-}
-.calc-switch-row.is-active .calc-free-tag{ background: #4C9A5D; }
 
 .calc-switch{
   flex-shrink: 0; width: 44px; height: 26px; border-radius: 999px;

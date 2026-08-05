@@ -215,7 +215,7 @@
       </div>
       <div>
         <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
-        <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.6rem; color:var(--white); margin:0;">Catering Builder</h3>
+        <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.2rem; letter-spacing:0.01em; color:var(--white); margin:0;">Catering Builder</h3>
       </div>
       <div class="calc-header-offer">
         <span class="calc-header-offer-tag">Book Now Bonus</span>
@@ -295,24 +295,22 @@
               <p class="calc-hint" id="buffetUnavailableNote" style="display:none;">Buffet is available for groups of 25 or more.</p>
             </div>
 
-            <p class="calc-group-title">Appetizers</p>
+            <p class="calc-group-title">Extras</p>
             <button type="button" class="calc-switch-row is-active" id="caesarToggle">
-              <span class="calc-switch-row-text">Caesar Salad <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
+              <span class="calc-switch-row-text">Caesar Salad</span>
               <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
             </button>
             <button type="button" class="calc-switch-row is-active" id="breadsticksToggle">
-              <span class="calc-switch-row-text">Cheesy Garlic Breadsticks <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
+              <span class="calc-switch-row-text">Cheesy Garlic Breadsticks</span>
               <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
             </button>
-
-            <p class="calc-group-title">Dessert</p>
             <button type="button" class="calc-switch-row" id="dessertToggle">
-              <span class="calc-switch-row-text" id="dessertToggleLabel">Chocolate Mousse Cake &amp; Cheesecake — $4/person</span>
+              <span class="calc-switch-row-text" id="dessertToggleLabel">Dessert</span>
               <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
             </button>
             <div class="calc-dessert-options" id="dessertOptions" style="display:none;">
               <button type="button" class="calc-segment is-active" id="cheesecakeOption">Cheesecake</button>
-              <button type="button" class="calc-segment is-active" id="mousseOption">Chocolate Mousse</button>
+              <button type="button" class="calc-segment" id="mousseOption">Chocolate Mousse Cake</button>
             </div>
 
             <div class="calc-slider-field">
@@ -331,17 +329,17 @@
                 <span>Service time</span>
                 <strong id="calcServiceHoursValue">—</strong>
               </div>
-              <input type="range" id="calcExtraHoursSlider" min="0" max="6" step="1" value="0" class="calc-slider">
-              <div class="calc-slider-range"><span id="calcRequiredHoursLabel">Included</span><span>+6 hrs max</span></div>
+              <input type="range" id="calcExtraHoursSlider" min="0" max="3" step="1" value="0" class="calc-slider">
+              <div class="calc-slider-range"><span id="calcRequiredHoursLabel">Included</span><span id="calcExtraHoursMaxLabel">+3 hrs max</span></div>
             </div>
 
-            <p class="calc-hint">This is an estimated quote — if anything needs adjusting, we'll reach out before your event. Changed your mind? Cancel anytime, no obligation.</p>
+            <p class="calc-hint">This is an estimated quote, if anything needs adjusting, we'll reach out once you confirm.</p>
           </div>
         </div>
 
         <div class="calc-results" id="calcResults">
 
-        <p class="calc-results-waiting" id="calcResultsWaiting">Choose an option on the left to see your price here.</p>
+        <p class="calc-results-waiting" id="calcResultsWaiting">Fill out the form on the left to see your price here.</p>
 
         <div id="calcPricingBlock" style="display:none;">
         <div class="calc-row"><span>Base food price</span><strong id="calcBase">—</strong></div>
@@ -503,6 +501,7 @@ const BYO_INCLUDED_HOURS = 2;
 const MIN_GUEST_COUNT = 20;
 const MIN_SERVICE_HOURS = 1;
 const MAX_INCLUDED_SERVICE_HOURS = 3;
+const MAX_TOTAL_SERVICE_HOURS = 4;
 const SERVICE_HOURS_TIER_2_GUESTS = 100; // 2 hrs included from here
 const SERVICE_HOURS_TIER_3_GUESTS = 200; // 3 hrs included only from here
 
@@ -574,7 +573,7 @@ let dessertAdded = false;
 let caesarAdded = true;
 let breadsticksAdded = true;
 let cheesecakeSelected = true;
-let mousseSelected = true;
+let mousseSelected = false;
 const tileBuffet = document.getElementById('tileBuffet');
 const tileBYO = document.getElementById('tileBYO');
 const byoUnavailableNote = document.getElementById('byoUnavailableNote');
@@ -646,9 +645,9 @@ dessertToggle.addEventListener('click', function(){
   dessertOptions.style.display = dessertAdded ? 'flex' : 'none';
   if(dessertAdded){
     cheesecakeSelected = true;
-    mousseSelected = true;
+    mousseSelected = false;
     cheesecakeOption.classList.add('is-active');
-    mousseOption.classList.add('is-active');
+    mousseOption.classList.remove('is-active');
   }
   renderTotals();
 });
@@ -669,6 +668,12 @@ function renderTotals(){
   const styleLabel = selectedStyle === 'byo' ? 'Build Your Own' : 'Buffet';
 
   const requiredHours = selectedStyle === 'byo' ? BYO_INCLUDED_HOURS : requiredHoursForGuests(guestCount);
+  const maxExtraHours = Math.max(0, MAX_TOTAL_SERVICE_HOURS - requiredHours);
+  if(extraHours > maxExtraHours) extraHours = maxExtraHours;
+  extraHoursSlider.max = maxExtraHours;
+  extraHoursSlider.value = extraHours;
+  document.getElementById('calcExtraHoursMaxLabel').textContent = '+' + maxExtraHours + ' hr' + (maxExtraHours !== 1 ? 's' : '') + ' max';
+
   const totalServiceHours = requiredHours + extraHours;
   const extraTimeFee = extraHours * crew * LABOR_RATE_PER_HOUR;
   const laborTravelTotal = mileageFee + driveLaborFee + extraTimeFee;
@@ -873,11 +878,11 @@ function resetBuilderDefaults(){
   caesarAdded = true;
   breadsticksAdded = true;
   cheesecakeSelected = true;
-  mousseSelected = true;
+  mousseSelected = false;
   dessertToggle.classList.remove('is-active');
   dessertOptions.style.display = 'none';
   cheesecakeOption.classList.add('is-active');
-  mousseOption.classList.add('is-active');
+  mousseOption.classList.remove('is-active');
   caesarToggle.classList.add('is-active');
   breadsticksToggle.classList.add('is-active');
   currentGuestCount = BUFFET_MIN_GUESTS;
