@@ -934,6 +934,9 @@ function validateContactFields(hintEl){
   const name = document.getElementById('sendName').value.trim();
   const email = document.getElementById('sendEmail').value.trim();
   const phone = document.getElementById('sendPhone').value.trim();
+  const address = document.getElementById('calcAddress').value.trim();
+  const eventDate = document.getElementById('eventDate').value;
+  const eventTime = document.getElementById('eventTime').value;
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phonePattern = /^[\d\s\-\(\)\+\.]{10,}$/;
 
@@ -949,6 +952,21 @@ function validateContactFields(hintEl){
   }
   if(!phonePattern.test(phone)){
     hintEl.textContent = 'Please enter a valid phone number.';
+    hintEl.style.color = 'var(--ember)';
+    return false;
+  }
+  if(!address){
+    hintEl.textContent = 'Please enter your event address.';
+    hintEl.style.color = 'var(--ember)';
+    return false;
+  }
+  if(!eventDate){
+    hintEl.textContent = 'Please select your event date.';
+    hintEl.style.color = 'var(--ember)';
+    return false;
+  }
+  if(!eventTime){
+    hintEl.textContent = 'Please select your event start time.';
     hintEl.style.color = 'var(--ember)';
     return false;
   }
