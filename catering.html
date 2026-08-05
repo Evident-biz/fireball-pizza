@@ -16,6 +16,10 @@
 </head>
 <body>
 
+<div class="announce-bar">
+  <strong>Book Now Bonus:</strong> Free Caesar Salad &amp; Cheesy Garlic Breadsticks with every online booking. <a href="#quote">Book Now</a>
+</div>
+
 <header class="site">
   <div class="nav-inner">
     <a href="index.html" class="brand"><img src="assets/images/logo.png" alt="Fireball Pizza"></a>
@@ -38,10 +42,14 @@
     <span class="eyebrow">Catering</span>
     <h1 style="font-size:clamp(2.2rem,4vw,3.4rem);">Book Your Event Catering</h1>
     <p class="lead">Weddings, corporate gatherings, and private parties. We bring the oven, the crew, and fresh, brick-oven pizza — you bring the guest list.</p>
-    <div class="hero-bonus-badge">
-      <span class="hero-bonus-tag">Book Now Bonus</span>
-      <p>Book online today and get <strong>Caesar Salad</strong> and <strong>Cheesy Garlic Breadsticks</strong> added to your event, <strong>free</strong>.</p>
-    </div>
+  </div>
+</section>
+
+<section class="promo-banner">
+  <div class="wrap">
+    <span class="promo-banner-tag">Book Now Bonus</span>
+    <h2>Free Caesar Salad &amp; Cheesy Garlic Breadsticks</h2>
+    <p>Book your catering online today and we'll add both to your event at no charge.</p>
   </div>
 </section>
 
@@ -257,7 +265,22 @@
               </div>
               <div class="calc-field">
                 <label for="eventTime">Event Time</label>
-                <input type="time" id="eventTime" name="Event Time" required>
+                <select id="eventTime" name="Event Time" required>
+                  <option value="">Select a time</option>
+                  <option value="08:00">8:00 AM</option>
+                  <option value="09:00">9:00 AM</option>
+                  <option value="10:00">10:00 AM</option>
+                  <option value="11:00">11:00 AM</option>
+                  <option value="12:00">12:00 PM</option>
+                  <option value="13:00">1:00 PM</option>
+                  <option value="14:00">2:00 PM</option>
+                  <option value="15:00">3:00 PM</option>
+                  <option value="16:00">4:00 PM</option>
+                  <option value="17:00">5:00 PM</option>
+                  <option value="18:00">6:00 PM</option>
+                  <option value="19:00">7:00 PM</option>
+                  <option value="20:00">8:00 PM</option>
+                </select>
               </div>
             </div>
             <p class="calc-hint" id="calcHint"></p>
