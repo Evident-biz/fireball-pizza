@@ -205,7 +205,7 @@ section.tight{ padding: 64px 0; }
 .calc-modal-overlay.open{ opacity: 1; pointer-events: auto; }
 .calc-modal{
   background: var(--white);
-  width: 100%; max-width: 960px; max-height: 90vh; overflow-y: auto;
+  width: 100%; max-width: 960px; max-height: 90vh; overflow-y: auto; scrollbar-gutter: stable;
   border-radius: 10px;
   position: relative;
   transform: translateY(16px) scale(0.98);
