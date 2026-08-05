@@ -59,20 +59,32 @@
 
 <section class="tight">
   <div class="wrap grid-2">
-    <div class="card">
-      <span class="eyebrow">Package</span>
-      <h3>Intimate Gathering — Build Your Own</h3>
-      <p class="muted">Up to 40 guests. Each guest builds their own pizza. $25/person, includes salad &amp; breadsticks.</p>
+    <div>
+      <span class="eyebrow">About Fireball Pizza</span>
+      <h2>Live-Fire Catering, No Kitchen Required</h2>
+      <p class="muted">We bring a real brick oven straight to your event — hand-stretched dough, fresh ingredients, and a crew that handles setup to cleanup. Whether it's an intimate backyard gathering or a 250-guest wedding, we show up ready to cook, right in front of your guests.</p>
+      <ul class="included-list">
+        <li>Brick oven, delivered and set up on-site</li>
+        <li>Fresh, hand-stretched dough made in-house</li>
+        <li>Crew sized to your event — 2 to 4 staff based on guest count</li>
+        <li>We arrive ~2 hours early to set up and preheat, so we're ready when your guests are</li>
+        <li>No power or water hookups needed — we're fully self-sufficient</li>
+        <li>Gluten-free, vegan, and vegetarian options available</li>
+        <li>Serving 20 to 250+ guests</li>
+      </ul>
     </div>
-    <div class="card">
-      <span class="eyebrow">Package</span>
-      <h3>Wedding &amp; Corporate — Buffet</h3>
-      <p class="muted">Up to 250 guests. Choice of up to 5 pizzas, buffet style. $19/person, includes salad &amp; breadsticks.</p>
+    <div>
+      <img src="assets/images/menu/dish-composition.jpg" alt="Fireball Pizza spread, fresh from the oven" style="border-radius:4px; margin-bottom:20px;">
+      <div class="card">
+        <span class="eyebrow">Booking Timeline</span>
+        <h3>How Far In Advance?</h3>
+        <p class="muted">There's no strict minimum — but the earlier you lock in your date, the better your odds of availability. Weddings are typically booked 6–12 months out; corporate events sometimes just a week or two in advance.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="tight">
+<section class="tight" style="background:var(--paper);">
   <div class="wrap">
     <div class="quick-facts">
       <div class="quick-fact"><strong>20–250+</strong><span>Guests Served</span></div>
@@ -83,7 +95,7 @@
   </div>
 </section>
 
-<section class="tight" style="background:var(--paper);">
+<section class="tight">
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">How It Works</span>
@@ -109,30 +121,18 @@
   </div>
 </section>
 
-<section class="tight" style="background:var(--paper);">
-  <div class="wrap grid-2">
-    <div>
-      <span class="eyebrow">What's Included</span>
-      <h2>Everything's Handled</h2>
-      <ul class="included-list">
-        <li>Brick oven, delivered and set up on-site</li>
-        <li>Fresh, hand-stretched dough made in-house</li>
-        <li>Crew sized to your event — 2 to 4 staff based on guest count</li>
-        <li>We arrive ~2 hours early to set up and preheat, so we're ready when your guests are</li>
-        <li>No power or water hookups needed — we're fully self-sufficient</li>
-        <li>Gluten-free, vegan, and vegetarian options available</li>
-        <li>Serving 20 to 250+ guests</li>
-      </ul>
-    </div>
-    <div class="card">
-      <span class="eyebrow">Booking Timeline</span>
-      <h3>How Far In Advance?</h3>
-      <p class="muted">There's no strict minimum — but the earlier you lock in your date, the better your odds of availability. Weddings are typically booked 6–12 months out; corporate events sometimes just a week or two in advance.</p>
+<section class="tight" id="quote">
+  <div class="wrap">
+    <div class="calc-cta">
+      <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
+      <h2 style="color:var(--white);">Get Your Instant Quote — Book Now</h2>
+      <p style="color:rgba(255,255,255,0.75); max-width:480px; margin:0 auto 24px;">See your exact price in seconds and lock in your date before it's booked. No waiting on a callback.</p>
+      <button type="button" class="btn btn-primary" id="openCalculatorBtn">Get My Instant Quote</button>
     </div>
   </div>
 </section>
 
-<section class="tight">
+<section class="tight" style="background:var(--paper);">
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">FAQ</span>
@@ -171,17 +171,6 @@
         <summary>What payment methods do you accept?</summary>
         <p>We accept online payment, card, check, or cash.</p>
       </details>
-    </div>
-  </div>
-</section>
-
-<section class="tight" id="quote">
-  <div class="wrap">
-    <div class="calc-cta">
-      <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
-      <h2 style="color:var(--white);">Get Your Instant Quote — Book Now</h2>
-      <p style="color:rgba(255,255,255,0.75); max-width:480px; margin:0 auto 24px;">See your exact price in seconds and lock in your date before it's booked. No waiting on a callback.</p>
-      <button type="button" class="btn btn-primary" id="openCalculatorBtn">Get My Instant Quote</button>
     </div>
   </div>
 </section>
@@ -239,73 +228,83 @@
       <div class="calc-builder-grid">
         <div class="calc-input-col">
 
-          <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
-          <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address"></div>
-          <div class="calc-field"><label for="sendPhone">Phone</label><input type="tel" id="sendPhone" name="phone" required pattern="^[\d\s\-\(\)\+\.]{10,}$" title="Enter a valid phone number (at least 10 digits)"></div>
+          <div id="calcPageA">
+            <p class="calc-step-label">Step 1 of 2</p>
+            <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
+            <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address"></div>
+            <div class="calc-field"><label for="sendPhone">Phone</label><input type="tel" id="sendPhone" name="phone" required pattern="^[\d\s\-\(\)\+\.]{10,}$" title="Enter a valid phone number (at least 10 digits)"></div>
 
-          <div class="calc-field">
-            <label for="calcAddress">Event Address</label>
-            <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
-            <div id="calcAddressSuggestions" class="calc-suggestions"></div>
-          </div>
-          <div class="calc-field-row">
             <div class="calc-field">
-              <label for="eventDate">Event Date</label>
-              <input type="date" id="eventDate" name="Event Date" required>
+              <label for="calcAddress">Event Address</label>
+              <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
+              <div id="calcAddressSuggestions" class="calc-suggestions"></div>
             </div>
-            <div class="calc-field">
-              <label for="eventTime">Event Time</label>
-              <input type="time" id="eventTime" name="Event Time" required>
+            <div class="calc-field-row">
+              <div class="calc-field">
+                <label for="eventDate">Event Date</label>
+                <input type="date" id="eventDate" name="Event Date" required>
+              </div>
+              <div class="calc-field">
+                <label for="eventTime">Event Time</label>
+                <input type="time" id="eventTime" name="Event Time" required>
+              </div>
             </div>
-          </div>
-          <p class="calc-hint" id="calcHint"></p>
-
-          <div class="calc-tile-group">
-            <label>Choose Your Style</label>
-            <div class="calc-tiles">
-              <button type="button" class="calc-tile is-selected" id="tileBuffet" data-style="buffet">
-                <strong>Buffet</strong>
-                <span>$19/person</span>
-              </button>
-              <button type="button" class="calc-tile" id="tileBYO" data-style="byo">
-                <strong>Build Your Own</strong>
-                <span>$25/person</span>
-              </button>
-            </div>
-            <p class="calc-hint" id="byoUnavailableNote" style="display:none;">Build Your Own is available for groups up to 40 guests.</p>
-            <p class="calc-hint" id="buffetUnavailableNote" style="display:none;">Buffet is available for groups of 25 or more.</p>
+            <p class="calc-hint" id="calcHint"></p>
+            <button type="button" class="btn btn-primary" id="calcNextBtn" style="width:100%; justify-content:center; margin-top:8px;">Next: Customize Your Order</button>
+            <p class="calc-hint" id="calcPageAHint"></p>
           </div>
 
-          <button type="button" class="calc-addon-toggle" id="dessertToggle">
-            <span id="dessertToggleLabel">+ Add dessert for $4/person (Chocolate Mousse Cake or Cheesecake)</span>
-          </button>
+          <div id="calcPageB" style="display:none;">
+            <button type="button" id="calcBackBtn" class="calc-back-link">← Back</button>
+            <p class="calc-step-label">Step 2 of 2</p>
 
-          <button type="button" class="calc-addon-toggle calc-addon-toggle-free is-active" id="caesarToggle">
-            <span>Caesar Salad <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
-          </button>
-          <button type="button" class="calc-addon-toggle calc-addon-toggle-free is-active" id="breadsticksToggle">
-            <span>Cheesy Garlic Breadsticks <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
-          </button>
-
-          <div class="calc-slider-field">
-            <div class="calc-slider-head">
-              <span>Guests</span>
-              <strong id="calcGuestsValue">20</strong>
+            <div class="calc-tile-group">
+              <label>Choose Your Style</label>
+              <div class="calc-tiles">
+                <button type="button" class="calc-tile is-selected" id="tileBuffet" data-style="buffet">
+                  <strong>Buffet</strong>
+                  <span>$19/person</span>
+                </button>
+                <button type="button" class="calc-tile" id="tileBYO" data-style="byo">
+                  <strong>Build Your Own</strong>
+                  <span>$25/person</span>
+                </button>
+              </div>
+              <p class="calc-hint" id="byoUnavailableNote" style="display:none;">Build Your Own is available for groups up to 40 guests.</p>
+              <p class="calc-hint" id="buffetUnavailableNote" style="display:none;">Buffet is available for groups of 25 or more.</p>
             </div>
-            <input type="range" id="calcGuestsSlider" min="20" max="250" step="1" value="20" class="calc-slider">
-            <div class="calc-slider-range"><span>20</span><span>250</span></div>
-          </div>
 
-          <div class="calc-slider-field">
-            <div class="calc-slider-head">
-              <span>Service time</span>
-              <strong id="calcServiceHoursValue">—</strong>
+            <button type="button" class="calc-addon-toggle" id="dessertToggle">
+              <span id="dessertToggleLabel">+ Add dessert for $4/person (Chocolate Mousse Cake or Cheesecake)</span>
+            </button>
+
+            <button type="button" class="calc-addon-toggle calc-addon-toggle-free is-active" id="caesarToggle">
+              <span>Caesar Salad <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
+            </button>
+            <button type="button" class="calc-addon-toggle calc-addon-toggle-free is-active" id="breadsticksToggle">
+              <span>Cheesy Garlic Breadsticks <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
+            </button>
+
+            <div class="calc-slider-field">
+              <div class="calc-slider-head">
+                <span>Guests</span>
+                <strong id="calcGuestsValue">20</strong>
+              </div>
+              <input type="range" id="calcGuestsSlider" min="20" max="250" step="1" value="20" class="calc-slider">
+              <div class="calc-slider-range"><span>20</span><span>250</span></div>
             </div>
-            <input type="range" id="calcExtraHoursSlider" min="0" max="6" step="1" value="0" class="calc-slider">
-            <div class="calc-slider-range"><span id="calcRequiredHoursLabel">Included</span><span>+6 hrs max</span></div>
-          </div>
 
-          <p class="calc-hint">This is an estimate only — final pricing and deposit confirmed when we follow up.</p>
+            <div class="calc-slider-field">
+              <div class="calc-slider-head">
+                <span>Service time</span>
+                <strong id="calcServiceHoursValue">—</strong>
+              </div>
+              <input type="range" id="calcExtraHoursSlider" min="0" max="6" step="1" value="0" class="calc-slider">
+              <div class="calc-slider-range"><span id="calcRequiredHoursLabel">Included</span><span>+6 hrs max</span></div>
+            </div>
+
+            <p class="calc-hint">This is an estimate only — final pricing and deposit confirmed when we follow up.</p>
+          </div>
         </div>
 
         <div class="calc-results" id="calcResults">
@@ -769,6 +768,9 @@ function resetBuilderDefaults(){
 function openCalc(){
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
+  document.getElementById('calcPageA').style.display = 'block';
+  document.getElementById('calcPageB').style.display = 'none';
+  document.getElementById('calcPageAHint').textContent = '';
   calcHint.textContent = '';
   document.getElementById('calcSubmitBtn').textContent = 'Lock In My Date';
   document.getElementById('calcSubmitBtn').disabled = false;
@@ -782,6 +784,39 @@ function closeCalc(){
   document.body.style.overflow = '';
   document.getElementById('calcAddressSuggestions').classList.remove('open');
 }
+
+document.getElementById('calcNextBtn').addEventListener('click', function(){
+  const name = document.getElementById('sendName').value.trim();
+  const email = document.getElementById('sendEmail').value.trim();
+  const phone = document.getElementById('sendPhone').value.trim();
+  const hint = document.getElementById('calcPageAHint');
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phonePattern = /^[\d\s\-\(\)\+\.]{10,}$/;
+
+  if(!name || !email || !phone){
+    hint.textContent = 'Please fill in your name, email, and phone number first.';
+    hint.style.color = 'var(--ember)';
+    return;
+  }
+  if(!emailPattern.test(email)){
+    hint.textContent = 'Please enter a valid email address.';
+    hint.style.color = 'var(--ember)';
+    return;
+  }
+  if(!phonePattern.test(phone)){
+    hint.textContent = 'Please enter a valid phone number.';
+    hint.style.color = 'var(--ember)';
+    return;
+  }
+
+  document.getElementById('calcPageA').style.display = 'none';
+  document.getElementById('calcPageB').style.display = 'block';
+});
+
+document.getElementById('calcBackBtn').addEventListener('click', function(){
+  document.getElementById('calcPageB').style.display = 'none';
+  document.getElementById('calcPageA').style.display = 'block';
+});
 
 // Capture the lead as soon as valid contact info exists — no gate, no button, just react to it.
 function maybeCaptureContact(){

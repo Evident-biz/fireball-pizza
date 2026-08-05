@@ -241,6 +241,16 @@ section.tight{ padding: 64px 0; }
 }
 .calc-input-col{ display: flex; flex-direction: column; }
 .calc-field-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.calc-step-label{
+  font-family: var(--font-utility); font-size: 0.7rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--gold); margin: 0 0 14px; font-weight: 700;
+}
+.calc-back-link{
+  display: inline-block; background: none; border: none; cursor: pointer;
+  font-family: var(--font-utility); font-size: 0.78rem; color: var(--stone);
+  margin-bottom: 4px; padding: 0; transition: color 0.2s ease;
+}
+.calc-back-link:hover{ color: var(--ember); }
 .calc-modal-close{
   position: absolute; top: 16px; right: 16px;
   width: 34px; height: 34px; border-radius: 50%;
