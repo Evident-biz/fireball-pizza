@@ -16,10 +16,6 @@
 </head>
 <body>
 
-<div class="announce-bar">
-  <strong>Book Now Bonus:</strong> Free Caesar Salad &amp; Cheesy Garlic Breadsticks with every online booking. <a href="#quote">Book Now</a>
-</div>
-
 <header class="site">
   <div class="nav-inner">
     <a href="index.html" class="brand"><img src="assets/images/logo.png" alt="Fireball Pizza"></a>
@@ -27,7 +23,6 @@
     <nav class="links" id="navLinks">
       <a href="index.html">Home</a>
       <a href="catering.html" class="active">Catering</a>
-      <a href="#quote">Catering Builder</a>
       <a href="events.html">Calendar</a>
       <a href="contact.html">Contact</a>
       <a href="catering.html#quote" class="cta">Book Catering</a>
@@ -42,14 +37,6 @@
     <span class="eyebrow">Catering</span>
     <h1 style="font-size:clamp(2.2rem,4vw,3.4rem);">Book Your Event Catering</h1>
     <p class="lead">Weddings, corporate gatherings, and private parties. We bring the oven, the crew, and fresh, brick-oven pizza — you bring the guest list.</p>
-  </div>
-</section>
-
-<section class="promo-banner">
-  <div class="wrap">
-    <span class="promo-banner-tag">Book Now Bonus</span>
-    <h2>Free Caesar Salad &amp; Cheesy Garlic Breadsticks</h2>
-    <p>Book your catering online today and we'll add both to your event at no charge.</p>
   </div>
 </section>
 
@@ -144,14 +131,7 @@
   </div>
 </section>
 
-<section style="padding: 64px 0 40px;">
-  <div class="wrap" style="text-align:center; max-width:600px; margin:0 auto;">
-    <span class="eyebrow">Before You Go</span>
-    <p class="muted" style="font-size:1.1rem; margin:0;">Got a question about booking, pricing, or what's included? We've laid it all out below.</p>
-  </div>
-</section>
-
-<section class="tight" style="background:var(--paper);">
+<section class="tight" style="background:var(--results-bg);">
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">FAQ</span>
@@ -237,6 +217,10 @@
         <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
         <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.6rem; color:var(--white); margin:0;">Catering Builder</h3>
       </div>
+      <div class="calc-header-offer">
+        <span class="calc-header-offer-tag">Book Now Bonus</span>
+        <strong>Free Caesar Salad &amp; Breadsticks</strong>
+      </div>
     </div>
 
     <form class="calc-modal-body" id="calcForm" name="catering-booking-request" data-netlify="true" data-remove-prefix netlify-honeypot="bot-field">
@@ -264,8 +248,8 @@
                 <input type="date" id="eventDate" name="Event Date" required>
               </div>
               <div class="calc-field">
-                <label for="eventTime">Event Time</label>
-                <select id="eventTime" name="Event Time" required>
+                <label for="eventTime">Start Time</label>
+                <select id="eventTime" name="Start Time" required>
                   <option value="">Select a time</option>
                   <option value="08:00">8:00 AM</option>
                   <option value="09:00">9:00 AM</option>
@@ -311,16 +295,25 @@
               <p class="calc-hint" id="buffetUnavailableNote" style="display:none;">Buffet is available for groups of 25 or more.</p>
             </div>
 
-            <button type="button" class="calc-toggle" id="dessertToggle">
-              <span id="dessertToggleLabel">+ Add dessert for $4/person (Chocolate Mousse Cake &amp; Cheesecake)</span>
+            <p class="calc-group-title">Appetizers</p>
+            <button type="button" class="calc-switch-row is-active" id="caesarToggle">
+              <span class="calc-switch-row-text">Caesar Salad <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
+              <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
+            </button>
+            <button type="button" class="calc-switch-row is-active" id="breadsticksToggle">
+              <span class="calc-switch-row-text">Cheesy Garlic Breadsticks <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
+              <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
             </button>
 
-            <button type="button" class="calc-toggle is-active" id="caesarToggle">
-              <span>Caesar Salad <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
+            <p class="calc-group-title">Dessert</p>
+            <button type="button" class="calc-switch-row" id="dessertToggle">
+              <span class="calc-switch-row-text" id="dessertToggleLabel">Chocolate Mousse Cake &amp; Cheesecake — $4/person</span>
+              <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
             </button>
-            <button type="button" class="calc-toggle is-active" id="breadsticksToggle">
-              <span>Cheesy Garlic Breadsticks <span class="calc-strike">$2/person</span> <span class="calc-free-tag">FREE</span></span>
-            </button>
+            <div class="calc-dessert-options" id="dessertOptions" style="display:none;">
+              <button type="button" class="calc-segment is-active" id="cheesecakeOption">Cheesecake</button>
+              <button type="button" class="calc-segment is-active" id="mousseOption">Chocolate Mousse</button>
+            </div>
 
             <div class="calc-slider-field">
               <div class="calc-slider-head">
@@ -580,14 +573,30 @@ let selectedStyle = 'buffet';
 let dessertAdded = false;
 let caesarAdded = true;
 let breadsticksAdded = true;
+let cheesecakeSelected = true;
+let mousseSelected = true;
 const tileBuffet = document.getElementById('tileBuffet');
 const tileBYO = document.getElementById('tileBYO');
 const byoUnavailableNote = document.getElementById('byoUnavailableNote');
 const buffetUnavailableNote = document.getElementById('buffetUnavailableNote');
 const dessertToggle = document.getElementById('dessertToggle');
 const dessertToggleLabel = document.getElementById('dessertToggleLabel');
+const dessertOptions = document.getElementById('dessertOptions');
+const cheesecakeOption = document.getElementById('cheesecakeOption');
+const mousseOption = document.getElementById('mousseOption');
 const caesarToggle = document.getElementById('caesarToggle');
 const breadsticksToggle = document.getElementById('breadsticksToggle');
+
+cheesecakeOption.addEventListener('click', function(){
+  cheesecakeSelected = !cheesecakeSelected;
+  cheesecakeOption.classList.toggle('is-active', cheesecakeSelected);
+  renderTotals();
+});
+mousseOption.addEventListener('click', function(){
+  mousseSelected = !mousseSelected;
+  mousseOption.classList.toggle('is-active', mousseSelected);
+  renderTotals();
+});
 
 caesarToggle.addEventListener('click', function(){
   caesarAdded = !caesarAdded;
@@ -634,9 +643,13 @@ tileBYO.addEventListener('click', function(){
 dessertToggle.addEventListener('click', function(){
   dessertAdded = !dessertAdded;
   dessertToggle.classList.toggle('is-active', dessertAdded);
-  dessertToggleLabel.textContent = dessertAdded
-    ? '\u2713 Dessert added (+$4/person, Chocolate Mousse Cake & Cheesecake)'
-    : '+ Add dessert for $4/person (Chocolate Mousse Cake & Cheesecake)';
+  dessertOptions.style.display = dessertAdded ? 'flex' : 'none';
+  if(dessertAdded){
+    cheesecakeSelected = true;
+    mousseSelected = true;
+    cheesecakeOption.classList.add('is-active');
+    mousseOption.classList.add('is-active');
+  }
   renderTotals();
 });
 
@@ -738,7 +751,15 @@ function renderTotals(){
 
   document.getElementById('sendAppetizers').value =
     'Caesar Salad: ' + (caesarAdded ? 'Yes (free booking bonus)' : 'No, declined') + ' | ' +
-    'Cheesy Garlic Breadsticks: ' + (breadsticksAdded ? 'Yes (free booking bonus)' : 'No, declined');
+    'Cheesy Garlic Breadsticks: ' + (breadsticksAdded ? 'Yes (free booking bonus)' : 'No, declined') + ' | ' +
+    'Dessert: ' + (dessertAdded
+      ? ('Yes — ' + (
+          (cheesecakeSelected && mousseSelected) ? 'Cheesecake & Chocolate Mousse Cake' :
+          cheesecakeSelected ? 'Cheesecake only' :
+          mousseSelected ? 'Chocolate Mousse Cake only' :
+          'no flavor selected'
+        ))
+      : 'No, declined');
 
   document.getElementById('sendSubject').value = 'Deposit Initiated — ' + guestCount + ' guests, ' + formatCurrency(grandTotal) + ' total';
 }
@@ -851,8 +872,12 @@ function resetBuilderDefaults(){
   dessertAdded = false;
   caesarAdded = true;
   breadsticksAdded = true;
+  cheesecakeSelected = true;
+  mousseSelected = true;
   dessertToggle.classList.remove('is-active');
-  dessertToggleLabel.textContent = '+ Add dessert for $4/person (Chocolate Mousse Cake & Cheesecake)';
+  dessertOptions.style.display = 'none';
+  cheesecakeOption.classList.add('is-active');
+  mousseOption.classList.add('is-active');
   caesarToggle.classList.add('is-active');
   breadsticksToggle.classList.add('is-active');
   currentGuestCount = BUFFET_MIN_GUESTS;
