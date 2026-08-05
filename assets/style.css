@@ -213,6 +213,35 @@ section.tight{ padding: 64px 0; }
   box-shadow: 0 40px 100px rgba(0,0,0,0.5);
 }
 .calc-modal-overlay.open .calc-modal{ transform: translateY(0) scale(1); }
+
+.calc-popup-overlay{
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(20,15,12,0.75);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.calc-popup-overlay.open{ opacity: 1; pointer-events: auto; }
+.calc-popup{
+  background: var(--white); width: 100%; max-width: 440px;
+  border-radius: 14px; padding: 32px; position: relative;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+  transform: translateY(16px) scale(0.98);
+  transition: transform 0.25s ease;
+}
+.calc-popup-overlay.open .calc-popup{ transform: translateY(0) scale(1); }
+.calc-popup .calc-modal-close{ background: var(--paper); color: var(--ink); }
+.calc-popup .calc-modal-close:hover{ background: var(--line); }
+
+.calc-choice-row{ display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+@media (max-width: 480px){ .calc-choice-row{ flex-direction: column; } }
+
+.calc-results-waiting{
+  color: var(--stone); font-size: 0.95rem; text-align: center;
+  padding: 40px 10px; margin: 0;
+}
+
 .calc-modal-header{
   background: linear-gradient(135deg, var(--ember), var(--ember-dark));
   padding: 32px 40px;
@@ -482,12 +511,12 @@ section.tight{ padding: 64px 0; }
   background: var(--line); border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
 }
 .quick-fact{
-  background: var(--white); padding: 24px 16px; text-align: center;
-  display: flex; flex-direction: column; gap: 6px;
+  background: var(--white); padding: 40px 20px; text-align: center;
+  display: flex; flex-direction: column; gap: 10px;
 }
-.quick-fact strong{ font-family: var(--font-display); font-size: 1.4rem; color: var(--ember); text-transform: uppercase; }
-.quick-fact span{ font-size: 0.78rem; color: var(--stone); text-transform: uppercase; letter-spacing: 0.04em; }
-@media (max-width: 700px){ .quick-facts{ grid-template-columns: repeat(2, 1fr); } }
+.quick-fact strong{ font-family: var(--font-display); font-size: 2.4rem; line-height: 1; color: var(--ember); text-transform: uppercase; }
+.quick-fact span{ font-size: 0.95rem; color: var(--stone); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+@media (max-width: 700px){ .quick-facts{ grid-template-columns: repeat(2, 1fr); } .quick-fact strong{ font-size: 2rem; } }
 
 /* --- How it works steps --- */
 .how-it-works{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }

@@ -132,6 +132,13 @@
   </div>
 </section>
 
+<section style="padding: 64px 0 40px;">
+  <div class="wrap" style="text-align:center; max-width:600px; margin:0 auto;">
+    <span class="eyebrow">Before You Go</span>
+    <p class="muted" style="font-size:1.1rem; margin:0;">Got a question about booking, pricing, or what's included? We've laid it all out below.</p>
+  </div>
+</section>
+
 <section class="tight" style="background:var(--paper);">
   <div class="wrap">
     <div class="section-head">
@@ -222,7 +229,7 @@
 
     <form class="calc-modal-body" id="calcForm" name="catering-booking-request" data-netlify="true" data-remove-prefix netlify-honeypot="bot-field">
       <input type="hidden" name="form-name" value="catering-booking-request">
-      <input type="hidden" name="subject" id="sendSubject" value="New Catering Booking Request">
+      <input type="hidden" name="subject" id="sendSubject" value="New Catering Deposit Initiated">
       <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
 
       <div class="calc-builder-grid">
@@ -250,7 +257,10 @@
               </div>
             </div>
             <p class="calc-hint" id="calcHint"></p>
-            <button type="button" class="btn btn-primary" id="calcNextBtn" style="width:100%; justify-content:center; margin-top:8px;">Next: Customize Your Order</button>
+            <div class="calc-choice-row">
+              <button type="button" class="btn btn-outline" id="calcRequestBtn" style="flex:1; justify-content:center;">Request Custom Quote</button>
+              <button type="button" class="btn btn-primary" id="calcNextBtn" style="flex:1; justify-content:center;">Build Instant Quote</button>
+            </div>
             <p class="calc-hint" id="calcPageAHint"></p>
           </div>
 
@@ -314,6 +324,9 @@
           <p>Book online today and get <strong>Caesar Salad</strong> + <strong>Cheesy Garlic Breadsticks</strong> added to your event — <strong>free</strong>.</p>
         </div>
 
+        <p class="calc-results-waiting" id="calcResultsWaiting">Choose an option on the left to see your price here.</p>
+
+        <div id="calcPricingBlock" style="display:none;">
         <div class="calc-row"><span>Base food price</span><strong id="calcBase">—</strong></div>
         <div class="calc-row"><span>Distance (round trip)</span><strong id="calcMiles">—</strong></div>
         <div class="calc-row" style="display:none;"><span>Mileage fee</span><strong id="calcMileageFee">—</strong></div>
@@ -333,12 +346,25 @@
         <input type="hidden" name="Pricing Summary" id="sendPricing">
         <input type="hidden" name="Free Appetizers" id="sendAppetizers">
 
-        <button type="submit" class="btn btn-primary" id="calcSubmitBtn" style="width:100%; justify-content:center; margin-top:20px;">Lock In My Date</button>
+        <button type="submit" class="btn btn-primary" id="calcSubmitBtn" style="width:100%; justify-content:center; margin-top:20px;">Pay Deposit</button>
         <p class="calc-hint" id="calcSendStatus"></p>
-        <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="payDepositBtn" style="display:none; width:100%; justify-content:center; margin-top:12px;">Pay Deposit — <span id="payDepositAmount"></span></a>
+        <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="payDepositBtn" style="display:none; width:100%; justify-content:center; margin-top:12px;">Open Payment Page — <span id="payDepositAmount"></span></a>
+        </div>
         </div>
       </div>
     </form>
+  </div>
+</div>
+
+<div class="calc-popup-overlay" id="calcRequestPopupOverlay">
+  <div class="calc-popup" role="dialog" aria-modal="true">
+    <button type="button" class="calc-modal-close" id="calcRequestPopupClose" aria-label="Close">&times;</button>
+    <span class="eyebrow">Request Custom Quote</span>
+    <h3 style="margin:0 0 10px;">Anything we should know?</h3>
+    <p class="muted" style="margin:0 0 16px;">Optional — tell us more about your event and we'll factor it into your quote.</p>
+    <textarea id="calcRequestMessage" rows="4" placeholder="Menu preferences, headcount range, venue details, budget, etc." style="width:100%; padding:13px 14px; border:1.5px solid var(--line); border-radius:14px; font-family:var(--font-body); font-size:0.95rem; color:var(--ink); resize:vertical;"></textarea>
+    <button type="button" class="btn btn-primary" id="calcRequestSendBtn" style="width:100%; justify-content:center; margin-top:16px;">Send Request</button>
+    <p class="calc-hint" id="calcRequestStatus"></p>
   </div>
 </div>
 
@@ -395,14 +421,17 @@ document.getElementById('calcForm').addEventListener('submit', function(e){
 
   submitFormToNetlify(document.getElementById('sendSubject').value)
   .then(function(){
-    submitBtn.textContent = 'Request Submitted';
+    submitBtn.textContent = 'Deposit Initiated';
     submitBtn.disabled = true;
-    status.style.color = '#2E7D32';
-    status.textContent = "Sent — we'll follow up within 1–2 business days.";
 
     const depositAmount = document.getElementById('calcDeposit').textContent;
     document.getElementById('payDepositAmount').textContent = depositAmount;
     document.getElementById('payDepositBtn').style.display = 'flex';
+
+    status.style.color = '#2E7D32';
+    status.textContent = "Opening the payment page for " + depositAmount + "\u2026 didn't open? Use the button below.";
+
+    window.open('https://square.link/u/IAAisYRv', '_blank');
   })
   .catch(function(err){
     console.error('Fireball estimator: estimate-request submission failed', err);
@@ -457,7 +486,6 @@ let extraHours = 0;
 let lastCalc = null; // cached results of the most recent distance calculation
 let hasDistance = false; // whether lastCalc has real address-based numbers yet
 let quoteViewedCaptured = false; // only fire the "Quote Viewed" lead once per session
-let contactCaptured = false; // only fire the "Contact Captured" lead once per session
 const serviceHoursValueEl = document.getElementById('calcServiceHoursValue');
 const extraHoursSlider = document.getElementById('calcExtraHoursSlider');
 const requiredHoursLabelEl = document.getElementById('calcRequiredHoursLabel');
@@ -636,7 +664,7 @@ function renderTotals(){
     'Caesar Salad: ' + (caesarAdded ? 'Yes (free booking bonus)' : 'No, declined') + ' | ' +
     'Cheesy Garlic Breadsticks: ' + (breadsticksAdded ? 'Yes (free booking bonus)' : 'No, declined');
 
-  document.getElementById('sendSubject').value = 'Catering Booked — ' + guestCount + ' guests, ' + formatCurrency(grandTotal) + ' total';
+  document.getElementById('sendSubject').value = 'Deposit Initiated — ' + guestCount + ' guests, ' + formatCurrency(grandTotal) + ' total';
 }
 
 // Address suggestions using the current (non-deprecated) Places API.
@@ -756,7 +784,6 @@ function resetBuilderDefaults(){
   guestsValueEl.textContent = BUFFET_MIN_GUESTS;
   hasDistance = false;
   quoteViewedCaptured = false;
-  contactCaptured = false;
   lastCalc = {
     address: '', mileageFee: 0, driveLaborTriggered: false,
     roundTripMiles: 0, roundTripDriveHours: 0, oneWayMiles: 0, oneWayDriveHours: 0, billableMiles: 0
@@ -771,11 +798,19 @@ function openCalc(){
   document.getElementById('calcPageA').style.display = 'block';
   document.getElementById('calcPageB').style.display = 'none';
   document.getElementById('calcPageAHint').textContent = '';
+  document.getElementById('calcResultsWaiting').style.display = 'block';
+  document.getElementById('calcPricingBlock').style.display = 'none';
   calcHint.textContent = '';
-  document.getElementById('calcSubmitBtn').textContent = 'Lock In My Date';
+  document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit';
   document.getElementById('calcSubmitBtn').disabled = false;
   document.getElementById('calcSendStatus').textContent = '';
   document.getElementById('payDepositBtn').style.display = 'none';
+  document.getElementById('calcRequestBtn').textContent = 'Request Custom Quote';
+  document.getElementById('calcRequestBtn').disabled = false;
+  document.getElementById('calcRequestMessage').value = '';
+  document.getElementById('calcRequestStatus').textContent = '';
+  document.getElementById('calcRequestSendBtn').disabled = false;
+  closeRequestPopup();
   resetBuilderDefaults();
   getPlacesLib().then(function(){ newSessionToken(); });
 }
@@ -783,34 +818,49 @@ function closeCalc(){
   overlay.classList.remove('open');
   document.body.style.overflow = '';
   document.getElementById('calcAddressSuggestions').classList.remove('open');
+  closeRequestPopup();
 }
 
-document.getElementById('calcNextBtn').addEventListener('click', function(){
+function validateContactFields(hintEl){
   const name = document.getElementById('sendName').value.trim();
   const email = document.getElementById('sendEmail').value.trim();
   const phone = document.getElementById('sendPhone').value.trim();
-  const hint = document.getElementById('calcPageAHint');
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phonePattern = /^[\d\s\-\(\)\+\.]{10,}$/;
 
   if(!name || !email || !phone){
-    hint.textContent = 'Please fill in your name, email, and phone number first.';
-    hint.style.color = 'var(--ember)';
-    return;
+    hintEl.textContent = 'Please fill in your name, email, and phone number first.';
+    hintEl.style.color = 'var(--ember)';
+    return false;
   }
   if(!emailPattern.test(email)){
-    hint.textContent = 'Please enter a valid email address.';
-    hint.style.color = 'var(--ember)';
-    return;
+    hintEl.textContent = 'Please enter a valid email address.';
+    hintEl.style.color = 'var(--ember)';
+    return false;
   }
   if(!phonePattern.test(phone)){
-    hint.textContent = 'Please enter a valid phone number.';
-    hint.style.color = 'var(--ember)';
-    return;
+    hintEl.textContent = 'Please enter a valid phone number.';
+    hintEl.style.color = 'var(--ember)';
+    return false;
   }
+  return true;
+}
+
+// --- Build Instant Quote: submits a lead immediately, then opens the live builder ---
+document.getElementById('calcNextBtn').addEventListener('click', function(){
+  const hint = document.getElementById('calcPageAHint');
+  if(!validateContactFields(hint)) return;
+  hint.textContent = '';
 
   document.getElementById('calcPageA').style.display = 'none';
   document.getElementById('calcPageB').style.display = 'block';
+  document.getElementById('calcResultsWaiting').style.display = 'none';
+  document.getElementById('calcPricingBlock').style.display = 'block';
+  renderTotals();
+
+  const name = document.getElementById('sendName').value.trim();
+  submitFormToNetlify('Custom Quote Built — ' + name)
+    .catch(function(err){ console.error('Fireball estimator: build-quote lead capture failed', err); });
 });
 
 document.getElementById('calcBackBtn').addEventListener('click', function(){
@@ -818,23 +868,62 @@ document.getElementById('calcBackBtn').addEventListener('click', function(){
   document.getElementById('calcPageA').style.display = 'block';
 });
 
-// Capture the lead as soon as valid contact info exists — no gate, no button, just react to it.
-function maybeCaptureContact(){
-  if(contactCaptured) return;
-  const name = document.getElementById('sendName').value.trim();
-  const email = document.getElementById('sendEmail').value.trim();
-  const phone = document.getElementById('sendPhone').value.trim();
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phonePattern = /^[\d\s\-\(\)\+\.]{10,}$/;
-  if(name && emailPattern.test(email) && phonePattern.test(phone)){
-    contactCaptured = true;
-    submitFormToNetlify('Contact Captured — ' + name)
-      .catch(function(err){ console.error('Fireball estimator: contact capture failed', err); });
-  }
+// --- Request Custom Quote: validates contact info, opens a popup for an optional note, then submits ---
+const requestPopupOverlay = document.getElementById('calcRequestPopupOverlay');
+function openRequestPopup(){
+  requestPopupOverlay.classList.add('open');
 }
-document.getElementById('sendName').addEventListener('blur', maybeCaptureContact);
-document.getElementById('sendEmail').addEventListener('blur', maybeCaptureContact);
-document.getElementById('sendPhone').addEventListener('blur', maybeCaptureContact);
+function closeRequestPopup(){
+  requestPopupOverlay.classList.remove('open');
+}
+
+document.getElementById('calcRequestBtn').addEventListener('click', function(){
+  const hint = document.getElementById('calcPageAHint');
+  if(!validateContactFields(hint)) return;
+  hint.textContent = '';
+  openRequestPopup();
+});
+
+document.getElementById('calcRequestPopupClose').addEventListener('click', closeRequestPopup);
+requestPopupOverlay.addEventListener('click', function(e){
+  if(e.target === requestPopupOverlay) closeRequestPopup();
+});
+
+document.getElementById('calcRequestSendBtn').addEventListener('click', function(){
+  const name = document.getElementById('sendName').value.trim();
+  const message = document.getElementById('calcRequestMessage').value.trim();
+  const btn = this;
+  const status = document.getElementById('calcRequestStatus');
+  btn.disabled = true;
+  status.style.color = 'var(--stone)';
+  status.textContent = 'Sending...';
+
+  const subject = 'Custom Quote Requested — ' + name + (message ? ' (has message)' : '');
+  const form = document.getElementById('calcForm');
+  const data = new FormData(form);
+  data.set('subject', subject);
+  data.set('Pricing Summary', 'Custom quote requested — no builder pricing generated. Message: ' + (message || '(none)'));
+  const params = new URLSearchParams();
+  data.forEach(function(value, key){ params.append(key, value); });
+
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  })
+  .then(function(){
+    status.style.color = '#2E7D32';
+    status.textContent = "Request sent — we'll follow up within 1–2 business days.";
+    document.getElementById('calcRequestBtn').textContent = 'Request Sent';
+    document.getElementById('calcRequestBtn').disabled = true;
+  })
+  .catch(function(err){
+    console.error('Fireball estimator: custom quote request failed', err);
+    status.style.color = 'var(--ember)';
+    btn.disabled = false;
+    status.textContent = "Couldn't send automatically — please call or email us directly.";
+  });
+});
 
 openBtn?.addEventListener('click', openCalc);
 closeBtn?.addEventListener('click', closeCalc);
@@ -842,7 +931,13 @@ overlay?.addEventListener('click', function(e){
   if(e.target === overlay) closeCalc();
 });
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape') closeCalc();
+  if(e.key === 'Escape'){
+    if(requestPopupOverlay.classList.contains('open')){
+      closeRequestPopup();
+    } else {
+      closeCalc();
+    }
+  }
 });
 
 if(window.location.hash === '#quote'){
