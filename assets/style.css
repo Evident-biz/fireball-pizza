@@ -355,6 +355,9 @@ section.tight{ padding: 64px 0; }
   font-size: 0.9rem; color: var(--ink);
 }
 .calc-switch-row-text{ line-height: 1.4; }
+.calc-price-hint{
+  font-family: var(--font-utility); font-size: 0.72rem; color: var(--stone); margin-left: 4px;
+}
 .calc-strike{ text-decoration: line-through; color: var(--stone); opacity: 0.7; margin: 0 4px; }
 
 .calc-switch{

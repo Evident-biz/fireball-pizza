@@ -25,7 +25,7 @@
       <a href="catering.html" class="active">Catering</a>
       <a href="events.html">Calendar</a>
       <a href="contact.html">Contact</a>
-      <a href="catering.html#quote" class="cta">Book Catering</a>
+      <a href="#quote" class="cta">Book Catering</a>
     </nav>
   </div>
 </header>
@@ -215,7 +215,7 @@
       </div>
       <div>
         <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
-        <h3 id="calcModalTitle" style="font-family:var(--font-display); text-transform:uppercase; font-size:1.2rem; letter-spacing:0.01em; color:var(--white); margin:0;">Catering Builder</h3>
+        <h3 id="calcModalTitle" style="font-family:var(--font-body); font-weight:600; text-transform:uppercase; font-size:1.05rem; letter-spacing:0.03em; color:var(--white); margin:0;">Catering Builder</h3>
       </div>
       <div class="calc-header-offer">
         <span class="calc-header-offer-tag">Book Now Bonus</span>
@@ -296,16 +296,16 @@
             </div>
 
             <p class="calc-group-title">Extras</p>
-            <button type="button" class="calc-switch-row is-active" id="caesarToggle">
-              <span class="calc-switch-row-text">Caesar Salad</span>
+            <button type="button" class="calc-switch-row" id="caesarToggle">
+              <span class="calc-switch-row-text">Caesar Salad <span class="calc-price-hint">+$2</span></span>
               <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
             </button>
-            <button type="button" class="calc-switch-row is-active" id="breadsticksToggle">
-              <span class="calc-switch-row-text">Cheesy Garlic Breadsticks</span>
+            <button type="button" class="calc-switch-row" id="breadsticksToggle">
+              <span class="calc-switch-row-text">Cheesy Garlic Breadsticks <span class="calc-price-hint">+$2</span></span>
               <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
             </button>
             <button type="button" class="calc-switch-row" id="dessertToggle">
-              <span class="calc-switch-row-text" id="dessertToggleLabel">Dessert</span>
+              <span class="calc-switch-row-text" id="dessertToggleLabel">Dessert <span class="calc-price-hint">+$4</span></span>
               <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
             </button>
             <div class="calc-dessert-options" id="dessertOptions" style="display:none;">
@@ -329,8 +329,8 @@
                 <span>Service time</span>
                 <strong id="calcServiceHoursValue">—</strong>
               </div>
-              <input type="range" id="calcExtraHoursSlider" min="0" max="3" step="1" value="0" class="calc-slider">
-              <div class="calc-slider-range"><span id="calcRequiredHoursLabel">Included</span><span id="calcExtraHoursMaxLabel">+3 hrs max</span></div>
+              <input type="range" id="calcExtraHoursSlider" min="0" max="1" step="1" value="0" class="calc-slider">
+              <div class="calc-slider-range"><span id="calcRequiredHoursLabel">Included</span><span id="calcExtraHoursMaxLabel">+1 hr max</span></div>
             </div>
 
             <p class="calc-hint">This is an estimated quote, if anything needs adjusting, we'll reach out once you confirm.</p>
@@ -501,7 +501,7 @@ const BYO_INCLUDED_HOURS = 2;
 const MIN_GUEST_COUNT = 20;
 const MIN_SERVICE_HOURS = 1;
 const MAX_INCLUDED_SERVICE_HOURS = 3;
-const MAX_TOTAL_SERVICE_HOURS = 4;
+const MAX_EXTRA_SERVICE_HOURS = 1;
 const SERVICE_HOURS_TIER_2_GUESTS = 100; // 2 hrs included from here
 const SERVICE_HOURS_TIER_3_GUESTS = 200; // 3 hrs included only from here
 
@@ -570,8 +570,8 @@ extraHoursSlider.addEventListener('input', function(){
 // --- Style tiles + dessert/appetizer toggles: shown after calculation, live-adjustable ---
 let selectedStyle = 'buffet';
 let dessertAdded = false;
-let caesarAdded = true;
-let breadsticksAdded = true;
+let caesarAdded = false;
+let breadsticksAdded = false;
 let cheesecakeSelected = true;
 let mousseSelected = false;
 const tileBuffet = document.getElementById('tileBuffet');
@@ -586,14 +586,24 @@ const mousseOption = document.getElementById('mousseOption');
 const caesarToggle = document.getElementById('caesarToggle');
 const breadsticksToggle = document.getElementById('breadsticksToggle');
 
+function maybeAutoUntoggleDessert(){
+  if(dessertAdded && !cheesecakeSelected && !mousseSelected){
+    dessertAdded = false;
+    dessertToggle.classList.remove('is-active');
+    dessertOptions.style.display = 'none';
+  }
+}
+
 cheesecakeOption.addEventListener('click', function(){
   cheesecakeSelected = !cheesecakeSelected;
   cheesecakeOption.classList.toggle('is-active', cheesecakeSelected);
+  maybeAutoUntoggleDessert();
   renderTotals();
 });
 mousseOption.addEventListener('click', function(){
   mousseSelected = !mousseSelected;
   mousseOption.classList.toggle('is-active', mousseSelected);
+  maybeAutoUntoggleDessert();
   renderTotals();
 });
 
@@ -668,7 +678,7 @@ function renderTotals(){
   const styleLabel = selectedStyle === 'byo' ? 'Build Your Own' : 'Buffet';
 
   const requiredHours = selectedStyle === 'byo' ? BYO_INCLUDED_HOURS : requiredHoursForGuests(guestCount);
-  const maxExtraHours = Math.max(0, MAX_TOTAL_SERVICE_HOURS - requiredHours);
+  const maxExtraHours = MAX_EXTRA_SERVICE_HOURS;
   if(extraHours > maxExtraHours) extraHours = maxExtraHours;
   extraHoursSlider.max = maxExtraHours;
   extraHoursSlider.value = extraHours;
@@ -875,16 +885,16 @@ function resetBuilderDefaults(){
   extraHoursSlider.value = 0;
   selectedStyle = 'buffet';
   dessertAdded = false;
-  caesarAdded = true;
-  breadsticksAdded = true;
+  caesarAdded = false;
+  breadsticksAdded = false;
   cheesecakeSelected = true;
   mousseSelected = false;
   dessertToggle.classList.remove('is-active');
   dessertOptions.style.display = 'none';
   cheesecakeOption.classList.add('is-active');
   mousseOption.classList.remove('is-active');
-  caesarToggle.classList.add('is-active');
-  breadsticksToggle.classList.add('is-active');
+  caesarToggle.classList.remove('is-active');
+  breadsticksToggle.classList.remove('is-active');
   currentGuestCount = BUFFET_MIN_GUESTS;
   guestsSlider.value = BUFFET_MIN_GUESTS;
   guestsNumberEl.value = BUFFET_MIN_GUESTS;
@@ -1068,10 +1078,6 @@ document.addEventListener('keydown', function(e){
     }
   }
 });
-
-if(window.location.hash === '#quote'){
-  openCalc();
-}
 
 function runDistanceLookup(address){
   address = address.trim();
