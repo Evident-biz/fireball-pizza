@@ -339,7 +339,7 @@
 
         <div class="calc-results" id="calcResults">
 
-        <p class="calc-results-waiting" id="calcResultsWaiting">Fill out the form on the left to see your price here.</p>
+        <p class="calc-results-waiting" id="calcResultsWaiting">Fill out the form to see your price here.</p>
 
         <div id="calcPricingBlock" style="display:none;">
         <div class="calc-row"><span>Base food price</span><strong id="calcBase">—</strong></div>
@@ -351,6 +351,7 @@
         <div class="calc-row" id="calcTravelFeeRow"><span>Travel fee</span><strong id="calcLaborTravelTotal">—</strong></div>
         <div class="calc-row"><span>Sales Tax</span><strong id="calcSalesTax">—</strong></div>
         <div class="calc-row calc-total"><span>Total Quote</span><strong id="calcGrandTotal">—</strong></div>
+        <p class="calc-afterpay-note">or 4 interest-free payments of <strong id="calcAfterpayAmount">—</strong> with <span class="calc-afterpay-badge">Afterpay</span></p>
         <div class="calc-row calc-deposit"><span>Deposit Due (50%)</span><strong id="calcDeposit">—</strong></div>
 
         <input type="hidden" name="Guest Count" id="sendGuestCount">
@@ -362,6 +363,7 @@
         <input type="hidden" name="Free Appetizers" id="sendAppetizers">
 
         <button type="submit" class="btn btn-primary" id="calcSubmitBtn" style="width:100%; justify-content:center; margin-top:20px;">Pay Deposit</button>
+        <p class="calc-hint" style="text-align:center; margin-top:6px;">Afterpay available at checkout — split your deposit into 4 payments.</p>
         <p class="calc-hint" id="calcSendStatus"></p>
         <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="payDepositBtn" style="display:none; width:100%; justify-content:center; margin-top:12px;">Open Payment Page — <span id="payDepositAmount"></span></a>
 
@@ -487,6 +489,7 @@ document.getElementById('calcNoDepositBtn').addEventListener('click', function()
 // --- Travel & Labor Estimate Calculator (modal) ---
 const BASE_ADDRESS = '401 Downey Ave, Modesto, CA 95354';
 const FREE_RADIUS_ROUND_TRIP_MILES = 40;
+const MAX_ROUND_TRIP_MILES = 250;
 const TRAVEL_RATE_PER_MILE = 1.75;
 const LABOR_RATE_PER_HOUR = 25;
 const DRIVE_TIME_LABOR_TRIGGER_ROUND_TRIP_MILES = 40;
@@ -717,6 +720,7 @@ function renderTotals(){
     document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
     document.getElementById('calcSalesTax').textContent = formatCurrency(salesTax);
     document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
+    document.getElementById('calcAfterpayAmount').textContent = formatCurrency(grandTotal / 4);
     document.getElementById('calcDeposit').textContent = formatCurrency(depositDue) + ' + tax';
   } else {
     milesRow.style.display = 'none';
@@ -731,6 +735,7 @@ function renderTotals(){
     document.getElementById('calcLaborTravelTotal').textContent = '—';
     document.getElementById('calcSalesTax').textContent = '—';
     document.getElementById('calcGrandTotal').textContent = '—';
+    document.getElementById('calcAfterpayAmount').textContent = '—';
     document.getElementById('calcDeposit').textContent = '—';
   }
 
@@ -1134,6 +1139,18 @@ function runDistanceLookup(address){
       const oneWayDriveHours = element.duration.value / 3600;
       const roundTripMiles = oneWayMiles * 2;
       const roundTripDriveHours = oneWayDriveHours * 2;
+
+      if(roundTripMiles > MAX_ROUND_TRIP_MILES){
+        hasDistance = false;
+        lastCalc = {
+          address: '', mileageFee: 0, driveLaborTriggered: false,
+          roundTripMiles: 0, roundTripDriveHours: 0, oneWayMiles: 0, oneWayDriveHours: 0, billableMiles: 0
+        };
+        renderTotals();
+        calcHint.textContent = "That address is " + roundTripMiles.toFixed(0) + " miles round trip — outside our " + MAX_ROUND_TRIP_MILES + "-mile service range. Please use Request Custom Quote instead so we can see what's possible.";
+        calcHint.style.color = 'var(--ember)';
+        return;
+      }
 
       let billableMiles = 0;
       let mileageFee = 0;
