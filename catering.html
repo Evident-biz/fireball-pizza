@@ -432,6 +432,11 @@ function validateBookingReady(statusEl){
     statusEl.textContent = 'Please enter the event date and time to lock in your booking.';
     return false;
   }
+  if(document.getElementById('eventDate').value < getMinBookingDateString()){
+    statusEl.style.color = 'var(--ember)';
+    statusEl.textContent = 'We need at least 7 days notice to book catering — please choose a later date or call us directly for a rush request.';
+    return false;
+  }
   return true;
 }
 
@@ -719,7 +724,7 @@ function renderTotals(){
   const preTaxSubtotal = basePrice + laborTravelTotal;
   const salesTax = preTaxSubtotal * TAX_RATE;
   const grandTotal = preTaxSubtotal + salesTax;
-  const depositDue = preTaxSubtotal * DEPOSIT_RATE;
+  const depositDue = grandTotal * DEPOSIT_RATE;
 
   guestsNumberEl.value = guestCount;
   guestsSlider.value = guestCount;
@@ -746,7 +751,10 @@ function renderTotals(){
     document.getElementById('calcSalesTax').textContent = formatCurrency(salesTax);
     document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
     document.getElementById('calcAfterpayAmount').textContent = formatCurrency(grandTotal / 4);
-    document.getElementById('calcDeposit').textContent = formatCurrency(depositDue) + ' + tax';
+    document.getElementById('calcDeposit').textContent = formatCurrency(depositDue);
+    if(!document.getElementById('calcSubmitBtn').disabled){
+      document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit — ' + formatCurrency(depositDue);
+    }
     document.getElementById('sendDepositRaw').value = depositDue.toFixed(2);
   } else {
     milesRow.style.display = 'none';
@@ -763,6 +771,9 @@ function renderTotals(){
     document.getElementById('calcGrandTotal').textContent = '—';
     document.getElementById('calcAfterpayAmount').textContent = '—';
     document.getElementById('calcDeposit').textContent = '—';
+    if(!document.getElementById('calcSubmitBtn').disabled){
+      document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit';
+    }
   }
 
   // Grouped, plain-language summaries sent to Fireball for internal double-checking.
@@ -793,7 +804,7 @@ function renderTotals(){
     'Pre-tax subtotal: ' + formatCurrency(preTaxSubtotal) + ' | ' +
     'Sales tax (8.875%): ' + formatCurrency(salesTax) + ' | ' +
     'Grand Total: ' + formatCurrency(grandTotal) + ' | ' +
-    'Deposit Due (50% of pre-tax, +tax at checkout): ' + formatCurrency(depositDue);
+    'Deposit Due (50% of tax-inclusive total): ' + formatCurrency(depositDue);
 
   document.getElementById('sendAppetizers').value =
     'Caesar Salad: ' + (caesarAdded ? 'Yes (free booking bonus)' : 'No, declined') + ' | ' +
@@ -855,6 +866,8 @@ function renderSuggestions(items){
       box.innerHTML = '';
       box.classList.remove('open');
       newSessionToken(); // start a fresh session after a selection, per Google's guidance
+      addressSelectedFromSuggestion = true;
+      calcHint.textContent = '';
       runDistanceLookup(items[i].label);
     });
   });
@@ -884,24 +897,29 @@ async function fetchSuggestions(query){
   }
 }
 
-let distanceDebounce = null;
+let addressSelectedFromSuggestion = false;
 const addressInput = document.getElementById('calcAddress');
 addressInput.addEventListener('input', function(){
   const query = this.value.trim();
   clearTimeout(suggestDebounce);
-  clearTimeout(distanceDebounce);
+  // Any manual edit invalidates a prior selection — force them to pick a fresh suggestion
+  // so we never price an address Google Maps hasn't actually confirmed.
+  if(addressSelectedFromSuggestion || hasDistance){
+    addressSelectedFromSuggestion = false;
+    hasDistance = false;
+    renderTotals();
+  }
   if(query.length < 4){
     renderSuggestions([]);
     return;
   }
   suggestDebounce = setTimeout(function(){ fetchSuggestions(query); }, 250);
-  distanceDebounce = setTimeout(function(){ runDistanceLookup(query); }, 1000);
 });
 addressInput.addEventListener('blur', function(){
   const query = this.value.trim();
-  if(query.length >= 8){
-    clearTimeout(distanceDebounce);
-    runDistanceLookup(query);
+  if(query.length > 0 && !addressSelectedFromSuggestion){
+    calcHint.textContent = 'Please select your address from the dropdown suggestions for an accurate quote.';
+    calcHint.style.color = 'var(--ember)';
   }
 });
 document.addEventListener('click', function(e){
@@ -939,6 +957,15 @@ function resetBuilderDefaults(){
   renderTotals();
 }
 
+function getMinBookingDateString(){
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return yyyy + '-' + mm + '-' + dd;
+}
+
 function openCalc(){
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -948,6 +975,8 @@ function openCalc(){
   document.getElementById('calcResultsWaiting').style.display = 'block';
   document.getElementById('calcPricingBlock').style.display = 'none';
   calcHint.textContent = '';
+  addressSelectedFromSuggestion = false;
+  document.getElementById('eventDate').min = getMinBookingDateString();
   document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit';
   document.getElementById('calcSubmitBtn').disabled = false;
   document.getElementById('calcSendStatus').textContent = '';
@@ -1006,6 +1035,11 @@ function validateContactFields(hintEl){
     hintEl.style.color = 'var(--ember)';
     return false;
   }
+  if(eventDate < getMinBookingDateString()){
+    hintEl.textContent = 'We need at least 7 days notice to book catering — please choose a later date or call us directly for a rush request.';
+    hintEl.style.color = 'var(--ember)';
+    return false;
+  }
   if(!eventTime){
     hintEl.textContent = 'Please select your event start time.';
     hintEl.style.color = 'var(--ember)';
@@ -1019,7 +1053,7 @@ document.getElementById('calcNextBtn').addEventListener('click', function(){
   const hint = document.getElementById('calcPageAHint');
   if(!validateContactFields(hint)) return;
   if(!hasDistance){
-    hint.textContent = 'Please enter your event address and wait for the distance to calculate first.';
+    hint.textContent = 'Please select your event address from the dropdown suggestions to calculate distance first.';
     hint.style.color = 'var(--ember)';
     return;
   }
