@@ -360,6 +360,7 @@
         <input type="hidden" name="Distance and Mileage" id="sendDistance">
         <input type="hidden" name="Drive-Time Labor" id="sendDriveLabor">
         <input type="hidden" name="Pricing Summary" id="sendPricing">
+        <input type="hidden" id="sendDepositRaw">
         <input type="hidden" name="Free Appetizers" id="sendAppetizers">
 
         <button type="submit" class="btn btn-primary" id="calcSubmitBtn" style="width:100%; justify-content:center; margin-top:20px;">Pay Deposit</button>
@@ -443,22 +444,46 @@ document.getElementById('calcForm').addEventListener('submit', function(e){
   status.style.color = 'var(--stone)';
   status.textContent = 'Sending...';
 
+  const name = document.getElementById('sendName').value.trim();
+  const depositAmountRaw = document.getElementById('sendDepositRaw').value;
+  const depositAmountDisplay = document.getElementById('calcDeposit').textContent;
+  const FALLBACK_SQUARE_LINK = 'https://square.link/u/IAAisYRv';
+
+  function openPaymentPage(url){
+    document.getElementById('payDepositBtn').href = url;
+    document.getElementById('payDepositAmount').textContent = depositAmountDisplay;
+    document.getElementById('payDepositBtn').style.display = 'flex';
+    window.open(url, '_blank');
+  }
+
   submitFormToNetlify(document.getElementById('sendSubject').value)
   .then(function(){
+    // Lead is safely recorded — everything from here on is just about getting them to a payment page.
     submitBtn.textContent = 'Deposit Initiated';
     submitBtn.disabled = true;
-
-    const depositAmount = document.getElementById('calcDeposit').textContent;
-    document.getElementById('payDepositAmount').textContent = depositAmount;
-    document.getElementById('payDepositBtn').style.display = 'flex';
-
     status.style.color = '#2E7D32';
-    status.textContent = "Opening the payment page for " + depositAmount + "\u2026 didn't open? Use the button below.";
+    status.textContent = "Opening the payment page for " + depositAmountDisplay + "\u2026 didn't open? Use the button below.";
 
-    window.open('https://square.link/u/IAAisYRv', '_blank');
+    fetch('/.netlify/functions/create-deposit-link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: depositAmountRaw,
+        description: 'Fireball Pizza Catering Deposit — ' + name,
+        referenceId: name
+      })
+    })
+    .then(function(res){ return res && res.ok ? res.json() : Promise.reject(new Error('link creation failed')); })
+    .then(function(data){
+      openPaymentPage(data.url);
+    })
+    .catch(function(err){
+      console.error('Fireball estimator: exact-amount payment link failed, falling back to static link', err);
+      openPaymentPage(FALLBACK_SQUARE_LINK);
+    });
   })
   .catch(function(err){
-    console.error('Fireball estimator: estimate-request submission failed', err);
+    console.error('Fireball estimator: lead capture submission failed', err);
     status.style.color = 'var(--ember)';
     status.textContent = "Couldn't send automatically — please call or email us directly with these numbers.";
   });
@@ -722,6 +747,7 @@ function renderTotals(){
     document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
     document.getElementById('calcAfterpayAmount').textContent = formatCurrency(grandTotal / 4);
     document.getElementById('calcDeposit').textContent = formatCurrency(depositDue) + ' + tax';
+    document.getElementById('sendDepositRaw').value = depositDue.toFixed(2);
   } else {
     milesRow.style.display = 'none';
     driveTimeRow.style.display = 'none';
