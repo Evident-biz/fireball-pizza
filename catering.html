@@ -336,14 +336,7 @@
               <div class="calc-slider-range"><span>20</span><span>250</span></div>
             </div>
 
-            <div class="calc-slider-field">
-              <div class="calc-slider-head">
-                <span>Service time</span>
-                <strong id="calcServiceHoursValue">-</strong>
-              </div>
-              <input type="range" id="calcExtraHoursSlider" min="0" max="1" step="1" value="0" class="calc-slider">
-              <div class="calc-slider-range"><span id="calcRequiredHoursLabel">Included</span><span id="calcExtraHoursMaxLabel">+1 hr max</span></div>
-            </div>
+            <button type="button" class="btn btn-primary" id="calcCalculateBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate My Quote</button>
 
             <p class="calc-hint">This is an estimated quote, if anything needs adjusting, we'll reach out once you confirm.</p>
           </div>
@@ -376,7 +369,7 @@
         <input type="hidden" name="Free Appetizers" id="sendAppetizers">
 
         <button type="submit" class="btn btn-primary" id="calcSubmitBtn" style="width:100%; justify-content:center; margin-top:20px;">Pay Deposit</button>
-        <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="calc-no-deposit-link" style="display:block; margin-top:6px;">Prefer Afterpay? Pay through this link instead (enter your deposit amount yourself)</a>
+        <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="calc-no-deposit-link" id="calcAfterpayLink" style="display:block; margin-top:6px;">Prefer Afterpay? Pay through this link instead (enter your deposit amount yourself)</a>
         <p class="calc-hint" id="calcSendStatus"></p>
         <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="payDepositBtn" style="display:none; width:100%; justify-content:center; margin-top:12px;">Open Payment Page: <span id="payDepositAmount"></span></a>
 
@@ -452,6 +445,29 @@ function validateBookingReady(statusEl){
   return true;
 }
 
+document.getElementById('calcAfterpayLink').addEventListener('click', function(e){
+  e.preventDefault();
+  const status = document.getElementById('calcSendStatus');
+  if(!validateBookingReady(status)) return;
+
+  const url = this.href;
+  status.style.color = 'var(--stone)';
+  status.textContent = 'Sending...';
+
+  submitFormToNetlify(document.getElementById('sendSubject').value)
+  .then(function(){
+    status.style.color = '#2E7D32';
+    status.textContent = "Opening the Afterpay-enabled payment page in a new tab.";
+    window.open(url, '_blank');
+  })
+  .catch(function(err){
+    console.error('Fireball estimator: Afterpay lead capture failed', err);
+    status.style.color = 'var(--ember)';
+    status.textContent = "Couldn't send automatically. Please call or email us directly with these numbers.";
+    window.open(url, '_blank');
+  });
+});
+
 document.getElementById('calcForm').addEventListener('submit', function(e){
   e.preventDefault();
   const status = document.getElementById('calcSendStatus');
@@ -514,7 +530,7 @@ document.getElementById('calcNoDepositBtn').addEventListener('click', function()
   status.style.color = 'var(--stone)';
   status.textContent = 'Sending...';
 
-  submitFormToNetlify('Confirmed Reservation - No Payment')
+  submitFormToNetlify('Date Confirmed, Deposit Not Collected')
   .then(function(){
     btn.textContent = 'Reservation Sent, No Payment';
     btn.disabled = true;
@@ -547,7 +563,6 @@ const BYO_INCLUDED_HOURS = 2;
 const MIN_GUEST_COUNT = 20;
 const MIN_SERVICE_HOURS = 1;
 const MAX_INCLUDED_SERVICE_HOURS = 3;
-const MAX_EXTRA_SERVICE_HOURS = 1;
 const SERVICE_HOURS_TIER_2_GUESTS = 100; // 2 hrs included from here
 const SERVICE_HOURS_TIER_3_GUESTS = 200; // 3 hrs included only from here
 
@@ -574,14 +589,12 @@ const closeBtn = document.getElementById('calcClose');
 const calcHint = document.getElementById('calcHint');
 const calcResults = document.getElementById('calcResults');
 
-// --- Service time slider: 0-6 extra hours on top of the included baseline ---
-let extraHours = 0;
+// Service time is fixed internally (no customer-facing control); extraHours stays 0.
+const extraHours = 0;
 let lastCalc = null; // cached results of the most recent distance calculation
 let hasDistance = false; // whether lastCalc has real address-based numbers yet
+let hasCalculated = false; // whether the customer has pressed Calculate My Quote yet
 let quoteViewedCaptured = false; // only fire the "Quote Viewed" lead once per session
-const serviceHoursValueEl = document.getElementById('calcServiceHoursValue');
-const extraHoursSlider = document.getElementById('calcExtraHoursSlider');
-const requiredHoursLabelEl = document.getElementById('calcRequiredHoursLabel');
 
 // --- Guest count slider + number input: kept in sync both ways ---
 let currentGuestCount = 0;
@@ -606,11 +619,6 @@ guestsNumberEl.addEventListener('input', function(){
 });
 guestsNumberEl.addEventListener('blur', function(){
   guestsNumberEl.value = currentGuestCount; // snap back to the clamped value on blur
-});
-
-extraHoursSlider.addEventListener('input', function(){
-  extraHours = parseInt(this.value, 10);
-  renderTotals();
 });
 
 // --- Style tiles + dessert/appetizer toggles: shown after calculation, live-adjustable ---
@@ -740,13 +748,6 @@ function renderTotals(){
   const styleLabel = selectedStyle === 'byo' ? 'Build Your Own' : 'Buffet';
 
   const requiredHours = selectedStyle === 'byo' ? BYO_INCLUDED_HOURS : requiredHoursForGuests(guestCount);
-  const maxExtraHours = MAX_EXTRA_SERVICE_HOURS;
-  if(extraHours > maxExtraHours) extraHours = maxExtraHours;
-  extraHoursSlider.max = maxExtraHours;
-  extraHoursSlider.value = extraHours;
-  document.getElementById('calcExtraHoursMaxLabel').textContent = '+' + maxExtraHours + ' hr' + (maxExtraHours !== 1 ? 's' : '') + ' max';
-
-  const totalServiceHours = requiredHours + extraHours;
   const extraTimeFee = extraHours * crew * LABOR_RATE_PER_HOUR;
   const laborTravelTotal = mileageFee + driveLaborFee + extraTimeFee;
 
@@ -757,8 +758,6 @@ function renderTotals(){
 
   guestsNumberEl.value = guestCount;
   guestsSlider.value = guestCount;
-  serviceHoursValueEl.textContent = 'Up to ' + totalServiceHours + ' hr' + (totalServiceHours !== 1 ? 's' : '');
-  requiredHoursLabelEl.textContent = requiredHours + ' hr included';
 
   document.getElementById('calcBase').textContent = formatCurrency(basePrice);
   const milesRow = document.getElementById('calcMilesRow');
@@ -809,8 +808,7 @@ function renderTotals(){
   document.getElementById('sendGuestCount').value = guestCount;
 
   document.getElementById('sendServiceTime').value =
-    totalServiceHours + ' hr total (' + requiredHours + ' hr included' + (selectedStyle === 'byo' ? ', Build Your Own' : '') + ' + ' + extraHours + ' hr extra). ' +
-    'Extra time cost: ' + formatCurrency(extraTimeFee) + (extraHours > 0 ? ' (' + extraHours + ' hr × ' + crew + ' crew × $25/hr, folded into travel fee)' : ' (no extra time added)');
+    requiredHours + ' hr' + (requiredHours !== 1 ? 's' : '') + ' included' + (selectedStyle === 'byo' ? ' (Build Your Own)' : '') + '.';
 
   document.getElementById('sendAddress').value = address;
 
@@ -960,8 +958,6 @@ document.addEventListener('click', function(e){
 });
 
 function resetBuilderDefaults(){
-  extraHours = 0;
-  extraHoursSlider.value = 0;
   selectedStyle = 'buffet';
   dessertAdded = false;
   caesarAdded = false;
@@ -982,6 +978,7 @@ function resetBuilderDefaults(){
   guestsSlider.value = BUFFET_MIN_GUESTS;
   guestsNumberEl.value = BUFFET_MIN_GUESTS;
   hasDistance = false;
+  hasCalculated = false;
   quoteViewedCaptured = false;
   lastCalc = {
     address: '', mileageFee: 0, driveLaborTriggered: false,
@@ -1095,6 +1092,10 @@ document.getElementById('calcNextBtn').addEventListener('click', function(){
 
   document.getElementById('calcPageA').style.display = 'none';
   document.getElementById('calcPageB').style.display = 'block';
+});
+
+document.getElementById('calcCalculateBtn').addEventListener('click', function(){
+  hasCalculated = true;
   document.getElementById('calcResultsWaiting').style.display = 'none';
   document.getElementById('calcPricingBlock').style.display = 'block';
   renderTotals();
