@@ -303,23 +303,19 @@
               <div class="calc-extras-grid">
                 <button type="button" class="calc-extra-tile" id="caesarToggle">
                   <svg viewBox="0 0 24 24" fill="none"><path d="M4 11h16a8 8 0 0 1-16 0Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11c0-2 .8-4 2-5M12 11c0-2.3 1-4.6 2.5-6M16 11c0-1.8.6-3.5 1.6-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                  <strong>Caesar Salad</strong>
-                  <span class="calc-price-hint">$2/person</span>
+                  <span class="calc-extra-tile-text"><strong>Caesar Salad</strong><span class="calc-price-hint">$2/person</span></span>
                 </button>
                 <button type="button" class="calc-extra-tile" id="breadsticksToggle">
                   <svg viewBox="0 0 24 24" fill="none"><path d="M6 19 18 7M9 22 22 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                  <strong>Breadsticks</strong>
-                  <span class="calc-price-hint">$2/person</span>
+                  <span class="calc-extra-tile-text"><strong>Breadsticks</strong><span class="calc-price-hint">$2/person</span></span>
                 </button>
                 <button type="button" class="calc-extra-tile" id="ravioliToggle">
                   <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M5 5 19 19M19 5 5 19" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1.5 2.2"/></svg>
-                  <strong>Cheese Ravioli</strong>
-                  <span class="calc-price-hint">$8/person</span>
+                  <span class="calc-extra-tile-text"><strong>Cheese Ravioli</strong><span class="calc-price-hint">$8/person</span></span>
                 </button>
                 <button type="button" class="calc-extra-tile" id="dessertToggle">
                   <svg viewBox="0 0 24 24" fill="none"><path d="M4 12h16l-1.5 7a2 2 0 0 1-2 1.6H7.5a2 2 0 0 1-2-1.6L4 12Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 12V8M12 8c-1.4 0-2.5-1-2.5-2.5S10.6 3 12 3s2.5 1 2.5 2.5S13.4 8 12 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-                  <strong id="dessertToggleLabel">Dessert</strong>
-                  <span class="calc-price-hint">$4/person</span>
+                  <span class="calc-extra-tile-text"><strong id="dessertToggleLabel">Dessert</strong><span class="calc-price-hint">$4/person</span></span>
                 </button>
               </div>
               <div class="calc-dessert-options" id="dessertOptions" style="display:none;">
@@ -618,6 +614,7 @@ function setGuestCount(newCount){
   currentGuestCount = Math.min(GUEST_COUNT_MAX, Math.max(MIN_GUEST_COUNT, newCount));
   guestsSlider.value = currentGuestCount;
   guestsNumberEl.value = currentGuestCount;
+  document.getElementById('glutenFreeCount').max = currentGuestCount;
   updateStyleTileVisibility();
   renderTotals();
 }
@@ -633,7 +630,7 @@ guestsNumberEl.addEventListener('blur', function(){
   guestsNumberEl.value = currentGuestCount; // snap back to the clamped value on blur
 });
 
-// --- Gluten-free guest add-on: additional headcount, not a subset of the main guest count ---
+// --- Gluten-free guest add-on: a subset of the main guest count, not additional headcount ---
 const GLUTEN_FREE_PRICE_PER_GUEST = 3;
 const glutenFreeCheckbox = document.getElementById('glutenFreeCheckbox');
 const glutenFreeField = document.getElementById('glutenFreeField');
@@ -642,21 +639,21 @@ const glutenFreeCountInput = document.getElementById('glutenFreeCount');
 function getGlutenFreeCount(){
   if(!glutenFreeCheckbox.checked) return 0;
   const val = parseInt(glutenFreeCountInput.value, 10);
-  return (!isNaN(val) && val > 0) ? val : 0;
-}
-function getEffectiveGuestCount(){
-  return currentGuestCount + getGlutenFreeCount();
+  if(isNaN(val) || val <= 0) return 0;
+  return Math.min(val, currentGuestCount); // can't exceed the total guest count, it's a subset
 }
 
 glutenFreeCheckbox.addEventListener('change', function(){
   glutenFreeField.style.display = this.checked ? 'block' : 'none';
   if(!this.checked) glutenFreeCountInput.value = '';
-  updateStyleTileVisibility();
   renderTotals();
 });
 glutenFreeCountInput.addEventListener('input', function(){
-  updateStyleTileVisibility();
   renderTotals();
+});
+glutenFreeCountInput.addEventListener('blur', function(){
+  const clamped = getGlutenFreeCount();
+  this.value = clamped > 0 ? clamped : '';
 });
 
 // --- Style tiles + dessert/appetizer toggles: shown after calculation, live-adjustable ---
@@ -719,9 +716,8 @@ ravioliToggle.addEventListener('click', function(){
 
 function updateStyleTileVisibility(){
   if(!lastCalc) return;
-  const effectiveCount = getEffectiveGuestCount();
-  const byoAllowed = effectiveCount <= BYO_MAX_GUESTS;
-  const buffetAllowed = effectiveCount >= BUFFET_MIN_GUESTS;
+  const byoAllowed = currentGuestCount <= BYO_MAX_GUESTS;
+  const buffetAllowed = currentGuestCount >= BUFFET_MIN_GUESTS;
 
   tileBYO.hidden = !byoAllowed;
   tileBuffet.hidden = !buffetAllowed;
@@ -766,8 +762,7 @@ function renderTotals(){
   if(!lastCalc) return;
   const guestCount = currentGuestCount;
   const glutenFreeCount = getGlutenFreeCount();
-  const effectiveGuestCount = guestCount + glutenFreeCount;
-  const crew = crewSizeForGuests(effectiveGuestCount);
+  const crew = crewSizeForGuests(guestCount);
   const {
     address, mileageFee, driveLaborTriggered,
     roundTripMiles, roundTripDriveHours, oneWayMiles, oneWayDriveHours, billableMiles
@@ -775,13 +770,13 @@ function renderTotals(){
   const driveLaborFee = driveLaborTriggered ? roundTripDriveHours * crew * LABOR_RATE_PER_HOUR : 0;
 
   const pricePerGuest = selectedStyle === 'byo' ? PRICE_PER_GUEST_BYO : PRICE_PER_GUEST_BUFFET;
-  const dessertFee = dessertAdded ? effectiveGuestCount * DESSERT_PRICE_PER_GUEST : 0;
-  const ravioliFee = ravioliAdded ? effectiveGuestCount * RAVIOLI_PRICE_PER_GUEST : 0;
+  const dessertFee = dessertAdded ? guestCount * DESSERT_PRICE_PER_GUEST : 0;
+  const ravioliFee = ravioliAdded ? guestCount * RAVIOLI_PRICE_PER_GUEST : 0;
   const glutenFreeFee = glutenFreeCount * GLUTEN_FREE_PRICE_PER_GUEST;
-  const basePrice = (effectiveGuestCount * pricePerGuest) + dessertFee + ravioliFee + glutenFreeFee;
+  const basePrice = (guestCount * pricePerGuest) + dessertFee + ravioliFee + glutenFreeFee;
   const styleLabel = selectedStyle === 'byo' ? 'Build Your Own' : 'Buffet';
 
-  const requiredHours = selectedStyle === 'byo' ? BYO_INCLUDED_HOURS : requiredHoursForGuests(effectiveGuestCount);
+  const requiredHours = selectedStyle === 'byo' ? BYO_INCLUDED_HOURS : requiredHoursForGuests(guestCount);
   const extraTimeFee = extraHours * crew * LABOR_RATE_PER_HOUR;
   const laborTravelTotal = mileageFee + driveLaborFee + extraTimeFee;
 
@@ -839,8 +834,8 @@ function renderTotals(){
   }
 
   // Grouped, plain-language summaries sent to Fireball for internal double-checking.
-  document.getElementById('sendGuestCount').value = effectiveGuestCount +
-    (glutenFreeCount > 0 ? (' (' + guestCount + ' standard + ' + glutenFreeCount + ' gluten-free)') : '');
+  document.getElementById('sendGuestCount').value = guestCount +
+    (glutenFreeCount > 0 ? (' (' + glutenFreeCount + ' of them gluten-free)') : '');
 
   document.getElementById('sendServiceTime').value =
     requiredHours + ' hr' + (requiredHours !== 1 ? 's' : '') + ' included' + (selectedStyle === 'byo' ? ' (Build Your Own)' : '') + '.';
@@ -862,7 +857,7 @@ function renderTotals(){
     'Style: ' + styleLabel + ' ($' + pricePerGuest + '/guest) | ' +
     'Dessert: ' + (dessertAdded ? ('Yes (+' + formatCurrency(dessertFee) + ')') : 'No') + ' | ' +
     'Gluten-free: ' + (glutenFreeCount > 0 ? (glutenFreeCount + ' guests (+' + formatCurrency(glutenFreeFee) + ')') : 'No') + ' | ' +
-    'Base: ' + effectiveGuestCount + ' guests × $' + pricePerGuest + (dessertAdded ? (' + ' + formatCurrency(dessertFee) + ' dessert') : '') + (glutenFreeCount > 0 ? (' + ' + formatCurrency(glutenFreeFee) + ' gluten-free') : '') + ' = ' + formatCurrency(basePrice) + ' | ' +
+    'Base: ' + guestCount + ' guests × $' + pricePerGuest + (dessertAdded ? (' + ' + formatCurrency(dessertFee) + ' dessert') : '') + (glutenFreeCount > 0 ? (' + ' + formatCurrency(glutenFreeFee) + ' gluten-free') : '') + ' = ' + formatCurrency(basePrice) + ' | ' +
     'Travel fee (mileage + drive labor + extra time): ' + formatCurrency(laborTravelTotal) + ' | ' +
     'Pre-tax subtotal: ' + formatCurrency(preTaxSubtotal) + ' | ' +
     'Sales tax (8.875%): ' + formatCurrency(salesTax) + ' | ' +
