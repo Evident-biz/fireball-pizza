@@ -263,7 +263,7 @@ section.tight{ padding: 64px 0; }
   font-family: var(--font-utility); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--ember-dark); margin-bottom: 3px; font-weight: 800;
 }
-.calc-header-offer strong{ color: var(--panel); font-size: 1rem; font-weight: 800; white-space: nowrap; }
+.calc-header-offer strong{ color: var(--panel); font-size: 1rem; font-weight: 800; }
 .calc-header-badge{
   flex-shrink: 0;
   width: 56px; height: 56px; border-radius: 50%;
