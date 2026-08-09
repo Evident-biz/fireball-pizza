@@ -24,7 +24,7 @@
       <a href="catering.html">Catering</a>
       <a href="events.html">Calendar</a>
       <a href="contact.html">Contact</a>
-      <a href="catering.html" class="cta">Book Catering</a>
+      <a href="#" class="cta js-order-ahead">Order Now</a>
     </nav>
   </div>
 </header>
@@ -347,7 +347,7 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
 <div class="order-popup-overlay" id="orderPopupOverlay">
   <div class="order-popup">
     <button type="button" class="order-popup-close" id="orderPopupClose" aria-label="Close">&times;</button>
-    <h3>Pickup or Delivery?</h3>
+    <h3>Pickup, Delivery, or Catering?</h3>
     <p class="muted">Find us at the Modesto Farmers Market, 16th St, Thursday and Saturday, 8am to 1pm.</p>
     <div class="order-popup-options">
       <a href="https://cash.app/$fireballpizzas" target="_blank" rel="noopener" class="order-popup-option">
@@ -357,6 +357,10 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
       <a href="https://www.doordash.com/store/fireball-pizza-modesto-31193181" target="_blank" rel="noopener" class="order-popup-option">
         <strong>Delivery</strong>
         <span>Order through DoorDash</span>
+      </a>
+      <a href="catering.html#quote" class="order-popup-option" id="orderPopupCateringOption">
+        <strong>Catering</strong>
+        <span>Get an instant quote for your event</span>
       </a>
     </div>
   </div>

@@ -25,7 +25,7 @@
       <a href="catering.html" class="active">Catering</a>
       <a href="events.html">Calendar</a>
       <a href="contact.html">Contact</a>
-      <a href="#quote" class="cta">Book Catering</a>
+      <a href="#" class="cta js-order-ahead">Order Now</a>
     </nav>
   </div>
 </header>
@@ -38,7 +38,7 @@
     <h1 style="font-size:clamp(2.2rem,4vw,3.4rem);">Book Your Event Catering</h1>
     <p class="lead">Weddings, corporate gatherings, and private parties. We bring the oven, the crew, and fresh, brick-oven pizza. You bring the guest list.</p>
     <p class="lead" style="font-size:1rem; margin-top:8px;">See your exact price in seconds, no waiting on a callback.</p>
-    <a href="#quote" class="btn btn-primary" style="margin-top:16px;">Get My Instant Quote</a>
+    <button type="button" class="btn btn-primary" id="heroOpenCalculatorBtn" style="margin-top:16px;">Get My Instant Quote</button>
   </div>
 </section>
 
@@ -1168,6 +1168,7 @@ document.getElementById('calcRequestSendBtn').addEventListener('click', function
 });
 
 openBtn?.addEventListener('click', openCalc);
+document.getElementById('heroOpenCalculatorBtn')?.addEventListener('click', openCalc);
 closeBtn?.addEventListener('click', closeCalc);
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape'){
@@ -1288,6 +1289,48 @@ function runDistanceLookup(address){
     }
   });
 }
+</script>
+
+<div class="order-popup-overlay" id="orderPopupOverlay">
+  <div class="order-popup">
+    <button type="button" class="order-popup-close" id="orderPopupClose" aria-label="Close">&times;</button>
+    <h3>Pickup, Delivery, or Catering?</h3>
+    <p class="muted">Find us at the Modesto Farmers Market, 16th St, Thursday and Saturday, 8am to 1pm.</p>
+    <div class="order-popup-options">
+      <a href="https://cash.app/$fireballpizzas" target="_blank" rel="noopener" class="order-popup-option">
+        <strong>Pickup</strong>
+        <span>Modesto Farmers Market, 16th St</span>
+      </a>
+      <a href="https://www.doordash.com/store/fireball-pizza-modesto-31193181" target="_blank" rel="noopener" class="order-popup-option">
+        <strong>Delivery</strong>
+        <span>Order through DoorDash</span>
+      </a>
+      <a href="catering.html#quote" class="order-popup-option" id="orderPopupCateringOption">
+        <strong>Catering</strong>
+        <span>Get an instant quote for your event</span>
+      </a>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var overlay = document.getElementById('orderPopupOverlay');
+  var closeBtn = document.getElementById('orderPopupClose');
+  function openPopup(){ overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closePopup(){ overlay.classList.remove('open'); document.body.style.overflow = ''; }
+  document.querySelectorAll('.js-order-ahead').forEach(function(btn){
+    btn.addEventListener('click', function(e){ e.preventDefault(); openPopup(); });
+  });
+  closeBtn.addEventListener('click', closePopup);
+  overlay.addEventListener('click', function(e){ if(e.target === overlay) closePopup(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closePopup(); });
+  // On the catering page itself, open the builder directly instead of anchor-scrolling.
+  document.getElementById('orderPopupCateringOption').addEventListener('click', function(e){
+    e.preventDefault();
+    closePopup();
+    openCalc();
+  });
+})();
 </script>
 </body>
 </html>
