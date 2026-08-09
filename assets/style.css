@@ -1,5 +1,5 @@
 /* ===========================================================
-   Fireball Pizza — Design tokens (v2)
+   Fireball Pizza: Design tokens (v2)
    Palette pulled from the real logo: white, ink black, ember red, flame gold
 =========================================================== */
 :root{
@@ -669,12 +669,46 @@ footer.site img.foot-logo{ height: 42px; margin-bottom: 16px; }
   display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: rgba(255,255,255,0.45); flex-wrap: wrap; gap: 16px;
 }
 .foot-bottom a{ color: rgba(255,255,255,0.45); }
-.social-row{ display: flex; gap: 14px; margin-top: 14px; }
-.social-row a{ width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
-.social-row a:hover{ border-color: var(--gold); }
+.social-row{ display: flex; gap: 12px; margin-top: 14px; }
+.social-row a{ width: 34px; height: 34px; display: block; opacity: 0.85; transition: opacity 0.2s ease, transform 0.2s ease; }
+.social-row a:hover{ opacity: 1; transform: translateY(-1px); }
+.social-row img{ width: 100%; height: 100%; border-radius: 8px; display: block; }
 
 .flip-badge{ display: flex; align-items: center; }
 .flip-badge img{ width: 110px; height: 110px; display: block; border-radius: 4px; }
+
+/* --- Order Ahead popup (Pickup / Delivery) --- */
+.order-popup-overlay{
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(20,15,12,0.75);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.order-popup-overlay.open{ opacity: 1; pointer-events: auto; }
+.order-popup{
+  background: var(--white); border-radius: 10px; padding: 32px;
+  max-width: 420px; width: 100%; position: relative;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+}
+.order-popup-close{
+  position: absolute; top: 14px; right: 14px;
+  width: 30px; height: 30px; border-radius: 50%; border: none;
+  background: var(--paper); font-size: 1.2rem; line-height: 1; cursor: pointer; color: var(--stone);
+}
+.order-popup h3{ margin-bottom: 6px; }
+.order-popup-options{ display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+.order-popup-option{
+  display: flex; flex-direction: column; gap: 4px;
+  border: 1.5px solid var(--line); border-radius: 10px; padding: 16px 18px;
+  text-align: left; cursor: pointer; background: var(--white);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.order-popup-option:hover{ border-color: var(--ember); background: var(--paper); }
+.order-popup-option strong{ font-family: var(--font-display); text-transform: uppercase; font-size: 1.1rem; color: var(--ink); }
+.order-popup-option span{ font-size: 0.85rem; color: var(--stone); }
+
 
 /* --- Responsive --- */
 @media (max-width: 860px){

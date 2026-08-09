@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calendar — Fireball Pizza</title>
+<title>Calendar | Fireball Pizza</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/favicon/favicon.ico?v=2" sizes="any">
@@ -43,9 +43,9 @@
     <div class="card" style="margin-bottom:32px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
       <div>
         <h3 style="margin-bottom:0.2em;">Modesto Farmers Market</h3>
-        <p class="muted" style="margin:0;">Every Thursday &amp; Saturday — order ahead so it's ready when you arrive.</p>
+        <p class="muted" style="margin:0;">Every Thursday &amp; Saturday. Order ahead so it's ready when you arrive.</p>
       </div>
-      <a href="https://cash.app/$fireballpizzas" class="btn btn-primary" style="white-space:nowrap;">Order Ahead</a>
+      <a href="#" class="btn btn-primary js-order-ahead" style="white-space:nowrap;">Order Ahead</a>
     </div>
 
     <div class="calendar-embed">
@@ -55,7 +55,7 @@
 
     <div class="card" style="margin-top:40px;">
       <h3>Want Us At Your Event?</h3>
-      <p class="muted">Community pop-ups, breweries, and local markets — reach out and we'll see if we can make it.</p>
+      <p class="muted">Community pop-ups, breweries, and local markets. Reach out and we'll see if we can make it.</p>
       <a href="contact.html" class="btn btn-outline">Get In Touch</a>
     </div>
   </div>
@@ -65,10 +65,10 @@
   <div class="wrap">
     <div>
       <img src="assets/images/logo.png" alt="Fireball Pizza" class="foot-logo">
-      <p style="color:rgba(255,255,255,0.6); max-width:340px;">Mobile pizza catering based in Modesto, CA — weddings, corporate events, and private parties.</p>
+      <p style="color:rgba(255,255,255,0.6); max-width:340px;">Mobile pizza catering based in Modesto, CA, serving weddings, corporate events, and private parties.</p>
       <div class="social-row">
-        <a href="https://www.instagram.com/fireballpizza/?hl=en" aria-label="Instagram">IG</a>
-        <a href="https://www.facebook.com/fireballpizzas" aria-label="Facebook">FB</a>
+        <a href="https://www.instagram.com/fireballpizza/?hl=en" aria-label="Instagram"><img src="assets/images/social/instagram.png" alt="Instagram"></a>
+        <a href="https://www.facebook.com/fireballpizzas" aria-label="Facebook"><img src="assets/images/social/facebook.png" alt="Facebook"></a>
       </div>
     </div>
     <div>
@@ -96,6 +96,38 @@
 document.getElementById('navToggle')?.addEventListener('click', ()=>{
   document.getElementById('navLinks').classList.toggle('open');
 });
+</script>
+
+<div class="order-popup-overlay" id="orderPopupOverlay">
+  <div class="order-popup">
+    <button type="button" class="order-popup-close" id="orderPopupClose" aria-label="Close">&times;</button>
+    <h3>Pickup or Delivery?</h3>
+    <p class="muted">Find us at the Modesto Farmers Market, 16th St, Thursday and Saturday, 8am to 1pm.</p>
+    <div class="order-popup-options">
+      <a href="https://cash.app/$fireballpizzas" target="_blank" rel="noopener" class="order-popup-option">
+        <strong>Pickup</strong>
+        <span>Modesto Farmers Market, 16th St</span>
+      </a>
+      <a href="https://www.doordash.com/store/fireball-pizza-modesto-31193181" target="_blank" rel="noopener" class="order-popup-option">
+        <strong>Delivery</strong>
+        <span>Order through DoorDash</span>
+      </a>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var overlay = document.getElementById('orderPopupOverlay');
+  var closeBtn = document.getElementById('orderPopupClose');
+  function openPopup(){ overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closePopup(){ overlay.classList.remove('open'); document.body.style.overflow = ''; }
+  document.querySelectorAll('.js-order-ahead').forEach(function(btn){
+    btn.addEventListener('click', function(e){ e.preventDefault(); openPopup(); });
+  });
+  closeBtn.addEventListener('click', closePopup);
+  overlay.addEventListener('click', function(e){ if(e.target === overlay) closePopup(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closePopup(); });
+})();
 </script>
 </body>
 </html>
