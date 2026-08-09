@@ -295,13 +295,21 @@
               <p class="calc-hint" id="buffetUnavailableNote" style="display:none;">Buffet is available for groups of 25 or more.</p>
             </div>
 
-            <p class="calc-group-title">Extras</p>
+            <button type="button" class="calc-extras-trigger" id="calcExtrasTrigger">
+              <span>Extras <span class="calc-extras-badge">2 Free!</span></span>
+              <span class="calc-extras-chevron" id="calcExtrasChevron">&#9662;</span>
+            </button>
+            <div class="calc-extras-panel" id="calcExtrasPanel" style="display:none;">
             <button type="button" class="calc-switch-row" id="caesarToggle">
               <span class="calc-switch-row-text">Caesar Salad <span class="calc-price-hint">+$2</span></span>
               <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
             </button>
             <button type="button" class="calc-switch-row" id="breadsticksToggle">
               <span class="calc-switch-row-text">Cheesy Garlic Breadsticks <span class="calc-price-hint">+$2</span></span>
+              <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
+            </button>
+            <button type="button" class="calc-switch-row" id="ravioliToggle">
+              <span class="calc-switch-row-text">Cheese Ravioli <span class="calc-price-hint">+$8</span></span>
               <span class="calc-switch" aria-hidden="true"><span class="calc-switch-knob"></span></span>
             </button>
             <button type="button" class="calc-switch-row" id="dessertToggle">
@@ -311,6 +319,7 @@
             <div class="calc-dessert-options" id="dessertOptions" style="display:none;">
               <button type="button" class="calc-segment is-active" id="cheesecakeOption">Cheesecake</button>
               <button type="button" class="calc-segment" id="mousseOption">Chocolate Mousse Cake</button>
+            </div>
             </div>
 
             <div class="calc-slider-field">
@@ -528,6 +537,7 @@ const PRICE_PER_GUEST_BYO = 25;
 const BYO_MAX_GUESTS = 40;
 const BUFFET_MIN_GUESTS = 25;
 const DESSERT_PRICE_PER_GUEST = 4;
+const RAVIOLI_PRICE_PER_GUEST = 8;
 const DEPOSIT_RATE = 0.5;
 const TAX_RATE = 0.08875;
 const BYO_INCLUDED_HOURS = 2;
@@ -552,7 +562,7 @@ function requiredHoursForGuests(guests){
 }
 
 function formatCurrency(n){
-  return '$' + Math.round(n).toLocaleString('en-US');
+  return n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 }
 
 const overlay = document.getElementById('calcOverlay');
@@ -605,6 +615,7 @@ let selectedStyle = 'buffet';
 let dessertAdded = false;
 let caesarAdded = false;
 let breadsticksAdded = false;
+let ravioliAdded = false;
 let cheesecakeSelected = true;
 let mousseSelected = false;
 const tileBuffet = document.getElementById('tileBuffet');
@@ -618,6 +629,15 @@ const cheesecakeOption = document.getElementById('cheesecakeOption');
 const mousseOption = document.getElementById('mousseOption');
 const caesarToggle = document.getElementById('caesarToggle');
 const breadsticksToggle = document.getElementById('breadsticksToggle');
+const ravioliToggle = document.getElementById('ravioliToggle');
+
+const extrasTrigger = document.getElementById('calcExtrasTrigger');
+const extrasPanel = document.getElementById('calcExtrasPanel');
+extrasTrigger.addEventListener('click', function(){
+  const isOpen = extrasPanel.style.display !== 'none';
+  extrasPanel.style.display = isOpen ? 'none' : 'block';
+  extrasTrigger.classList.toggle('is-open', !isOpen);
+});
 
 function maybeAutoUntoggleDessert(){
   if(dessertAdded && !cheesecakeSelected && !mousseSelected){
@@ -648,6 +668,11 @@ caesarToggle.addEventListener('click', function(){
 breadsticksToggle.addEventListener('click', function(){
   breadsticksAdded = !breadsticksAdded;
   breadsticksToggle.classList.toggle('is-active', breadsticksAdded);
+  renderTotals();
+});
+ravioliToggle.addEventListener('click', function(){
+  ravioliAdded = !ravioliAdded;
+  ravioliToggle.classList.toggle('is-active', ravioliAdded);
   renderTotals();
 });
 
@@ -707,7 +732,8 @@ function renderTotals(){
 
   const pricePerGuest = selectedStyle === 'byo' ? PRICE_PER_GUEST_BYO : PRICE_PER_GUEST_BUFFET;
   const dessertFee = dessertAdded ? guestCount * DESSERT_PRICE_PER_GUEST : 0;
-  const basePrice = (guestCount * pricePerGuest) + dessertFee;
+  const ravioliFee = ravioliAdded ? guestCount * RAVIOLI_PRICE_PER_GUEST : 0;
+  const basePrice = (guestCount * pricePerGuest) + dessertFee + ravioliFee;
   const styleLabel = selectedStyle === 'byo' ? 'Build Your Own' : 'Buffet';
 
   const requiredHours = selectedStyle === 'byo' ? BYO_INCLUDED_HOURS : requiredHoursForGuests(guestCount);
@@ -809,6 +835,7 @@ function renderTotals(){
   document.getElementById('sendAppetizers').value =
     'Caesar Salad: ' + (caesarAdded ? 'Yes (free booking bonus)' : 'No, declined') + ' | ' +
     'Cheesy Garlic Breadsticks: ' + (breadsticksAdded ? 'Yes (free booking bonus)' : 'No, declined') + ' | ' +
+    'Cheese Ravioli: ' + (ravioliAdded ? ('Yes (+' + formatCurrency(ravioliFee) + ')') : 'No, declined') + ' | ' +
     'Dessert: ' + (dessertAdded
       ? ('Yes — ' + (
           (cheesecakeSelected && mousseSelected) ? 'Cheesecake & Chocolate Mousse Cake' :
@@ -936,6 +963,10 @@ function resetBuilderDefaults(){
   dessertAdded = false;
   caesarAdded = false;
   breadsticksAdded = false;
+  ravioliAdded = false;
+  ravioliToggle.classList.remove('is-active');
+  extrasPanel.style.display = 'none';
+  extrasTrigger.classList.remove('is-open');
   cheesecakeSelected = true;
   mousseSelected = false;
   dessertToggle.classList.remove('is-active');
