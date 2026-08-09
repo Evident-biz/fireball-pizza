@@ -32,7 +32,6 @@ body{
   font-size: 17px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
 }
 img{ max-width: 100%; display: block; }
 a{ color: inherit; text-decoration: none; }
@@ -331,29 +330,6 @@ section.tight{ padding: 64px 0; }
 }
 .calc-tiles{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-.calc-extras-trigger{
-  display: flex; align-items: center; justify-content: space-between; width: 100%;
-  background: linear-gradient(135deg, var(--gold), var(--ember));
-  border: none; border-radius: 14px; padding: 16px 20px; margin: 4px 0 14px;
-  cursor: pointer; box-shadow: 0 8px 20px rgba(217,72,37,0.28);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.calc-extras-trigger:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(217,72,37,0.35); }
-.calc-extras-trigger > span:first-child{
-  font-family: var(--font-display); text-transform: uppercase; font-size: 1.05rem;
-  letter-spacing: 0.02em; color: var(--white);
-}
-.calc-extras-badge{
-  display: inline-block; background: rgba(255,255,255,0.25); color: var(--white);
-  font-family: var(--font-utility); font-size: 0.7rem; font-weight: 700;
-  padding: 3px 10px; border-radius: 999px; margin-left: 8px; vertical-align: middle;
-}
-.calc-extras-chevron{
-  color: var(--white); font-size: 1.1rem; transition: transform 0.2s ease;
-}
-.calc-extras-trigger.is-open .calc-extras-chevron{ transform: rotate(180deg); }
-.calc-extras-panel{ padding-top: 2px; }
-
 .calc-tile{
   display: flex; flex-direction: column; gap: 4px; text-align: left;
   border: 2px solid var(--line); border-radius: 16px; padding: 16px; background: var(--white);
@@ -370,30 +346,27 @@ section.tight{ padding: 64px 0; }
 .calc-tile[hidden]{ display: none; }
 @media (max-width: 480px){ .calc-tiles{ grid-template-columns: 1fr; } }
 
-.calc-switch-row{
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  width: 100%; text-align: left; border: none; background: none;
-  padding: 10px 0; cursor: pointer;
-  font-size: 0.9rem; color: var(--ink);
+.calc-extras-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.calc-extra-tile{
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left;
+  border: 2px solid var(--line); border-radius: 16px; padding: 16px; background: var(--white);
+  cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }
-.calc-switch-row-text{ line-height: 1.4; }
+.calc-extra-tile svg{ width: 26px; height: 26px; color: var(--stone); transition: color 0.2s ease; }
+.calc-extra-tile strong{ font-size: 0.9rem; color: var(--ink); }
+.calc-extra-tile:hover{ border-color: var(--gold); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+.calc-extra-tile.is-active{
+  border-color: var(--ember); background: linear-gradient(135deg, rgba(242,161,29,0.10), rgba(217,72,37,0.06));
+  box-shadow: 0 6px 18px rgba(217,72,37,0.14);
+}
+.calc-extra-tile.is-active svg{ color: var(--ember); }
+.calc-extra-tile.is-active strong{ color: var(--ember); }
 .calc-price-hint{
   display: inline-block; font-family: var(--font-utility); font-size: 0.75rem; font-weight: 700;
   color: var(--ember-dark); background: rgba(217,72,37,0.1);
-  padding: 2px 7px; border-radius: 999px; margin-left: 6px; letter-spacing: 0.02em;
+  padding: 2px 7px; border-radius: 999px; letter-spacing: 0.02em;
 }
 .calc-strike{ text-decoration: line-through; color: var(--stone); opacity: 0.7; margin: 0 4px; }
-
-.calc-switch{
-  flex-shrink: 0; width: 44px; height: 26px; border-radius: 999px;
-  background: #D8D5CF; position: relative; transition: background 0.2s ease;
-}
-.calc-switch-knob{
-  position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
-  background: var(--white); box-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: transform 0.2s ease;
-}
-.calc-switch-row.is-active .calc-switch{ background: var(--ember); }
-.calc-switch-row.is-active .calc-switch-knob{ transform: translateX(18px); }
 
 /* --- Dessert flavor picker (multi-select segmented control) --- */
 .calc-dessert-options{
@@ -437,6 +410,20 @@ section.tight{ padding: 64px 0; }
   transition: border-color 0.2s ease;
 }
 .calc-slider-number:focus{ outline: none; border-color: var(--ember); }
+
+.calc-gf-checkbox{
+  display: flex; align-items: center; gap: 6px; margin-top: 10px;
+  font-size: 0.75rem; color: var(--stone); cursor: pointer; user-select: none;
+}
+.calc-gf-checkbox input{ width: 13px; height: 13px; accent-color: var(--ember); cursor: pointer; margin: 0; }
+.calc-gf-field{ margin-top: 6px; padding-left: 19px; }
+.calc-gf-input{
+  width: 48px; padding: 3px 6px; text-align: center; font-size: 0.75rem;
+  border: 1px solid var(--line); border-radius: 6px; color: var(--ember-dark); font-weight: 600;
+}
+.calc-gf-input:focus{ outline: none; border-color: var(--ember); }
+.calc-gf-input-label{ font-size: 0.72rem; color: var(--stone); }
+.calc-gf-disclaimer{ font-size: 0.68rem; color: var(--stone); opacity: 0.85; line-height: 1.4; margin: 4px 0 0; max-width: 320px; }
 .calc-slider{
   -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
   border-radius: 999px; background: linear-gradient(90deg, var(--ember), var(--gold));
