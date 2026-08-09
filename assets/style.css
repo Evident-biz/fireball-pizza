@@ -328,20 +328,28 @@ section.tight{ padding: 64px 0; }
   display: block; font-family: var(--font-utility); font-size: 0.72rem;
   letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone); margin-bottom: 8px;
 }
+.calc-guest-count-head{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.calc-guest-count-head label{
+  font-family: var(--font-utility); font-size: 0.72rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--stone);
+}
 .calc-tiles{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 .calc-tile{
-  display: flex; flex-direction: column; gap: 4px; text-align: left;
-  border: 2px solid var(--line); border-radius: 16px; padding: 16px; background: var(--white);
+  display: flex; flex-direction: row; align-items: center; gap: 10px; text-align: left;
+  border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--white);
   cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }
-.calc-tile strong{ font-size: 0.95rem; color: var(--ink); }
-.calc-tile span{ font-size: 0.8rem; color: var(--stone); }
+.calc-tile svg{ flex-shrink: 0; width: 22px; height: 22px; color: var(--stone); transition: color 0.2s ease; }
+.calc-tile-text{ display: flex; flex-direction: column; gap: 2px; }
+.calc-tile strong{ font-size: 0.85rem; color: var(--ink); line-height: 1.2; }
+.calc-tile span{ font-size: 0.78rem; color: var(--stone); }
 .calc-tile:hover{ border-color: var(--gold); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
 .calc-tile.is-selected{
   border-color: var(--ember); background: linear-gradient(135deg, rgba(242,161,29,0.10), rgba(217,72,37,0.06));
   box-shadow: 0 6px 18px rgba(217,72,37,0.14);
 }
+.calc-tile.is-selected svg{ color: var(--ember); }
 .calc-tile.is-selected strong{ color: var(--ember); }
 .calc-tile[hidden]{ display: none; }
 @media (max-width: 480px){ .calc-tiles{ grid-template-columns: 1fr; } }
@@ -372,28 +380,18 @@ section.tight{ padding: 64px 0; }
 
 /* --- Dessert flavor picker (multi-select segmented control) --- */
 .calc-dessert-options{
-  display: flex; border: 1.5px solid var(--line); border-radius: 12px;
-  overflow: hidden; margin: -6px 0 14px;
+  display: flex; gap: 8px; margin: 8px 0 4px;
 }
 .calc-segment{
-  flex: 1; padding: 12px 8px; text-align: center; background: var(--white);
-  border: none; border-right: 1.5px solid var(--line); cursor: pointer;
-  font-size: 0.85rem; color: var(--ink); transition: all 0.2s ease;
+  flex: 1; padding: 8px 6px; text-align: center; background: var(--white);
+  border: 1.5px solid var(--line); border-radius: 8px; cursor: pointer;
+  font-size: 0.78rem; color: var(--ink); transition: all 0.2s ease;
 }
-.calc-segment:last-child{ border-right: none; }
-.calc-segment:hover:not(.is-active){ background: var(--paper); }
-.calc-segment.is-active{ background: var(--ember); color: var(--white); font-weight: 600; }
-
-/* --- No-deposit alternate path --- */
-.calc-no-deposit-link{
-  display: block; width: 100%; text-align: center; margin-top: 14px;
-  background: none; border: none; cursor: pointer;
-  font-family: var(--font-utility); font-size: 0.78rem; letter-spacing: 0.03em;
-  color: var(--stone); text-decoration: underline;
-  transition: color 0.2s ease;
+.calc-segment:hover:not(.is-active){ border-color: var(--gold); }
+.calc-segment.is-active{
+  border-color: var(--ember); background: linear-gradient(135deg, rgba(242,161,29,0.10), rgba(217,72,37,0.06));
+  color: var(--ember-dark); font-weight: 600;
 }
-.calc-no-deposit-link:hover{ color: var(--ember); }
-.calc-no-deposit-link:disabled{ opacity: 0.6; cursor: default; text-decoration: none; }
 
 /* --- Sliders --- */
 .calc-slider-field{ margin-bottom: 20px; }
