@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact | Fireball Pizza</title>
+<title>Cancellation & Refund Policy | Fireball Pizza</title>
+<meta name="description" content="Fireball Pizza's cancellation, refund, and rescheduling policy for catering bookings.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/favicon/favicon.ico?v=2" sizes="any">
@@ -29,56 +30,47 @@
       <a href="index.html">Home</a>
       <a href="catering.html">Catering</a>
       <a href="events.html">Calendar</a>
-      <a href="contact.html" class="active">Contact</a>
+      <a href="contact.html">Contact</a>
       <a href="#" class="cta js-order-ahead">Order Now</a>
     </nav>
   </div>
 </header>
 
 <section class="tight">
-  <div class="wrap grid-2">
-    <div>
-      <span class="eyebrow">Contact</span>
-      <h1 style="font-size:clamp(2.2rem,4vw,3.2rem);">Let's Talk Pizza</h1>
-      <p class="muted" style="max-width:440px;">Questions about catering, our schedule, or anything else. Reach out directly.</p>
-      <div style="margin-top:32px;">
-        <p><strong>Phone</strong><br>(209) 222-8926</p>
-        <p><strong>Email</strong><br>eat@fireball.pizza</p>
-        <p><strong>Follow</strong></p>
-        <div class="social-row" style="margin-top:0;">
-          <a href="https://www.instagram.com/fireballpizza/?hl=en" aria-label="Instagram"><img src="assets/images/social/instagram.png" alt="Instagram"></a>
-          <a href="https://www.facebook.com/fireballpizzas" aria-label="Facebook"><img src="assets/images/social/facebook.png" alt="Facebook"></a>
-        </div>
-      </div>
+  <div class="wrap" style="max-width:760px;">
+    <span class="eyebrow">Catering Policy</span>
+    <h1 style="font-size:clamp(2.2rem,4vw,3.2rem);">Cancellation &amp; Refund Policy</h1>
+    <p class="muted" style="max-width:600px;">This applies to the deposit paid to book Fireball Pizza catering. If anything here isn't clear, <a href="contact.html" style="color:var(--ember); text-decoration:underline;">reach out</a> and we'll walk through it with you.</p>
+
+    <div style="margin-top:40px;">
+      <h2 style="font-size:1.4rem;">Booking Your Date</h2>
+      <p class="muted">A 50% deposit is required to reserve your event date. The remaining balance is due at the event. Your date isn't confirmed until the deposit is received or a reservation is locked in through another arranged payment method.</p>
     </div>
 
-    <form class="card" id="contactForm" name="contact-inquiry" data-netlify="true" data-remove-prefix netlify-honeypot="bot-field" style="display:flex; flex-direction:column; gap:20px;">
-      <input type="hidden" name="form-name" value="contact-inquiry">
-      <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
-      <div class="field"><label for="cname">Name</label><input type="text" id="cname" name="name" required></div>
-      <div class="field"><label for="cemail">Email</label><input type="email" id="cemail" name="email" required></div>
-      <div class="field">
-        <label for="ctype">Type of Inquiry</label>
-        <select id="ctype" name="inquiry_type" required>
-          <option value="" disabled selected>Select one</option>
-          <option value="Careers">Careers</option>
-          <option value="Catering Inquiry">Catering Inquiry</option>
-          <option value="Complaint">Complaint</option>
-          <option value="Event Booking">Event Booking</option>
-          <option value="General Question">General Question</option>
-          <option value="Media / Press">Media / Press</option>
-          <option value="Partnership / Vendor">Partnership / Vendor</option>
-          <option value="Pricing">Pricing</option>
-          <option value="Review / Feedback">Review / Feedback</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div class="field"><label for="cmessage">Message</label><textarea id="cmessage" name="message" required></textarea></div>
-      <div>
-        <button type="submit" class="btn btn-primary">Send Message</button>
-        <div class="form-status" id="contactStatus"></div>
-      </div>
-    </form>
+    <div style="margin-top:36px;">
+      <h2 style="font-size:1.4rem;">Cancellations</h2>
+      <p class="muted">If you need to cancel, how much of your deposit is refunded depends on how much notice you give before your event date:</p>
+      <ul class="included-list" style="margin-top:16px;">
+        <li><strong>30 days or more before your event:</strong> full refund of your deposit.</li>
+        <li><strong>8 to 29 days before your event:</strong> 50% of your deposit refunded.</li>
+        <li><strong>Less than 8 days before your event:</strong> deposit is non-refundable.</li>
+      </ul>
+    </div>
+
+    <div style="margin-top:36px;">
+      <h2 style="font-size:1.4rem;">Rescheduling</h2>
+      <p class="muted">Plans change, and we'd rather move your date than lose your event entirely. You're welcome to reschedule once at no charge, as long as you let us know at least 14 days before your original event date and a new date is available. Requests inside 14 days are treated as a cancellation under the policy above.</p>
+    </div>
+
+    <div style="margin-top:36px;">
+      <h2 style="font-size:1.4rem;">Weather &amp; Emergencies</h2>
+      <p class="muted">If severe weather or a genuine emergency makes the event unsafe or impossible to run, whether that's called by you or by us, this falls outside the standard cancellation tiers. In these cases, your full deposit is held as credit toward a new date rather than lost. We'll work with you to find a time that works.</p>
+    </div>
+
+    <div style="margin-top:36px;">
+      <h2 style="font-size:1.4rem;">Questions</h2>
+      <p class="muted">If your situation doesn't fit neatly into the above, or you just want to talk it through, <a href="contact.html" style="color:var(--ember); text-decoration:underline;">contact us</a> directly. We'd rather have a conversation than leave you guessing.</p>
+    </div>
   </div>
 </section>
 
@@ -120,35 +112,6 @@ window.addEventListener('scroll', function(){
     navLinks.classList.remove('open');
   }
 }, { passive: true });
-document.getElementById('contactForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  const form = this;
-  const status = document.getElementById('contactStatus');
-  status.className = 'form-status show';
-  status.style.color = 'var(--stone)';
-  status.textContent = 'Sending...';
-
-  const data = new FormData(form);
-  const params = new URLSearchParams();
-  data.forEach(function(value, key){ params.append(key, value); });
-
-  fetch('/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString()
-  })
-  .then(function(){
-    status.className = 'form-status show ok';
-    status.textContent = "Message sent. We'll get back to you shortly.";
-    form.reset();
-  })
-  .catch(function(err){
-    console.error('Fireball contact form: submission failed', err);
-    status.className = 'form-status show';
-    status.style.color = 'var(--ember)';
-    status.textContent = "Couldn't send automatically. Please call or email us directly.";
-  });
-});
 </script>
 
 <div class="order-popup-overlay" id="orderPopupOverlay">

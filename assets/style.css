@@ -417,6 +417,11 @@ section.tight{ padding: 64px 0; }
   font-size: 0.75rem; color: var(--stone); cursor: pointer; user-select: none;
 }
 .calc-gf-checkbox input{ width: 13px; height: 13px; accent-color: var(--ember); cursor: pointer; margin: 0; }
+.calc-terms-checkbox{
+  display: flex; align-items: flex-start; gap: 8px; margin-top: 20px;
+  font-size: 0.8rem; color: var(--stone); cursor: pointer; user-select: none;
+}
+.calc-terms-checkbox input{ width: 15px; height: 15px; accent-color: var(--ember); cursor: pointer; margin: 2px 0 0; flex-shrink: 0; }
 .calc-gf-field{ margin-top: 6px; padding-left: 19px; }
 .calc-gf-input{
   width: 48px; padding: 3px 6px; text-align: center; font-size: 0.75rem;

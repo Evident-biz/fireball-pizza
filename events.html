@@ -11,6 +11,13 @@
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png?v=2">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png?v=2">
 <link rel="stylesheet" href="assets/style.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YVX71FMKD8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-YVX71FMKD8');
+</script>
 </head>
 <body>
 
@@ -84,7 +91,7 @@
     </div>
   </div>
   <div class="foot-bottom">
-    <span>© 2026 Fireball Pizza</span>
+    <span>© <span id="copyrightYear">2026</span> Fireball Pizza</span>
     <a href="http://www.fliprogram.com" target="_blank" rel="noopener" class="flip-badge" title="Protected by FLIP - Food Liability Insurance Program">
       <img src="https://app.fliprogram.com/uploads/seals/site-seal_256x256%20White.png" alt="FLIP insurance Seal" width="256" height="256">
     </a>
@@ -93,9 +100,16 @@
 </footer>
 
 <script>
+document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 document.getElementById('navToggle')?.addEventListener('click', ()=>{
   document.getElementById('navLinks').classList.toggle('open');
 });
+window.addEventListener('scroll', function(){
+  const navLinks = document.getElementById('navLinks');
+  if(navLinks && navLinks.classList.contains('open')){
+    navLinks.classList.remove('open');
+  }
+}, { passive: true });
 </script>
 
 <div class="order-popup-overlay" id="orderPopupOverlay">

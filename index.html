@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fireball Pizza | Mobile Pizza Catering, Modesto CA</title>
-<meta name="description" content="Fresh, brick oven pizza catering for weddings, corporate events, and private parties in the Modesto area. Now booking 2026 & 2027.">
+<meta name="description" content="Fresh, brick oven pizza catering for weddings, corporate events, and private parties in the Modesto area.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/favicon/favicon.ico?v=2" sizes="any">
@@ -12,6 +12,13 @@
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png?v=2">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png?v=2">
 <link rel="stylesheet" href="assets/style.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YVX71FMKD8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-YVX71FMKD8');
+</script>
 </head>
 <body>
 
@@ -35,7 +42,7 @@
   <div class="hero-content">
     <span class="eyebrow">Modesto, California</span>
     <h1>Pizza That Pulls Up And Pops Off</h1>
-    <p class="lead">Hand-stretched dough, a brick oven, and a crew that shows up early to get it right. Now booking weddings and corporate events for 2026 &amp; 2027.</p>
+    <p class="lead">Hand-stretched dough, a brick oven, and a crew that shows up early to get it right. Now booking weddings and corporate events for <span class="js-booking-years">2026 &amp; 2027</span>.</p>
     <div class="hero-actions">
       <a href="catering.html" class="btn btn-primary">Book Catering</a>
       <a href="#" class="btn btn-outline on-dark js-order-ahead">Order Ahead</a>
@@ -230,7 +237,7 @@
 
 <section class="cta-banner">
   <div class="wrap">
-    <span class="eyebrow">Now Booking 2026 &amp; 2027</span>
+    <span class="eyebrow">Now Booking <span class="js-booking-years">2026 &amp; 2027</span></span>
     <h2>Book Your Event Catering Today</h2>
     <p>From intimate gatherings to large celebrations, we bring fresh, brick-oven pizza served hot on-site.</p>
     <div class="cta-actions">
@@ -271,7 +278,7 @@
     <img src="assets/images/menu/rolls.jpg" alt="Fireball Pizza gallery photo">
   </div>
   <div class="foot-bottom">
-    <span>© 2026 Fireball Pizza</span>
+    <span>© <span id="copyrightYear">2026</span> Fireball Pizza</span>
     <a href="http://www.fliprogram.com" target="_blank" rel="noopener" class="flip-badge" title="Protected by FLIP - Food Liability Insurance Program">
       <img src="https://app.fliprogram.com/uploads/seals/site-seal_256x256%20White.png" alt="FLIP insurance Seal" width="256" height="256">
     </a>
@@ -280,9 +287,23 @@
 </footer>
 
 <script>
+document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+(function(){
+  const currentYear = new Date().getFullYear();
+  const nextYear = currentYear + 1;
+  document.querySelectorAll('.js-booking-years').forEach(function(el){
+    el.textContent = currentYear + ' & ' + nextYear;
+  });
+})();
 document.getElementById('navToggle')?.addEventListener('click', ()=>{
   document.getElementById('navLinks').classList.toggle('open');
 });
+window.addEventListener('scroll', function(){
+  const navLinks = document.getElementById('navLinks');
+  if(navLinks && navLinks.classList.contains('open')){
+    navLinks.classList.remove('open');
+  }
+}, { passive: true });
 
 (function(){
   const track = document.getElementById('carouselTrack');

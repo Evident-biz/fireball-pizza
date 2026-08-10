@@ -13,6 +13,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png?v=2">
 <link rel="stylesheet" href="assets/style.css">
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGylyq1OAQuI5eHLVYrKKk_zJfcfi4MvE&libraries=places&loading=async" async defer></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-YVX71FMKD8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-YVX71FMKD8');
+</script>
 </head>
 <body>
 
@@ -200,7 +207,7 @@
     </div>
   </div>
   <div class="foot-bottom">
-    <span>© 2026 Fireball Pizza</span>
+    <span>© <span id="copyrightYear">2026</span> Fireball Pizza</span>
     <a href="http://www.fliprogram.com" target="_blank" rel="noopener" class="flip-badge" title="Protected by FLIP - Food Liability Insurance Program">
       <img src="https://app.fliprogram.com/uploads/seals/site-seal_256x256%20White.png" alt="FLIP insurance Seal" width="256" height="256">
     </a>
@@ -376,6 +383,10 @@
         <input type="hidden" id="sendDepositRaw">
         <input type="hidden" name="Free Appetizers" id="sendAppetizers">
 
+        <label class="calc-terms-checkbox">
+          <input type="checkbox" id="calcTermsAgree" checked>
+          <span>I agree to the <a href="terms.html" target="_blank" style="color:var(--ember); text-decoration:underline;">cancellation &amp; refund policy</a></span>
+        </label>
         <button type="submit" class="btn btn-primary" id="calcSubmitBtn" style="width:100%; justify-content:center; margin-top:20px;">Pay Deposit</button>
         <div style="display:flex; gap:10px; margin-top:10px;">
           <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="calcAfterpayLink" style="flex:1; justify-content:center; padding:10px 10px; font-size:0.8rem;">Pay with Afterpay</a>
@@ -405,9 +416,16 @@
 </div>
 
 <script>
+document.getElementById('copyrightYear').textContent = new Date().getFullYear();
 document.getElementById('navToggle')?.addEventListener('click', ()=>{
   document.getElementById('navLinks').classList.toggle('open');
 });
+window.addEventListener('scroll', function(){
+  const navLinks = document.getElementById('navLinks');
+  if(navLinks && navLinks.classList.contains('open')){
+    navLinks.classList.remove('open');
+  }
+}, { passive: true });
 
 // Shared submitter, used both for the silent lead-capture on Calculate and the full Lock In submit.
 // Netlify Forms doesn't dedupe, so both stages land as separate submissions on purpose:
@@ -422,6 +440,38 @@ function submitFormToNetlify(subjectOverride){
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: params.toString()
+  });
+}
+
+// Sends the customer their own confirmation email (separate from the internal
+// notification submitFormToNetlify already sends to Fireball). Never blocks
+// the booking flow if it fails, this is a nice-to-have, not a requirement.
+function sendCustomerConfirmation(type){
+  const name = document.getElementById('sendName').value.trim();
+  const email = document.getElementById('sendEmail').value.trim();
+  if(!name || !email) return;
+
+  const eventTimeSelect = document.getElementById('eventTime');
+  const eventTimeLabel = eventTimeSelect.selectedOptions && eventTimeSelect.selectedOptions[0]
+    ? eventTimeSelect.selectedOptions[0].text
+    : eventTimeSelect.value;
+
+  fetch('/.netlify/functions/send-confirmation-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: type,
+      name: name,
+      email: email,
+      eventDate: document.getElementById('eventDate').value,
+      eventTime: eventTimeLabel,
+      address: document.getElementById('calcAddress').value,
+      guestCount: document.getElementById('sendGuestCount').value,
+      totalQuote: document.getElementById('calcGrandTotal').textContent,
+      depositAmount: document.getElementById('calcDeposit').textContent
+    })
+  }).catch(function(err){
+    console.error('Fireball estimator: customer confirmation email failed', err);
   });
 }
 
@@ -452,6 +502,11 @@ function validateBookingReady(statusEl){
     statusEl.textContent = 'We need at least 7 days notice to book catering. Please choose a later date or call us directly for a rush request.';
     return false;
   }
+  if(!document.getElementById('calcTermsAgree').checked){
+    statusEl.style.color = 'var(--ember)';
+    statusEl.textContent = 'Please agree to the cancellation & refund policy to continue.';
+    return false;
+  }
   return true;
 }
 
@@ -466,6 +521,8 @@ document.getElementById('calcAfterpayLink').addEventListener('click', function(e
 
   submitFormToNetlify(document.getElementById('sendSubject').value)
   .then(function(){
+    if(typeof gtag === 'function') gtag('event', 'deposit_initiated', { method: 'afterpay' });
+    sendCustomerConfirmation('deposit');
     status.style.color = '#2E7D32';
     status.textContent = "Opening the Afterpay-enabled payment page in a new tab.";
     window.open(url, '_blank');
@@ -502,6 +559,8 @@ document.getElementById('calcForm').addEventListener('submit', function(e){
   submitFormToNetlify(document.getElementById('sendSubject').value)
   .then(function(){
     // Lead is safely recorded. Everything from here on is just about getting them to a payment page.
+    if(typeof gtag === 'function') gtag('event', 'deposit_initiated', { method: 'square' });
+    sendCustomerConfirmation('deposit');
     submitBtn.textContent = 'Deposit Initiated';
     submitBtn.disabled = true;
     status.style.color = '#2E7D32';
@@ -542,6 +601,8 @@ document.getElementById('calcNoDepositBtn').addEventListener('click', function()
 
   submitFormToNetlify('Date Confirmed, Deposit Not Collected')
   .then(function(){
+    if(typeof gtag === 'function') gtag('event', 'reservation_confirmed', { method: 'cash_check' });
+    sendCustomerConfirmation('reservation');
     btn.textContent = 'Reservation Sent, No Payment';
     btn.disabled = true;
     status.style.color = '#2E7D32';
@@ -1032,8 +1093,10 @@ function getMinBookingDateString(){
 }
 
 function openCalc(){
+  if(typeof gtag === 'function') gtag('event', 'calculator_opened');
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
+  document.getElementById('calcTermsAgree').checked = true;
   document.getElementById('calcPageA').style.display = 'block';
   document.getElementById('calcPageB').style.display = 'none';
   document.getElementById('calcPageAHint').textContent = '';
@@ -1124,18 +1187,21 @@ document.getElementById('calcNextBtn').addEventListener('click', function(){
   }
   hint.textContent = '';
 
+  if(typeof gtag === 'function') gtag('event', 'quote_builder_advanced');
   document.getElementById('calcPageA').style.display = 'none';
   document.getElementById('calcPageB').style.display = 'block';
 });
 
 document.getElementById('calcCalculateBtn').addEventListener('click', function(){
   hasCalculated = true;
+  if(typeof gtag === 'function') gtag('event', 'quote_calculated');
   document.getElementById('calcResultsWaiting').style.display = 'none';
   document.getElementById('calcPricingBlock').style.display = 'block';
   renderTotals();
 
   const name = document.getElementById('sendName').value.trim();
   submitFormToNetlify('Custom Quote Built: ' + name)
+    .then(function(){ sendCustomerConfirmation('quote'); })
     .catch(function(err){ console.error('Fireball estimator: build-quote lead capture failed', err); });
 });
 
@@ -1188,6 +1254,7 @@ document.getElementById('calcRequestSendBtn').addEventListener('click', function
     body: params.toString()
   })
   .then(function(){
+    if(typeof gtag === 'function') gtag('event', 'custom_quote_requested');
     status.style.color = '#2E7D32';
     status.textContent = "Request sent. We'll follow up within 1 to 2 business days.";
     document.getElementById('calcRequestBtn').textContent = 'Request Sent';
