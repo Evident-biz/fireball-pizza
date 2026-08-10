@@ -23,6 +23,7 @@
 }
 
 *{ box-sizing: border-box; }
+button, a, .carousel-btn, .carousel-controls, .calc-tile, .calc-extra-tile, .calc-segment, .order-popup-option{ touch-action: manipulation; }
 html{ scroll-behavior: smooth; overflow-x: hidden; overscroll-behavior-x: none; }
 body{
   margin: 0;
