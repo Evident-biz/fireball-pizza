@@ -345,7 +345,6 @@ section.tight{ padding: 64px 0; }
 .calc-tile svg{ flex-shrink: 0; width: 22px; height: 22px; color: var(--stone); transition: color 0.2s ease; }
 .calc-tile-text{ display: flex; flex-direction: column; gap: 2px; }
 .calc-tile strong{ font-size: 0.85rem; color: var(--ink); line-height: 1.2; }
-.calc-tile span{ font-size: 0.78rem; color: var(--stone); }
 .calc-tile:hover{ border-color: var(--gold); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
 .calc-tile.is-selected{
   border-color: var(--ember); background: linear-gradient(135deg, rgba(242,161,29,0.10), rgba(217,72,37,0.06));
@@ -378,6 +377,7 @@ section.tight{ padding: 64px 0; }
   color: var(--ember-dark); background: rgba(217,72,37,0.1);
   padding: 2px 7px; border-radius: 999px; letter-spacing: 0.02em;
 }
+.calc-prices-hidden .calc-price-hint{ visibility: hidden; }
 .calc-strike{ text-decoration: line-through; color: var(--stone); opacity: 0.7; margin: 0 4px; }
 
 /* --- Dessert flavor picker (multi-select segmented control) --- */
