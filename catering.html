@@ -24,7 +24,6 @@
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png?v=2">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png?v=2">
 <link rel="stylesheet" href="assets/style.css">
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGylyq1OAQuI5eHLVYrKKk_zJfcfi4MvE&libraries=places&loading=async" async defer></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-YVX71FMKD8"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -37,7 +36,7 @@
 
 <header class="site">
   <div class="nav-inner">
-    <a href="index.html" class="brand"><img src="assets/images/logo.png" alt="Fireball Pizza"></a>
+    <a href="index.html" class="brand"><picture><source srcset="assets/images/logo.webp" type="image/webp"><img src="assets/images/logo.png" alt="Fireball Pizza"></picture></a>
     <button class="mobile-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
     <nav class="links" id="navLinks">
       <a href="index.html">Home</a>
@@ -50,7 +49,7 @@
 </header>
 
 <section class="hero" style="min-height:52vh;">
-  <div class="hero-bg" style="background-image:url('assets/images/menu/meat-lovers.jpg');"></div>
+  <div class="hero-bg" style="background-image:url('assets/images/menu/meat-lovers.jpg'); background-image:image-set(url('assets/images/menu/meat-lovers.webp') type('image/webp'), url('assets/images/menu/meat-lovers.jpg') type('image/jpeg'));"></div>
   <div class="hero-scrim"></div>
   <div class="hero-content">
     <span class="eyebrow">Catering</span>
@@ -95,7 +94,7 @@
       </ul>
     </div>
     <div>
-      <img src="assets/images/menu/dish-composition.jpg" alt="Fireball Pizza spread, fresh from the oven" style="border-radius:4px; margin-bottom:20px;">
+      <picture><source srcset="assets/images/menu/dish-composition.webp" type="image/webp"><img src="assets/images/menu/dish-composition.jpg" alt="Fireball Pizza spread, fresh from the oven" style="border-radius:4px; margin-bottom:20px;"></picture>
       <div class="card">
         <span class="eyebrow">Booking Timeline</span>
         <h3>How Far In Advance?</h3>
@@ -199,11 +198,11 @@
 <footer class="site">
   <div class="wrap">
     <div>
-      <img src="assets/images/logo.png" alt="Fireball Pizza" class="foot-logo">
+      <picture><source srcset="assets/images/logo.webp" type="image/webp"><img src="assets/images/logo.png" alt="Fireball Pizza" class="foot-logo"></picture>
       <p style="color:rgba(255,255,255,0.6); max-width:340px;">Mobile pizza catering based in Modesto, CA, serving weddings, corporate events, and private parties.</p>
       <div class="social-row">
-        <a href="https://www.instagram.com/fireballpizza/?hl=en" aria-label="Instagram"><img src="assets/images/social/instagram.png" alt="Instagram"></a>
-        <a href="https://www.facebook.com/fireballpizzas" aria-label="Facebook"><img src="assets/images/social/facebook.png" alt="Facebook"></a>
+        <a href="https://www.instagram.com/fireballpizza/?hl=en" aria-label="Instagram"><picture><source srcset="assets/images/social/instagram.webp" type="image/webp"><img src="assets/images/social/instagram.png" alt="Instagram"></picture></a>
+        <a href="https://www.facebook.com/fireballpizzas" aria-label="Facebook"><picture><source srcset="assets/images/social/facebook.webp" type="image/webp"><img src="assets/images/social/facebook.png" alt="Facebook"></picture></a>
       </div>
     </div>
     <div>
@@ -233,7 +232,7 @@
 
     <div class="calc-modal-header">
       <div class="calc-header-badge" aria-hidden="true">
-        <img src="assets/images/logo.png" alt="" style="width:34px; height:auto;">
+        <picture><source srcset="assets/images/logo.webp" type="image/webp"><img src="assets/images/logo.png" alt="" style="width:34px; height:auto;"></picture>
       </div>
       <div>
         <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
@@ -993,8 +992,31 @@ let sessionToken = null;
 let suggestDebounce = null;
 let activeSuggestionIndex = -1;
 
+// The Maps script used to load eagerly on every catering page visit, even for people
+// who never open the calculator. Now it's only fetched once the modal actually opens.
+let mapsScriptPromise = null;
+function loadMapsScript(){
+  if(mapsScriptPromise) return mapsScriptPromise;
+  mapsScriptPromise = new Promise(function(resolve, reject){
+    if(typeof google !== 'undefined' && google.maps){ resolve(); return; }
+    const script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyDGylyq1OAQuI5eHLVYrKKk_zJfcfi4MvE&libraries=places&loading=async';
+    script.async = true;
+    script.onload = function(){ resolve(); };
+    script.onerror = function(){ reject(new Error('Failed to load Google Maps script')); };
+    document.head.appendChild(script);
+  });
+  return mapsScriptPromise;
+}
+
 async function getPlacesLib(){
   if(placesLib) return placesLib;
+  try{
+    await loadMapsScript();
+  } catch(err){
+    console.error('Fireball estimator: failed to load Google Maps script', err);
+    return null;
+  }
   if(typeof google === 'undefined' || !google.maps || !google.maps.importLibrary) return null;
   try{
     placesLib = await google.maps.importLibrary('places');
@@ -1137,6 +1159,7 @@ function getMinBookingDateString(){
 
 function openCalc(){
   if(typeof gtag === 'function') gtag('event', 'calculator_opened');
+  loadMapsScript().catch(function(err){ console.error('Fireball estimator: Maps script failed to load', err); });
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   document.getElementById('calcTermsAgree').checked = true;
@@ -1328,12 +1351,25 @@ document.addEventListener('keydown', function(e){
 function runDistanceLookup(address){
   address = address.trim();
   if(!address || address.length < 8) return;
-  if(typeof google === 'undefined' || !google.maps){
-    calcHint.textContent = "Estimator is temporarily unavailable. We will calculate travel and labor manually when we follow up.";
-    calcHint.style.color = 'var(--ember)';
+
+  if(typeof google !== 'undefined' && google.maps){
+    runDistanceLookupNow(address);
     return;
   }
 
+  // Script hasn't finished loading yet (rare, since opening the calculator already
+  // kicked off the fetch) — wait for it rather than immediately giving up.
+  calcHint.textContent = 'Calculating driving distance...';
+  calcHint.style.color = 'var(--stone)';
+  loadMapsScript()
+    .then(function(){ runDistanceLookupNow(address); })
+    .catch(function(){
+      calcHint.textContent = "Estimator is temporarily unavailable. We will calculate travel and labor manually when we follow up.";
+      calcHint.style.color = 'var(--ember)';
+    });
+}
+
+function runDistanceLookupNow(address){
   calcHint.textContent = 'Calculating driving distance...';
   calcHint.style.color = 'var(--stone)';
 
