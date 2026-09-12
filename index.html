@@ -17,6 +17,39 @@
 <meta name="twitter:title" content="Fireball Pizza | Mobile Pizza Catering, Modesto CA">
 <meta name="twitter:description" content="Fresh, brick oven pizza catering for weddings, corporate events, and private parties in the Modesto area.">
 <meta name="twitter:image" content="https://fireball.pizza/assets/images/social-preview.jpg">
+<link rel="canonical" href="https://fireball.pizza/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FoodEstablishment",
+  "name": "Fireball Pizza",
+  "image": "https://fireball.pizza/assets/images/logo.png",
+  "url": "https://fireball.pizza/",
+  "telephone": "+12092228926",
+  "servesCuisine": "Pizza",
+  "priceRange": "$$",
+  "description": "Fresh, brick oven pizza catering for weddings, corporate events, and private parties in the Modesto, CA area.",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "401 Downey Ave",
+    "addressLocality": "Modesto",
+    "addressRegion": "CA",
+    "postalCode": "95354",
+    "addressCountry": "US"
+  },
+  "areaServed": [
+    { "@type": "AdministrativeArea", "name": "Stanislaus County, CA" },
+    { "@type": "AdministrativeArea", "name": "Tuolumne County, CA" },
+    { "@type": "AdministrativeArea", "name": "Merced County, CA" },
+    { "@type": "AdministrativeArea", "name": "San Joaquin County, CA" },
+    { "@type": "AdministrativeArea", "name": "Alameda County, CA" }
+  ],
+  "sameAs": [
+    "https://www.facebook.com/fireballpizzas",
+    "https://www.instagram.com/fireballpizza/"
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
 <link rel="icon" href="assets/favicon/favicon.ico?v=2" sizes="any">
@@ -31,8 +64,16 @@
   gtag('js', new Date());
   gtag('config', 'G-YVX71FMKD8');
 </script>
+<script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog && window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}p||((p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",p.onerror=function(){p=null},(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r));var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],Object.defineProperty(u,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e}}),Object.defineProperty(u.people,"toString",{configurable:!0,enumerable:!0,writable:!0,value:function(){return u.toString(1)+".people (stub)"}}),o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagResult isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('phc_sXLUVhHnsFm7iiN5Kt38RP8SHtVgtUCsUMme5pJogub3', {
+        api_host: 'https://us.i.posthog.com',
+        defaults: '2026-05-30',
+    })
+</script>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
 <header class="site">
   <div class="nav-inner">
@@ -43,12 +84,13 @@
       <a href="catering.html">Catering</a>
       <a href="events.html">Calendar</a>
       <a href="contact.html">Contact</a>
+      <a href="kids-zone.html">Kids Zone</a>
       <a href="#" class="cta js-order-ahead">Order Now</a>
     </nav>
   </div>
 </header>
 
-<section class="hero">
+<section id="main-content" class="hero">
   <div class="hero-bg" style="background-image:url('assets/images/menu/dish-composition.jpg'); background-image:image-set(url('assets/images/menu/dish-composition.webp') type('image/webp'), url('assets/images/menu/dish-composition.jpg') type('image/jpeg'));"></div>
   <div class="hero-scrim"></div>
   <div class="hero-content">
@@ -74,6 +116,7 @@
       <span class="chip">Tuolumne County</span>
       <span class="chip">Merced County</span>
       <span class="chip">San Joaquin County</span>
+      <span class="chip">Alameda County</span>
     </div>
   </div>
 </div>
@@ -89,6 +132,29 @@
     </div>
     <div>
       <picture><source srcset="assets/images/menu/pesto-chicken.webp" type="image/webp"><img src="assets/images/menu/pesto-chicken.jpg" alt="Fireball Pizza fresh pie" style="border-radius:4px;"></picture>
+    </div>
+  </div>
+</section>
+
+<section class="tight" style="background:var(--panel); color:var(--white);">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">One Dough, Three Ways</span>
+      <h2 style="color:var(--white);">Small Pizza, Real Flavor In Every Bite</h2>
+    </div>
+    <div class="grid-3" style="margin-top:32px; gap:32px;">
+      <div>
+        <h3 style="color:var(--gold);">10" Personal Pizza</h3>
+        <p style="color:rgba(255,255,255,0.75);">Each pizza is 10 inches, about 78 square inches, just over half the size of a typical 14-inch large. That means a personal-sized pie that's packed with flavor in every bite, not stretched thin to cover more crust.</p>
+      </div>
+      <div>
+        <h3 style="color:var(--gold);">Folded Into A Calzone</h3>
+        <p style="color:rgba(255,255,255,0.75);">That same hand-stretched dough ball, folded in half and fully loaded, becomes one of our calzones, fired hot and fast in the same brick oven.</p>
+      </div>
+      <div>
+        <h3 style="color:var(--gold);">Baked Into A Panuozzo</h3>
+        <p style="color:rgba(255,255,255,0.75);">Bake that dough into bread instead, and it becomes our signature panuozzo, a hot sandwich built on real pizza dough, not a regular roll.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -412,5 +478,14 @@ window.addEventListener('scroll', function(){
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closePopup(); });
 })();
 </script>
+<script>
+  (function(d){
+    var s = d.createElement("script");
+    s.setAttribute("data-account", "4lldcanBMp");
+    s.setAttribute("src", "https://cdn.userway.org/widget.js");
+    (d.body || d.head).appendChild(s);
+  })(document)
+</script>
+<noscript>Please ensure Javascript is enabled for purposes of <a href="https://userway.org">website accessibility</a></noscript>
 </body>
 </html>

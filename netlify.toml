@@ -10,6 +10,9 @@
   [headers.values]
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.google.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: ; connect-src 'self' https://*.googleapis.com https://*.gstatic.com https://www.google-analytics.com; frame-src https://calendar.google.com; base-uri 'self'; form-action 'self'"
 
 [[headers]]
   for = "/assets/images/*"

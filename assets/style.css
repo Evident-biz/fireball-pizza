@@ -25,6 +25,14 @@
 *{ box-sizing: border-box; }
 button, a, .carousel-btn, .carousel-controls, .calc-tile, .calc-extra-tile, .calc-segment, .order-popup-option{ touch-action: manipulation; }
 html{ scroll-behavior: smooth; overflow-x: hidden; overscroll-behavior-x: none; }
+.skip-link{
+  position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden;
+  background: var(--ink); color: var(--white); padding: 14px 20px; border-radius: 0 0 10px 0;
+  font-family: var(--font-utility); font-size: 0.85rem; text-decoration: none; z-index: 9999;
+}
+.skip-link:focus{
+  left: 0; top: 0; width: auto; height: auto; overflow: visible;
+}
 body{
   margin: 0;
   background: var(--white);
@@ -136,8 +144,9 @@ nav.links a.cta:hover{ background: var(--ember-dark); color: var(--white); }
 .chip{
   font-size: 0.85rem; color: rgba(255,255,255,0.85);
   border: 1px solid rgba(255,255,255,0.25); border-radius: 20px;
-  padding: 6px 16px;
+  padding: 6px 16px; text-decoration: none; display: inline-block; transition: all 0.2s ease;
 }
+a.chip:hover{ border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.08); }
 .chip.primary{ background: var(--ember); border-color: var(--ember); color: var(--white); font-weight: 600; }
 .service-divider{ color: rgba(255,255,255,0.35); font-size: 0.8rem; margin: 0 2px; }
 
@@ -147,6 +156,7 @@ section.tight{ padding: 64px 0; }
 .section-head{ max-width: 640px; margin-bottom: 56px; }
 
 .grid-2{ display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.grid-3{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; }
 
 .card{ background: var(--white); border: 1px solid var(--line); padding: 32px; border-radius: 4px; }
 
@@ -300,6 +310,12 @@ section.tight{ padding: 64px 0; }
   font-family: var(--font-utility); font-size: 0.78rem; color: var(--stone);
   margin-bottom: 4px; padding: 0; transition: color 0.2s ease;
 }
+.calc-reset-link{
+  display: block; background: none; border: none; cursor: pointer;
+  font-family: var(--font-utility); font-size: 0.72rem; color: var(--stone);
+  margin: 0 0 12px auto; padding: 4px 0; text-align: right; transition: color 0.2s ease;
+}
+.calc-reset-link:hover{ color: var(--ember); }
 .calc-back-link:hover{ color: var(--ember); }
 .calc-modal-close{
   position: absolute; top: 16px; right: 16px;
@@ -325,13 +341,15 @@ section.tight{ padding: 64px 0; }
   outline: none; border-color: var(--ember); background: var(--white);
   box-shadow: 0 0 0 4px rgba(217,72,37,0.12);
 }
-.calc-date-wrap{ position: relative; }
+.calc-date-wrap{ position: relative; height: 52px; }
+.calc-date-wrap input[type="date"]{ height: 52px; box-sizing: border-box; }
 .calc-date-placeholder{
   position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
   color: var(--stone); font-size: 0.95rem; pointer-events: none; z-index: 1;
   transition: opacity 0.15s ease;
 }
 .calc-date-wrap input[type="date"].has-value ~ .calc-date-placeholder{ opacity: 0; }
+.calc-date-wrap input[type="date"]:valid ~ .calc-date-placeholder{ opacity: 0; }
 
 /* --- Post-calculation style tiles --- */
 .calc-tile-group{ margin-bottom: 18px; }
@@ -717,6 +735,7 @@ footer.site img.foot-logo{ height: 42px; margin-bottom: 16px; }
 /* --- Responsive --- */
 @media (max-width: 860px){
   .grid-2{ grid-template-columns: 1fr; gap: 40px; }
+  .grid-3{ grid-template-columns: 1fr; gap: 28px; }
   .menu-grid{ grid-template-columns: 1fr; }
   form.inquiry{ grid-template-columns: 1fr; }
   footer.site .wrap{ grid-template-columns: 1fr; gap: 32px; }
