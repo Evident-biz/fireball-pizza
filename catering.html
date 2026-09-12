@@ -253,7 +253,10 @@
         <div class="calc-input-col">
 
           <div id="calcPageA">
-            <p class="calc-step-label">Step 1 of 2</p>
+            <div class="calc-progress" aria-label="Step 1 of 2">
+              <div class="calc-progress-segment is-filled"></div>
+              <div class="calc-progress-segment"></div>
+            </div>
             <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
             <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address"></div>
             <div class="calc-field"><label for="sendPhone">Phone</label><input type="tel" id="sendPhone" name="phone" required pattern="^[\d\s\-\(\)\+\.]{10,}$" title="Enter a valid phone number (at least 10 digits)"></div>
@@ -266,7 +269,10 @@
             <div class="calc-field-row">
               <div class="calc-field">
                 <label for="eventDate">Event Date</label>
-                <input type="date" id="eventDate" name="Event Date" required>
+                <div class="calc-date-wrap">
+                  <input type="date" id="eventDate" name="Event Date" required>
+                  <span class="calc-date-placeholder" id="eventDatePlaceholder">Select a date</span>
+                </div>
               </div>
               <div class="calc-field">
                 <label for="eventTime">Start Time</label>
@@ -289,16 +295,16 @@
               </div>
             </div>
             <p class="calc-hint" id="calcHint"></p>
-            <div class="calc-choice-row">
-              <button type="button" class="btn btn-outline" id="calcRequestBtn" style="flex:1; justify-content:center;">Request Custom Quote</button>
-              <button type="button" class="btn btn-primary" id="calcNextBtn" style="flex:1; justify-content:center;">Build Instant Quote</button>
-            </div>
+            <button type="button" class="btn btn-primary" id="calcNextBtn" style="width:100%; justify-content:center; margin-top:8px;">Next: Dining Options</button>
             <p class="calc-hint" id="calcPageAHint"></p>
           </div>
 
           <div id="calcPageB" class="calc-prices-hidden" style="display:none;">
             <button type="button" id="calcBackBtn" class="calc-back-link">← Back</button>
-            <p class="calc-step-label">Step 2 of 2</p>
+            <div class="calc-progress" aria-label="Step 2 of 2">
+              <div class="calc-progress-segment is-filled"></div>
+              <div class="calc-progress-segment is-filled"></div>
+            </div>
 
             <div class="calc-tile-group">
               <label>Choose Your Style</label>
@@ -411,18 +417,6 @@
         </div>
       </div>
     </form>
-  </div>
-</div>
-
-<div class="calc-popup-overlay" id="calcRequestPopupOverlay">
-  <div class="calc-popup" role="dialog" aria-modal="true">
-    <button type="button" class="calc-modal-close" id="calcRequestPopupClose" aria-label="Close">&times;</button>
-    <span class="eyebrow">Request Custom Quote</span>
-    <h3 style="margin:0 0 10px;">Anything we should know?</h3>
-    <p class="muted" style="margin:0 0 16px;">Optional. Tell us more about your event and we'll factor it into your quote.</p>
-    <textarea id="calcRequestMessage" rows="4" placeholder="Menu preferences, headcount range, venue details, budget, etc." style="width:100%; padding:13px 14px; border:1.5px solid var(--line); border-radius:14px; font-family:var(--font-body); font-size:0.95rem; color:var(--ink); resize:vertical;"></textarea>
-    <button type="button" class="btn btn-primary" id="calcRequestSendBtn" style="width:100%; justify-content:center; margin-top:16px;">Send Request</button>
-    <p class="calc-hint" id="calcRequestStatus"></p>
   </div>
 </div>
 
@@ -1157,6 +1151,10 @@ function getMinBookingDateString(){
   return yyyy + '-' + mm + '-' + dd;
 }
 
+document.getElementById('eventDate').addEventListener('input', function(){
+  this.classList.toggle('has-value', !!this.value);
+});
+
 function openCalc(){
   if(typeof gtag === 'function') gtag('event', 'calculator_opened');
   loadMapsScript().catch(function(err){ console.error('Fireball estimator: Maps script failed to load', err); });
@@ -1171,19 +1169,14 @@ function openCalc(){
   calcHint.textContent = '';
   addressSelectedFromSuggestion = false;
   document.getElementById('eventDate').min = getMinBookingDateString();
+  document.getElementById('eventDate').classList.toggle('has-value', !!document.getElementById('eventDate').value);
   document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit';
   document.getElementById('calcSubmitBtn').disabled = false;
   document.getElementById('calcSendStatus').textContent = '';
   document.getElementById('payDepositBtn').style.display = 'none';
-  document.getElementById('calcRequestBtn').textContent = 'Request Custom Quote';
-  document.getElementById('calcRequestBtn').disabled = false;
-  document.getElementById('calcRequestMessage').value = '';
-  document.getElementById('calcRequestStatus').textContent = '';
-  document.getElementById('calcRequestSendBtn').disabled = false;
   document.getElementById('calcNoDepositBtn').textContent = 'Pay by Cash/Check';
   document.getElementById('calcNoDepositBtn').disabled = false;
   document.getElementById('calcNoDepositStatus').textContent = '';
-  closeRequestPopup();
   resetBuilderDefaults();
   getPlacesLib().then(function(){ newSessionToken(); });
 }
@@ -1191,7 +1184,6 @@ function closeCalc(){
   overlay.classList.remove('open');
   document.body.style.overflow = '';
   document.getElementById('calcAddressSuggestions').classList.remove('open');
-  closeRequestPopup();
 }
 
 function validateContactFields(hintEl){
@@ -1277,74 +1269,12 @@ document.getElementById('calcBackBtn').addEventListener('click', function(){
   document.getElementById('calcPageA').style.display = 'block';
 });
 
-// --- Request Custom Quote: validates contact info, opens a popup for an optional note, then submits ---
-const requestPopupOverlay = document.getElementById('calcRequestPopupOverlay');
-function openRequestPopup(){
-  requestPopupOverlay.classList.add('open');
-}
-function closeRequestPopup(){
-  requestPopupOverlay.classList.remove('open');
-}
-
-document.getElementById('calcRequestBtn').addEventListener('click', function(){
-  const hint = document.getElementById('calcPageAHint');
-  if(!validateContactFields(hint)) return;
-  hint.textContent = '';
-  openRequestPopup();
-});
-
-document.getElementById('calcRequestPopupClose').addEventListener('click', closeRequestPopup);
-requestPopupOverlay.addEventListener('click', function(e){
-  if(e.target === requestPopupOverlay) closeRequestPopup();
-});
-
-document.getElementById('calcRequestSendBtn').addEventListener('click', function(){
-  const name = document.getElementById('sendName').value.trim();
-  const message = document.getElementById('calcRequestMessage').value.trim();
-  const btn = this;
-  const status = document.getElementById('calcRequestStatus');
-  btn.disabled = true;
-  status.style.color = 'var(--stone)';
-  status.textContent = 'Sending...';
-
-  const subject = 'Custom Quote Requested: ' + name + (message ? ' (has message)' : '');
-  const form = document.getElementById('calcForm');
-  const data = new FormData(form);
-  data.set('subject', subject);
-  data.set('Pricing Summary', 'Custom quote requested, no builder pricing generated. Message: ' + (message || '(none)'));
-  const params = new URLSearchParams();
-  data.forEach(function(value, key){ params.append(key, value); });
-
-  fetch('/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString()
-  })
-  .then(function(){
-    if(typeof gtag === 'function') gtag('event', 'custom_quote_requested');
-    status.style.color = '#2E7D32';
-    status.textContent = "Request sent. We'll follow up within 1 to 2 business days.";
-    document.getElementById('calcRequestBtn').textContent = 'Request Sent';
-    document.getElementById('calcRequestBtn').disabled = true;
-  })
-  .catch(function(err){
-    console.error('Fireball estimator: custom quote request failed', err);
-    status.style.color = 'var(--ember)';
-    btn.disabled = false;
-    status.textContent = "Could not send automatically. Please call or email us directly.";
-  });
-});
-
 openBtn?.addEventListener('click', openCalc);
 document.getElementById('heroOpenCalculatorBtn')?.addEventListener('click', openCalc);
 closeBtn?.addEventListener('click', closeCalc);
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape'){
-    if(requestPopupOverlay.classList.contains('open')){
-      closeRequestPopup();
-    } else {
-      closeCalc();
-    }
+    closeCalc();
   }
 });
 
@@ -1424,7 +1354,7 @@ function runDistanceLookupNow(address){
           roundTripMiles: 0, roundTripDriveHours: 0, oneWayMiles: 0, oneWayDriveHours: 0, billableMiles: 0
         };
         renderTotals();
-        calcHint.textContent = "That address is " + roundTripMiles.toFixed(0) + " miles round trip, outside our " + MAX_ROUND_TRIP_MILES + "-mile service range. Please use Request Custom Quote instead so we can see what's possible.";
+        calcHint.textContent = "That address is " + roundTripMiles.toFixed(0) + " miles round trip, outside our " + MAX_ROUND_TRIP_MILES + "-mile service range. Please call or email us directly so we can see what's possible.";
         calcHint.style.color = 'var(--ember)';
         return;
       }

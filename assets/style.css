@@ -289,10 +289,12 @@ section.tight{ padding: 64px 0; }
 @media (max-width: 480px){
   .calc-field-row{ grid-template-columns: 1fr; }
 }
-.calc-step-label{
-  font-family: var(--font-utility); font-size: 0.7rem; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--gold); margin: 0 0 14px; font-weight: 700;
+.calc-progress{ display: flex; gap: 6px; margin: 0 0 16px; }
+.calc-progress-segment{
+  flex: 1; height: 5px; border-radius: 999px; background: var(--line);
+  transition: background 0.3s ease;
 }
+.calc-progress-segment.is-filled{ background: linear-gradient(90deg, var(--ember), var(--gold)); }
 .calc-back-link{
   display: inline-block; background: none; border: none; cursor: pointer;
   font-family: var(--font-utility); font-size: 0.78rem; color: var(--stone);
@@ -323,6 +325,13 @@ section.tight{ padding: 64px 0; }
   outline: none; border-color: var(--ember); background: var(--white);
   box-shadow: 0 0 0 4px rgba(217,72,37,0.12);
 }
+.calc-date-wrap{ position: relative; }
+.calc-date-placeholder{
+  position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+  color: var(--stone); font-size: 0.95rem; pointer-events: none; z-index: 1;
+  transition: opacity 0.15s ease;
+}
+.calc-date-wrap input[type="date"].has-value ~ .calc-date-placeholder{ opacity: 0; }
 
 /* --- Post-calculation style tiles --- */
 .calc-tile-group{ margin-bottom: 18px; }
