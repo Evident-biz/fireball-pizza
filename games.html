@@ -294,7 +294,7 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
         items.splice(i, 1);
         lives--;
         updateHud();
-        if(lives <= 0){
+        if(lives <= 0 && !gameOver){
           gameOver = true;
           playAgainBtn.style.display = 'block';
           showScoreSubmit(score);
@@ -321,6 +321,7 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
   function showScoreSubmit(finalScore){
     pendingScore = finalScore;
     scoreSubmitted = false;
+    submitScoreBtn.disabled = false;
     submitStatus.textContent = '';
     initialsInput.value = '';
     scoreSubmitBox.style.display = 'block';
