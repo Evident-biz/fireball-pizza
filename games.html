@@ -141,8 +141,8 @@ gtag('config', 'G-YVX71FMKD8');
     </div>
     <div>
       <h3>Reach Us</h3>
-      <p>(209) 222-8926</p>
-      <p>eat@fireball.pizza</p>
+      <p><a href="tel:+12092228926">(209) 222-8926</a></p>
+      <p><a href="mailto:eat@fireball.pizza">eat@fireball.pizza</a></p>
     </div>
   </div>
   <div class="foot-bottom">
@@ -345,7 +345,7 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
   }
 
   function fetchLeaderboard(){
-    fetch(LEADERBOARD_URL)
+    fetch(LEADERBOARD_URL + '?t=' + Date.now(), { cache: 'no-store' })
       .then(function(res){ return res.json(); })
       .then(function(data){
         const entries = (data && data.leaderboard) || [];

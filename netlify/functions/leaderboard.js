@@ -10,6 +10,7 @@ exports.handler = async function (event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-store',
   };
 
   if (event.httpMethod === 'OPTIONS') {
