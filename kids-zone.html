@@ -290,7 +290,7 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
   }
 
   const playAgainBtn = document.getElementById('kzPlayAgainBtn');
-  const LEADERBOARD_URL = 'https://script.google.com/macros/s/AKfycbxO7oDTLRb8BWkAdXmcsYIkKj9LToGX2Gx3DBQDX7nX_qdg4RV7ptHN98nh3NQYB9tp/exec';
+  const LEADERBOARD_URL = '/.netlify/functions/leaderboard';
   const scoreSubmitBox = document.getElementById('kzScoreSubmit');
   const initialsInput = document.getElementById('kzInitialsInput');
   const submitScoreBtn = document.getElementById('kzSubmitScoreBtn');
@@ -311,45 +311,33 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
     scoreSubmitBox.style.display = 'none';
   }
 
-  function fetchLeaderboard(){
-    const callbackName = 'kzLeaderboardCallback_' + Date.now();
-    let settled = false;
-    window[callbackName] = function(data){
-      settled = true;
-      delete window[callbackName];
-      if(script.parentNode) script.parentNode.removeChild(script);
-      const entries = (data && data.leaderboard) || [];
-      if(entries.length === 0){
-        leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">No scores yet, be the first!</li>';
-        return;
-      }
-      leaderboardList.innerHTML = entries.map(function(entry, i){
-        return '<li class="kz-lb-row">' +
-          '<span class="kz-lb-rank">#' + (i + 1) + '</span>' +
-          '<span class="kz-lb-initials">' + escapeHtml(entry.initials) + '</span>' +
-          '<span class="kz-lb-score">' + entry.score + '</span>' +
-          '</li>';
-      }).join('');
-    };
-    const script = document.createElement('script');
-    script.src = LEADERBOARD_URL + '?callback=' + callbackName;
-    script.onerror = function(){
-      delete window[callbackName];
-      leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">Couldn\'t load the leaderboard right now.</li>';
-    };
-    document.body.appendChild(script);
-    setTimeout(function(){
-      if(!settled){
-        delete window[callbackName];
-        leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">Couldn\'t load the leaderboard right now.</li>';
-      }
-    }, 8000);
-  }
-
   function escapeHtml(str){
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  }
+
+  function fetchLeaderboard(){
+    fetch(LEADERBOARD_URL)
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        const entries = (data && data.leaderboard) || [];
+        if(entries.length === 0){
+          leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">No scores yet, be the first!</li>';
+          return;
+        }
+        leaderboardList.innerHTML = entries.map(function(entry, i){
+          return '<li class="kz-lb-row">' +
+            '<span class="kz-lb-rank">#' + (i + 1) + '</span>' +
+            '<span class="kz-lb-initials">' + escapeHtml(entry.initials) + '</span>' +
+            '<span class="kz-lb-score">' + entry.score + '</span>' +
+            '</li>';
+        }).join('');
+      })
+      .catch(function(err){
+        console.error('Leaderboard fetch failed', err);
+        leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">Couldn\'t load the leaderboard right now.</li>';
+      });
   }
 
   submitScoreBtn.addEventListener('click', function(){
@@ -365,16 +353,22 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
 
     fetch(LEADERBOARD_URL, {
       method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ initials: initials, score: pendingScore })
     })
-    .then(function(){
-      submitStatus.textContent = 'Added to the leaderboard!';
-      setTimeout(function(){
-        hideScoreSubmit();
-        fetchLeaderboard();
-      }, 900);
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if(data && data.ok){
+        submitStatus.textContent = 'Added to the leaderboard!';
+        setTimeout(function(){
+          hideScoreSubmit();
+          fetchLeaderboard();
+        }, 900);
+      } else {
+        submitStatus.textContent = (data && data.error) || "Couldn't submit right now, sorry!";
+        scoreSubmitted = false;
+        submitScoreBtn.disabled = false;
+      }
     })
     .catch(function(err){
       console.error('Score submit failed', err);
