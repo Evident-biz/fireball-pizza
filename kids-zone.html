@@ -24,7 +24,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png?v=3">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png?v=3">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png?v=3">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=3">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-YVX71FMKD8"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
@@ -82,6 +82,7 @@ gtag('config', 'G-YVX71FMKD8');
       <span>LIVES: <strong id="kzLives">❤️❤️❤️</strong></span>
     </div>
     <canvas id="toppingCanvas" width="480" height="560"></canvas>
+    <button type="button" id="kzPlayAgainBtn" class="btn btn-primary" style="display:none; width:100%; justify-content:center; margin-top:14px;">Play Again</button>
     <p class="kz-controls-hint">Use the arrow keys, or drag your finger/mouse across the game to move.</p>
   </div>
 </div>
@@ -220,7 +221,7 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
       ctx.font = '20px Inter, sans-serif';
       ctx.fillText('Score: ' + score, W/2, H/2 + 6);
       ctx.font = '16px Inter, sans-serif';
-      ctx.fillText('Tap or press any key to play again', W/2, H/2 + 40);
+      ctx.fillText('Press Play Again below to try again', W/2, H/2 + 40);
       requestAnimationFrame(loop);
       return;
     }
@@ -250,6 +251,7 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
         updateHud();
         if(lives <= 0){
           gameOver = true;
+          playAgainBtn.style.display = 'block';
         }
       }
     }
@@ -260,18 +262,26 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
     requestAnimationFrame(loop);
   }
 
-  function startOrRestart(){
-    if(gameOver){
-      resetGame();
-      started = true;
-    } else if(!started){
+  const playAgainBtn = document.getElementById('kzPlayAgainBtn');
+
+  function startGame(){
+    if(!started && !gameOver){
       started = true;
     }
   }
 
+  function restartGame(){
+    resetGame();
+    playAgainBtn.style.display = 'none';
+    started = true;
+  }
+
+  playAgainBtn.addEventListener('click', restartGame);
+
   // Keyboard controls
   document.addEventListener('keydown', function(e){
-    if(!started || gameOver){ startOrRestart(); return; }
+    if(!started){ startGame(); return; }
+    if(gameOver){ return; }
     if(e.key === 'ArrowLeft') catcherX = Math.max(catcherW/2, catcherX - 24);
     if(e.key === 'ArrowRight') catcherX = Math.min(W - catcherW/2, catcherX + 24);
   });
@@ -285,18 +295,18 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
   }
 
   canvas.addEventListener('mousedown', function(e){
-    startOrRestart();
-    moveToPointer(e.clientX);
+    startGame();
+    if(!gameOver) moveToPointer(e.clientX);
   });
   canvas.addEventListener('mousemove', function(e){
-    if(e.buttons === 1) moveToPointer(e.clientX);
+    if(e.buttons === 1 && !gameOver) moveToPointer(e.clientX);
   });
   canvas.addEventListener('touchstart', function(e){
-    startOrRestart();
-    moveToPointer(e.touches[0].clientX);
+    startGame();
+    if(!gameOver) moveToPointer(e.touches[0].clientX);
   }, { passive: true });
   canvas.addEventListener('touchmove', function(e){
-    moveToPointer(e.touches[0].clientX);
+    if(!gameOver) moveToPointer(e.touches[0].clientX);
   }, { passive: true });
 
   resetGame();

@@ -136,7 +136,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png?v=3">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png?v=3">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png?v=3">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=3">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-YVX71FMKD8"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -453,14 +453,12 @@
                   <svg viewBox="0 0 24 24" fill="none"><path d="M12 4 20 18H4L12 4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="9.5" cy="14" r="1" fill="currentColor"/><circle cx="14" cy="15.2" r="1" fill="currentColor"/><path d="M18 5h3.2M19.6 3.4v3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                   <span class="calc-tile-text"><strong>Build Your Own</strong><span class="calc-price-hint">$25/person</span></span>
                 </button>
-                <div class="calc-tile-wrap">
-                  <button type="button" class="calc-tile" id="tileWorkshop" data-style="workshop">
-                    <svg viewBox="0 0 24 24" fill="none"><path d="M6 20h12L15 9a3 3 0 0 0-6 0L6 20Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="5" r="1.4" fill="currentColor"/><path d="M6 20h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                    <span class="calc-tile-text"><strong>Pizza Workshop</strong><span class="calc-price-hint">$25/person</span></span>
-                  </button>
-                  <span class="calc-tile-info" id="workshopInfoBtn" role="button" tabindex="0" aria-label="What is Pizza Workshop?">i</span>
-                </div>
+                <button type="button" class="calc-tile" id="tileWorkshop" data-style="workshop">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M6 20h12L15 9a3 3 0 0 0-6 0L6 20Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="5" r="1.4" fill="currentColor"/><path d="M6 20h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                  <span class="calc-tile-text"><strong>Pizza Workshop</strong><span class="calc-price-hint">$25/person</span></span>
+                </button>
               </div>
+              <p class="calc-tile-description" id="workshopDescription" style="display:none;">Pizza Workshop is our hands-on option for kids' birthday parties: our staff guides each kid through topping their own pizza before we cook it fresh on-site.</p>
               <p class="calc-hint" id="byoUnavailableNote" style="display:none;">Build Your Own is available for groups up to 40 guests.</p>
               <p class="calc-hint" id="buffetUnavailableNote" style="display:none;">Buffet is available for groups of 25 or more.</p>
               <p class="calc-hint" id="workshopUnavailableNote" style="display:none;">Pizza Workshop is available for groups up to 40 kids.</p>
@@ -596,15 +594,6 @@
     <button type="button" class="btn btn-outline" id="calcPizzaProSendBtn" style="width:100%; justify-content:center; margin-top:12px;">Request a Callback Instead</button>
     <p class="calc-hint" id="calcPizzaProStatus"></p>
     <input type="hidden" name="Pizza Pro Message" id="sendPizzaProMessage" form="calcForm">
-  </div>
-</div>
-
-<div class="calc-popup-overlay" id="workshopInfoPopupOverlay">
-  <div class="calc-popup" role="dialog" aria-modal="true">
-    <button type="button" class="calc-modal-close" id="workshopInfoPopupClose" aria-label="Close">&times;</button>
-    <span class="eyebrow">Pizza Workshop</span>
-    <h3 style="margin:0 0 10px;">What Is Pizza Workshop?</h3>
-    <p class="muted" style="margin:0;">Pizza Workshop is our hands-on option for kids' birthday parties. Our staff guides each kid through topping their own pizza before we cook it fresh on-site. It's $25/person for up to 40 kids, and you can add an adult buffet for up to 100 additional guests at $19/person.</p>
   </div>
 </div>
 
@@ -856,7 +845,6 @@ document.getElementById('calcPizzaProBtn').addEventListener('click', function(){
 
 document.getElementById('calcPizzaProPopupClose').addEventListener('click', function(){
   document.getElementById('calcPizzaProPopupOverlay').classList.remove('open');
-  document.getElementById('workshopInfoPopupOverlay').classList.remove('open');
 });
 document.getElementById('calcPizzaProPopupOverlay').addEventListener('click', function(e){
   if(e.target === this) this.classList.remove('open');
@@ -1108,6 +1096,8 @@ function updateStyleTileVisibility(){
   tileBYO.classList.toggle('is-selected', selectedStyle === 'byo');
   tileWorkshop.classList.toggle('is-selected', selectedStyle === 'workshop');
 
+  document.getElementById('workshopDescription').style.display = selectedStyle === 'workshop' ? 'block' : 'none';
+
   adultBuffetGroup.style.display = selectedStyle === 'workshop' ? 'block' : 'none';
   if(selectedStyle !== 'workshop'){
     adultBuffetAdded = false;
@@ -1134,26 +1124,6 @@ tileWorkshop.addEventListener('click', function(){
   selectedStyle = 'workshop';
   updateStyleTileVisibility();
   renderTotals();
-});
-
-const workshopInfoBtn = document.getElementById('workshopInfoBtn');
-const workshopInfoPopupOverlay = document.getElementById('workshopInfoPopupOverlay');
-function openWorkshopInfoPopup(e){
-  e.preventDefault();
-  e.stopPropagation();
-  workshopInfoPopupOverlay.classList.add('open');
-}
-workshopInfoBtn.addEventListener('click', openWorkshopInfoPopup);
-workshopInfoBtn.addEventListener('keydown', function(e){
-  if(e.key === 'Enter' || e.key === ' '){
-    openWorkshopInfoPopup(e);
-  }
-});
-document.getElementById('workshopInfoPopupClose').addEventListener('click', function(){
-  workshopInfoPopupOverlay.classList.remove('open');
-});
-workshopInfoPopupOverlay.addEventListener('click', function(e){
-  if(e.target === this) this.classList.remove('open');
 });
 
 function getAdultBuffetCount(){
@@ -1465,6 +1435,7 @@ function resetBuilderDefaults(){
   adultBuffetField.style.display = 'none';
   adultBuffetCountInput.value = '';
   adultBuffetGroup.style.display = 'none';
+  document.getElementById('workshopDescription').style.display = 'none';
   dessertAdded = false;
   caesarAdded = false;
   breadsticksAdded = false;
@@ -1537,7 +1508,6 @@ function resetEntireCalculator(){
   document.getElementById('calcPizzaProSendBtn').disabled = false;
   document.getElementById('calcPizzaProStatus').textContent = '';
   document.getElementById('calcPizzaProPopupOverlay').classList.remove('open');
-  document.getElementById('workshopInfoPopupOverlay').classList.remove('open');
   bookingSubmitted = false;
   resetBuilderDefaults();
 }
@@ -1572,7 +1542,6 @@ function openCalc(){
   document.getElementById('calcPizzaProSendBtn').disabled = false;
   document.getElementById('calcPizzaProStatus').textContent = '';
   document.getElementById('calcPizzaProPopupOverlay').classList.remove('open');
-  document.getElementById('workshopInfoPopupOverlay').classList.remove('open');
   resetBuilderDefaults();
   getPlacesLib().then(function(){ newSessionToken(); });
 }
@@ -1680,8 +1649,6 @@ document.addEventListener('keydown', function(e){
       document.getElementById('calcPaymentPopupOverlay').classList.remove('open');
     } else if(document.getElementById('calcPizzaProPopupOverlay').classList.contains('open')){
       document.getElementById('calcPizzaProPopupOverlay').classList.remove('open');
-    } else if(document.getElementById('workshopInfoPopupOverlay').classList.contains('open')){
-      document.getElementById('workshopInfoPopupOverlay').classList.remove('open');
     } else {
       closeCalc();
     }
