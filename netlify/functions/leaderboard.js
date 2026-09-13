@@ -4,7 +4,7 @@
 // from client-side JS (Apps Script's redirect-based content serving doesn't play well
 // with browser cross-origin protections).
 
-const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxO7oDTLRb8BWkAdXmcsYIkKj9LToGX2Gx3DBQDX7nX_qdg4RV7ptHN98nh3NQYB9tp/exec';
+const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPN3Geg2AQ73vE8xKUZeZHHDr4laLLJiHwGpM8eEezlHWNnUhUlTEFGyY7pg7gDR4o/exec';
 
 exports.handler = async function (event) {
   const headers = {
@@ -31,11 +31,8 @@ exports.handler = async function (event) {
 
   try {
     if (event.httpMethod === 'GET') {
-      console.log('DEBUG v2: scriptUrl being used =', scriptUrl);
-      console.log('DEBUG v2: env var LEADERBOARD_SCRIPT_URL =', process.env.LEADERBOARD_SCRIPT_URL || '(not set)');
       const response = await fetch(scriptUrl);
       const text = await response.text();
-      console.log('DEBUG v2: raw response from Apps Script (first 500 chars) =', text.slice(0, 500));
       let data;
       try {
         data = JSON.parse(text);
@@ -43,7 +40,6 @@ exports.handler = async function (event) {
         console.error('Fireball leaderboard: non-JSON response from Apps Script', text.slice(0, 300));
         return { statusCode: 502, headers, body: JSON.stringify({ error: 'Leaderboard is temporarily unavailable.' }) };
       }
-      console.log('DEBUG v2: parsed data being returned =', JSON.stringify(data).slice(0, 500));
       return { statusCode: 200, headers, body: JSON.stringify(data) };
     }
 
