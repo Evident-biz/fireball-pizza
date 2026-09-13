@@ -132,11 +132,11 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
-<link rel="icon" href="assets/favicon/favicon.ico?v=3" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png?v=3">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png?v=3">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png?v=3">
-<link rel="stylesheet" href="assets/style.css?v=3">
+<link rel="icon" href="assets/favicon/favicon.ico?v=5" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png?v=5">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png?v=5">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png?v=5">
+<link rel="stylesheet" href="assets/style.css?v=4">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-YVX71FMKD8"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -658,11 +658,6 @@ function sendCustomerConfirmation(type){
 }
 
 function validateBookingReady(statusEl){
-  if(bookingSubmitted){
-    statusEl.style.color = 'var(--ember)';
-    statusEl.textContent = 'This booking has already been submitted. If you need to make changes, please contact us directly.';
-    return false;
-  }
   if(!hasCalculated){
     statusEl.style.color = 'var(--ember)';
     statusEl.textContent = 'Please press Calculate My Quote first so you can review your total before paying.';
@@ -719,11 +714,13 @@ document.getElementById('calcPaymentPopupOverlay').addEventListener('click', fun
   if(e.target === this) this.classList.remove('open');
 });
 
+let afterpayInFlight = false;
 document.getElementById('calcAfterpayLink').addEventListener('click', function(e){
   e.preventDefault();
+  if(afterpayInFlight) return;
   const status = document.getElementById('calcPaymentPopupStatus');
   if(!validateBookingReady(status)) return;
-  bookingSubmitted = true;
+  afterpayInFlight = true;
 
   const url = this.href;
   status.style.color = 'var(--stone)';
@@ -734,9 +731,7 @@ document.getElementById('calcAfterpayLink').addEventListener('click', function(e
     if(typeof gtag === 'function') gtag('event', 'deposit_initiated', { method: 'afterpay' });
     sendCustomerConfirmation('deposit');
     status.style.color = '#2E7D32';
-    status.textContent = "Opening the Afterpay-enabled payment page in a new tab.";
-    document.getElementById('calcSubmitBtn').textContent = 'Deposit Initiated';
-    document.getElementById('calcSubmitBtn').disabled = true;
+    status.textContent = "Opening the Afterpay-enabled payment page in a new tab. Changed your mind? You can still recalculate or choose a different payment method.";
     window.open(url, '_blank');
   })
   .catch(function(err){
@@ -744,15 +739,19 @@ document.getElementById('calcAfterpayLink').addEventListener('click', function(e
     status.style.color = 'var(--ember)';
     status.textContent = "Couldn't send automatically. Please call or email us directly with these numbers.";
     window.open(url, '_blank');
+  })
+  .finally(function(){
+    afterpayInFlight = false;
   });
 });
 
 document.getElementById('calcSquarePayBtn').addEventListener('click', function(){
   const status = document.getElementById('calcPaymentPopupStatus');
+  if(this.disabled) return;
   if(!validateBookingReady(status)) return;
-  bookingSubmitted = true;
 
   const submitBtn = this;
+  submitBtn.disabled = true;
   status.style.color = 'var(--stone)';
   status.textContent = 'Sending...';
 
@@ -773,12 +772,8 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
     // Lead is safely recorded. Everything from here on is just about getting them to a payment page.
     if(typeof gtag === 'function') gtag('event', 'deposit_initiated', { method: 'square' });
     sendCustomerConfirmation('deposit');
-    submitBtn.textContent = 'Deposit Initiated';
-    submitBtn.disabled = true;
-    document.getElementById('calcSubmitBtn').textContent = 'Deposit Initiated';
-    document.getElementById('calcSubmitBtn').disabled = true;
     status.style.color = '#2E7D32';
-    status.textContent = "Opening the payment page for " + depositAmountDisplay + "\u2026 didn't open? Use the button below.";
+    status.textContent = "Opening the payment page for " + depositAmountDisplay + "\u2026 didn't open? Use the button below. Changed your mind? You can still recalculate or choose a different payment method.";
 
     fetch('/.netlify/functions/create-deposit-link', {
       method: 'POST',
@@ -796,22 +791,26 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
     .catch(function(err){
       console.error('Fireball estimator: exact-amount payment link failed, falling back to static link', err);
       openPaymentPage(FALLBACK_SQUARE_LINK);
+    })
+    .finally(function(){
+      submitBtn.disabled = false;
     });
   })
   .catch(function(err){
     console.error('Fireball estimator: lead capture submission failed', err);
-    bookingSubmitted = false;
     status.style.color = 'var(--ember)';
     status.textContent = "Couldn't send automatically. Please call or email us directly with these numbers.";
+    submitBtn.disabled = false;
   });
 });
 
 document.getElementById('calcNoDepositBtn').addEventListener('click', function(){
   const status = document.getElementById('calcNoDepositStatus');
+  if(this.disabled) return;
   if(!validateBookingReady(status)) return;
-  bookingSubmitted = true;
 
   const btn = this;
+  btn.disabled = true;
   status.style.color = 'var(--stone)';
   status.textContent = 'Sending...';
 
@@ -819,18 +818,16 @@ document.getElementById('calcNoDepositBtn').addEventListener('click', function()
   .then(function(){
     if(typeof gtag === 'function') gtag('event', 'reservation_confirmed', { method: 'cash_check' });
     sendCustomerConfirmation('reservation');
-    btn.textContent = 'Reservation Sent, No Payment';
-    btn.disabled = true;
-    document.getElementById('calcSubmitBtn').textContent = 'Reservation Confirmed';
-    document.getElementById('calcSubmitBtn').disabled = true;
     status.style.color = '#2E7D32';
-    status.textContent = "Got it. We'll follow up to confirm your date within 1 to 2 business days.";
+    status.textContent = "Got it. We'll follow up to confirm your date within 1 to 2 business days. Changed your mind? You can still recalculate or choose a different payment method.";
   })
   .catch(function(err){
     console.error('Fireball estimator: no-deposit reservation failed', err);
-    bookingSubmitted = false;
     status.style.color = 'var(--ember)';
     status.textContent = "Couldn't send automatically. Please call or email us directly to confirm.";
+  })
+  .finally(function(){
+    btn.disabled = false;
   });
 });
 
@@ -932,7 +929,6 @@ const extraHours = 0;
 let lastCalc = null; // cached results of the most recent distance calculation
 let hasDistance = false; // whether lastCalc has real address-based numbers yet
 let hasCalculated = false; // whether the customer has pressed Calculate My Quote yet
-let bookingSubmitted = false; // true the instant ANY payment path starts, blocks all others (and re-submission with a changed amount)
 let quoteViewedCaptured = false; // only fire the "Quote Viewed" lead once per session
 
 // --- Guest count slider + number input: kept in sync both ways ---
@@ -1508,7 +1504,6 @@ function resetEntireCalculator(){
   document.getElementById('calcPizzaProSendBtn').disabled = false;
   document.getElementById('calcPizzaProStatus').textContent = '';
   document.getElementById('calcPizzaProPopupOverlay').classList.remove('open');
-  bookingSubmitted = false;
   resetBuilderDefaults();
 }
 
@@ -1617,6 +1612,15 @@ document.getElementById('calcNextBtn').addEventListener('click', function(){
 
 document.getElementById('calcCalculateBtn').addEventListener('click', function(){
   hasCalculated = true;
+  document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit';
+  document.getElementById('calcSubmitBtn').disabled = false;
+  document.getElementById('calcSquarePayBtn').textContent = 'Pay Now (Card)';
+  document.getElementById('calcSquarePayBtn').disabled = false;
+  document.getElementById('calcNoDepositBtn').textContent = 'Pay by Cash/Check';
+  document.getElementById('calcNoDepositBtn').disabled = false;
+  document.getElementById('calcSendStatus').textContent = '';
+  document.getElementById('calcPaymentPopupStatus').textContent = '';
+  document.getElementById('calcNoDepositStatus').textContent = '';
   document.getElementById('calcPageB').classList.remove('calc-prices-hidden');
   if(typeof gtag === 'function') gtag('event', 'quote_calculated');
   document.getElementById('calcResultsWaiting').style.display = 'none';

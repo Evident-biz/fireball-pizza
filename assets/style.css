@@ -168,6 +168,7 @@ section.tight{ padding: 64px 0; }
   flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px;
   align-content: start; padding-top: 2px;
 }
+.dough-tile-stats-5{ grid-template-columns: 1fr 1fr 1fr; flex: 1.6; }
 .dough-tile-stats > div{ display: flex; flex-direction: column; gap: 2px; }
 .dough-stat-label{
   font-family: var(--font-utility); font-size: 0.68rem; text-transform: uppercase;
