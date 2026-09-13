@@ -50,6 +50,14 @@ gtag('config', 'G-YVX71FMKD8');
 .kz-hud strong{ color: var(--ember); font-size: 1.1rem; }
 .kz-controls-hint{ text-align: center; color: var(--stone); font-size: 0.82rem; margin-top: 12px; }
 .kz-overlay-btn{ display: block; margin: 16px auto 0; }
+.kz-lb-row{
+  display: flex; align-items: center; gap: 12px; padding: 10px 4px;
+  border-bottom: 1px solid var(--line); font-size: 0.95rem;
+}
+.kz-lb-row:last-child{ border-bottom: none; }
+.kz-lb-rank{ width: 24px; color: var(--stone); font-size: 0.85rem; }
+.kz-lb-initials{ flex: 1; font-weight: 700; letter-spacing: 0.05em; color: var(--ink); }
+.kz-lb-score{ color: var(--ember); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -84,6 +92,24 @@ gtag('config', 'G-YVX71FMKD8');
     <canvas id="toppingCanvas" width="480" height="560"></canvas>
     <button type="button" id="kzPlayAgainBtn" class="btn btn-primary" style="display:none; width:100%; justify-content:center; margin-top:14px;">Play Again</button>
     <p class="kz-controls-hint">Use the arrow keys, or drag your finger/mouse across the game to move.</p>
+
+    <div id="kzScoreSubmit" style="display:none; margin-top:18px; padding-top:18px; border-top:1px solid var(--line); text-align:center;">
+      <p style="margin:0 0 10px; font-weight:600;">Nice score! Add it to the leaderboard:</p>
+      <div style="display:flex; gap:8px; justify-content:center; align-items:center; flex-wrap:wrap;">
+        <input type="text" id="kzInitialsInput" maxlength="3" placeholder="AAA" autocomplete="off"
+          style="width:80px; text-align:center; text-transform:uppercase; font-family:var(--font-utility); font-size:1.3rem; padding:10px; border:2px solid var(--line); border-radius:8px;">
+        <button type="button" id="kzSubmitScoreBtn" class="btn btn-primary" style="padding:12px 20px;">Submit</button>
+      </div>
+      <p id="kzSubmitStatus" style="margin:8px 0 0; font-size:0.85rem; color:var(--stone);"></p>
+    </div>
+  </div>
+
+  <div class="kz-game-card" style="margin-top:20px;">
+    <span class="eyebrow">Top Scores</span>
+    <h3 style="margin:6px 0 14px;">Leaderboard</h3>
+    <ol id="kzLeaderboardList" style="list-style:none; padding:0; margin:0; font-family:var(--font-utility);">
+      <li style="color:var(--stone);">Loading...</li>
+    </ol>
   </div>
 </div>
 
@@ -252,6 +278,7 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
         if(lives <= 0){
           gameOver = true;
           playAgainBtn.style.display = 'block';
+          showScoreSubmit(score);
         }
       }
     }
@@ -263,6 +290,96 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
   }
 
   const playAgainBtn = document.getElementById('kzPlayAgainBtn');
+  const LEADERBOARD_URL = 'https://script.google.com/macros/s/AKfycbxO7oDTLRb8BWkAdXmcsYIkKj9LToGX2Gx3DBQDX7nX_qdg4RV7ptHN98nh3NQYB9tp/exec';
+  const scoreSubmitBox = document.getElementById('kzScoreSubmit');
+  const initialsInput = document.getElementById('kzInitialsInput');
+  const submitScoreBtn = document.getElementById('kzSubmitScoreBtn');
+  const submitStatus = document.getElementById('kzSubmitStatus');
+  const leaderboardList = document.getElementById('kzLeaderboardList');
+  let pendingScore = 0;
+  let scoreSubmitted = false;
+
+  function showScoreSubmit(finalScore){
+    pendingScore = finalScore;
+    scoreSubmitted = false;
+    submitStatus.textContent = '';
+    initialsInput.value = '';
+    scoreSubmitBox.style.display = 'block';
+  }
+
+  function hideScoreSubmit(){
+    scoreSubmitBox.style.display = 'none';
+  }
+
+  function fetchLeaderboard(){
+    fetch(LEADERBOARD_URL)
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        const entries = (data && data.leaderboard) || [];
+        if(entries.length === 0){
+          leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">No scores yet, be the first!</li>';
+          return;
+        }
+        leaderboardList.innerHTML = entries.map(function(entry, i){
+          return '<li class="kz-lb-row">' +
+            '<span class="kz-lb-rank">#' + (i + 1) + '</span>' +
+            '<span class="kz-lb-initials">' + escapeHtml(entry.initials) + '</span>' +
+            '<span class="kz-lb-score">' + entry.score + '</span>' +
+            '</li>';
+        }).join('');
+      })
+      .catch(function(err){
+        console.error('Leaderboard fetch failed', err);
+        leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">Couldn\'t load the leaderboard right now.</li>';
+      });
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  submitScoreBtn.addEventListener('click', function(){
+    if(scoreSubmitted) return;
+    const initials = initialsInput.value.toUpperCase().replace(/[^A-Z]/g, '').substring(0, 3);
+    if(initials.length !== 3){
+      submitStatus.textContent = 'Please enter exactly 3 letters.';
+      return;
+    }
+    scoreSubmitted = true;
+    submitScoreBtn.disabled = true;
+    submitStatus.textContent = 'Submitting...';
+
+    fetch(LEADERBOARD_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ initials: initials, score: pendingScore })
+    })
+    .then(function(){
+      submitStatus.textContent = 'Added to the leaderboard!';
+      setTimeout(function(){
+        hideScoreSubmit();
+        fetchLeaderboard();
+      }, 900);
+    })
+    .catch(function(err){
+      console.error('Score submit failed', err);
+      submitStatus.textContent = "Couldn't submit right now, sorry!";
+      scoreSubmitted = false;
+      submitScoreBtn.disabled = false;
+    });
+  });
+
+  initialsInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      submitScoreBtn.click();
+    }
+  });
+
+  fetchLeaderboard();
 
   function startGame(){
     if(!started && !gameOver){
@@ -273,6 +390,7 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
   function restartGame(){
     resetGame();
     playAgainBtn.style.display = 'none';
+    hideScoreSubmit();
     started = true;
   }
 
