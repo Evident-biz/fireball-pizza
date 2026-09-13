@@ -10,7 +10,9 @@ exports.handler = async function (event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
-    'Cache-Control': 'no-store',
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
+    'Netlify-CDN-Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
   };
 
   if (event.httpMethod === 'OPTIONS') {
