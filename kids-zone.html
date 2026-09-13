@@ -312,26 +312,38 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
   }
 
   function fetchLeaderboard(){
-    fetch(LEADERBOARD_URL)
-      .then(function(res){ return res.json(); })
-      .then(function(data){
-        const entries = (data && data.leaderboard) || [];
-        if(entries.length === 0){
-          leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">No scores yet, be the first!</li>';
-          return;
-        }
-        leaderboardList.innerHTML = entries.map(function(entry, i){
-          return '<li class="kz-lb-row">' +
-            '<span class="kz-lb-rank">#' + (i + 1) + '</span>' +
-            '<span class="kz-lb-initials">' + escapeHtml(entry.initials) + '</span>' +
-            '<span class="kz-lb-score">' + entry.score + '</span>' +
-            '</li>';
-        }).join('');
-      })
-      .catch(function(err){
-        console.error('Leaderboard fetch failed', err);
+    const callbackName = 'kzLeaderboardCallback_' + Date.now();
+    let settled = false;
+    window[callbackName] = function(data){
+      settled = true;
+      delete window[callbackName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      const entries = (data && data.leaderboard) || [];
+      if(entries.length === 0){
+        leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">No scores yet, be the first!</li>';
+        return;
+      }
+      leaderboardList.innerHTML = entries.map(function(entry, i){
+        return '<li class="kz-lb-row">' +
+          '<span class="kz-lb-rank">#' + (i + 1) + '</span>' +
+          '<span class="kz-lb-initials">' + escapeHtml(entry.initials) + '</span>' +
+          '<span class="kz-lb-score">' + entry.score + '</span>' +
+          '</li>';
+      }).join('');
+    };
+    const script = document.createElement('script');
+    script.src = LEADERBOARD_URL + '?callback=' + callbackName;
+    script.onerror = function(){
+      delete window[callbackName];
+      leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">Couldn\'t load the leaderboard right now.</li>';
+    };
+    document.body.appendChild(script);
+    setTimeout(function(){
+      if(!settled){
+        delete window[callbackName];
         leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">Couldn\'t load the leaderboard right now.</li>';
-      });
+      }
+    }, 8000);
   }
 
   function escapeHtml(str){
