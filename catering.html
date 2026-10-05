@@ -618,10 +618,21 @@ function submitFormToNetlify(subjectOverride){
   if(subjectOverride) data.set('subject', subjectOverride);
   const params = new URLSearchParams();
   data.forEach(function(value, key){ params.append(key, value); });
-  return fetch('/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString()
+  const body = params.toString();
+
+  function attempt(){
+    return fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body
+    });
+  }
+
+  // One retry after a short pause before giving up. Covers a transient
+  // network blip or a slow connection without making the customer wait long.
+  return attempt().catch(function(err){
+    console.warn('Fireball estimator: lead capture failed, retrying once', err);
+    return new Promise(function(resolve){ setTimeout(resolve, 800); }).then(attempt);
   });
 }
 
@@ -726,21 +737,23 @@ document.getElementById('calcAfterpayLink').addEventListener('click', function(e
   status.style.color = 'var(--stone)';
   status.textContent = 'Sending...';
 
+  // Confirmation email and analytics fire right away, independent of the
+  // lead-capture call below, so a failure there can't take these out too.
+  if(typeof gtag === 'function') gtag('event', 'deposit_initiated', { method: 'afterpay' });
+  sendCustomerConfirmation('deposit');
+
   submitFormToNetlify(document.getElementById('sendSubject').value)
   .then(function(){
-    if(typeof gtag === 'function') gtag('event', 'deposit_initiated', { method: 'afterpay' });
-    sendCustomerConfirmation('deposit');
     status.style.color = '#2E7D32';
     status.textContent = "Opening the Afterpay-enabled payment page in a new tab. Changed your mind? You can still recalculate or choose a different payment method.";
-    window.open(url, '_blank');
   })
   .catch(function(err){
     console.error('Fireball estimator: Afterpay lead capture failed', err);
     status.style.color = 'var(--ember)';
-    status.textContent = "Couldn't send automatically. Please call or email us directly with these numbers.";
-    window.open(url, '_blank');
+    status.textContent = "We had trouble logging your info automatically, but here's your Afterpay payment page. Please also call or email us with these numbers just in case.";
   })
   .finally(function(){
+    window.open(url, '_blank');
     afterpayInFlight = false;
   });
 });
@@ -767,14 +780,23 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
     window.open(url, '_blank');
   }
 
+  // Confirmation email and analytics fire right away, independent of the
+  // lead-capture call below, so a failure there can't take these out too.
+  if(typeof gtag === 'function') gtag('event', 'deposit_initiated', { method: 'square' });
+  sendCustomerConfirmation('deposit');
+
   submitFormToNetlify(document.getElementById('sendSubject').value)
   .then(function(){
-    // Lead is safely recorded. Everything from here on is just about getting them to a payment page.
-    if(typeof gtag === 'function') gtag('event', 'deposit_initiated', { method: 'square' });
-    sendCustomerConfirmation('deposit');
     status.style.color = '#2E7D32';
     status.textContent = "Opening the payment page for " + depositAmountDisplay + "\u2026 didn't open? Use the button below. Changed your mind? You can still recalculate or choose a different payment method.";
-
+  })
+  .catch(function(err){
+    console.error('Fireball estimator: lead capture submission failed', err);
+    status.style.color = 'var(--ember)';
+    status.textContent = "We had trouble logging your info automatically, but here's your payment page. Go ahead and pay, we'll pick up your details when you follow up. Please also call or email us with these numbers just in case.";
+  })
+  .finally(function(){
+    // Payment page always opens here, whether lead capture above succeeded or not.
     fetch('/.netlify/functions/create-deposit-link', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -795,13 +817,6 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
     .finally(function(){
       submitBtn.disabled = false;
     });
-  })
-  .catch(function(err){
-    console.error('Fireball estimator: lead capture submission failed, falling back to static payment link', err);
-    status.style.color = 'var(--ember)';
-    status.textContent = "We had trouble logging your info automatically, but here's your payment page. Go ahead and pay, we'll pick up your details when you follow up. Please also call or email us with these numbers just in case.";
-    openPaymentPage(FALLBACK_SQUARE_LINK);
-    submitBtn.disabled = false;
   });
 });
 
@@ -815,10 +830,11 @@ document.getElementById('calcNoDepositBtn').addEventListener('click', function()
   status.style.color = 'var(--stone)';
   status.textContent = 'Sending...';
 
+  if(typeof gtag === 'function') gtag('event', 'reservation_confirmed', { method: 'cash_check' });
+  sendCustomerConfirmation('reservation');
+
   submitFormToNetlify('Date Confirmed, Deposit Not Collected')
   .then(function(){
-    if(typeof gtag === 'function') gtag('event', 'reservation_confirmed', { method: 'cash_check' });
-    sendCustomerConfirmation('reservation');
     status.style.color = '#2E7D32';
     status.textContent = "Got it. We'll follow up to confirm your date within 1 to 2 business days. Changed your mind? You can still recalculate or choose a different payment method.";
   })
