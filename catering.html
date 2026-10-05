@@ -797,9 +797,10 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
     });
   })
   .catch(function(err){
-    console.error('Fireball estimator: lead capture submission failed', err);
+    console.error('Fireball estimator: lead capture submission failed, falling back to static payment link', err);
     status.style.color = 'var(--ember)';
-    status.textContent = "Couldn't send automatically. Please call or email us directly with these numbers.";
+    status.textContent = "We had trouble logging your info automatically, but here's your payment page. Go ahead and pay, we'll pick up your details when you follow up. Please also call or email us with these numbers just in case.";
+    openPaymentPage(FALLBACK_SQUARE_LINK);
     submitBtn.disabled = false;
   });
 });
