@@ -174,10 +174,11 @@
   <div class="hero-content">
     <span class="eyebrow">Catering</span>
     <h1>Book Your Event Catering</h1>
-    <p class="lead">Weddings, corporate gatherings, and private parties. We bring the oven, the crew, and fresh, brick-oven pizza. You bring the guest list. See your exact price in seconds, no waiting on a callback.</p>
+    <p class="lead">Weddings, corporate gatherings, and private parties. We bring the oven, the crew, and fresh, stone-fired pizza. You bring the guest list. See your exact price in seconds, no waiting on a callback.</p>
     <div class="hero-actions">
       <button type="button" class="btn btn-primary" id="heroOpenCalculatorBtn">Get My Instant Quote</button>
     </div>
+    <p class="hero-price-anchor">Buffet from <strong>$19 per guest</strong>. Build Your Own and Pizza Workshop from <strong>$25</strong>. Salad and breadsticks included.</p>
   </div>
 </section>
 
@@ -196,6 +197,17 @@
       <span class="chip">Alameda County</span>
     </div>
   </div>
+  <div class="wrap service-cities">
+    <span class="label">Cities</span>
+    <a href="catering-turlock.html">Turlock</a>
+    <a href="catering-ceres.html">Ceres</a>
+    <a href="catering-oakdale.html">Oakdale</a>
+    <a href="catering-patterson.html">Patterson</a>
+    <a href="catering-manteca.html">Manteca</a>
+    <a href="catering-tracy.html">Tracy</a>
+    <a href="catering-stockton.html">Stockton</a>
+    <a href="catering-merced.html">Merced</a>
+  </div>
 </div>
 
 <section class="tight">
@@ -205,7 +217,7 @@
       <h2>Live-Fire Catering, No Kitchen Required</h2>
       <p class="muted">We bring real stone ovens straight to your event: hand-stretched dough, fresh ingredients, and a crew that handles setup to cleanup. Whether it's an intimate backyard gathering or a 250-guest wedding, we show up ready to cook, right in front of your guests.</p>
       <ul class="included-list">
-        <li>Brick oven, delivered and set up on-site</li>
+        <li>Stone ovens, delivered and set up on-site</li>
         <li>Fresh, hand-stretched dough made locally</li>
         <li>Crew sized to your event</li>
         <li>We arrive early to set up and preheat, so we're ready when your guests are</li>
@@ -231,7 +243,33 @@
       <div class="quick-fact"><strong>20-250+</strong><span>Guests Served</span></div>
       <div class="quick-fact"><strong>5</strong><span>Counties Served</span></div>
       <div class="quick-fact"><strong>3</strong><span>Serving Styles</span></div>
-      <div class="quick-fact"><strong>Self-Sufficient</strong><span>No Power or Water Needed</span></div>
+      <div class="quick-fact"><strong>From $19</strong><span>Per Guest, Buffet Style</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="tight" style="background:var(--white);">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">From Real Events</span>
+      <h2>Trusted For The Big Days</h2>
+    </div>
+    <div class="catering-reviews">
+      <div class="testimonial">
+        <span class="stars">★★★★★</span>
+        <p>"I wish I could give the crew at Fireball Pizza 10 stars. They saved my son's wedding rehearsal dinner from disaster. Fireball Pizza stepped in on short notice and delivered an incredible experience."</p>
+        <span class="who">- Kelli L., Google Review</span>
+      </div>
+      <div class="testimonial">
+        <span class="stars">★★★★★</span>
+        <p>"We hired Fireball Pizza to cater our rehearsal dinner. The owner even came out before our event to find the best location for setup. They came around to the tables and took our guests' orders like we were at a restaurant. Highly recommend!"</p>
+        <span class="who">- Annie Michelotti, Google Review</span>
+      </div>
+      <div class="testimonial">
+        <span class="stars">★★★★★</span>
+        <p>"Amazing customer service and great pizza! They catered my parents' anniversary party and everything was ready when he said it would be. Definitely recommending to everyone!"</p>
+        <span class="who">- Erica Bates, Google Review</span>
+      </div>
     </div>
   </div>
 </section>
@@ -246,7 +284,7 @@
       <div class="how-step">
         <span class="how-step-num">01</span>
         <h3>Get Your Instant Quote</h3>
-        <p class="muted">Enter your guest count and address below for a real price in seconds, no waiting on a callback.</p>
+        <p class="muted">Tap Get My Instant Quote, enter your event details and guest count, and see a real price in seconds. No waiting on a callback.</p>
       </div>
       <div class="how-step">
         <span class="how-step-num">02</span>
@@ -269,6 +307,7 @@
       <h2 style="color:var(--white);">Get Your Instant Quote, Book Now</h2>
       <p style="color:rgba(255,255,255,0.75); max-width:480px; margin:0 auto 24px;">See your exact price in seconds and lock in your date before it's booked. No waiting on a callback.</p>
       <button type="button" class="btn btn-primary" id="openCalculatorBtn">Get My Instant Quote</button>
+      <p style="color:rgba(255,255,255,0.6); font-size:0.9rem; margin:16px 0 0;">Buffet from $19 per guest. Book now and Caesar salad and breadsticks are on us.</p>
     </div>
   </div>
 </section>
@@ -367,42 +406,54 @@
 
 <div class="calc-modal-overlay" id="calcOverlay">
   <div class="calc-modal" role="dialog" aria-modal="true" aria-labelledby="calcModalTitle">
-    <button type="button" class="calc-modal-close" id="calcClose" aria-label="Close calculator">&times;</button>
 
     <div class="calc-modal-header">
       <div class="calc-header-badge" aria-hidden="true">
         <picture><source srcset="assets/images/logo.webp" type="image/webp"><img src="assets/images/logo.png" alt="" style="width:34px; height:auto;"></picture>
       </div>
-      <div>
+      <div class="calc-header-title">
         <span class="eyebrow" style="color:var(--gold);">Instant Quote</span>
-        <h3 id="calcModalTitle" style="font-family:var(--font-body); font-weight:600; text-transform:uppercase; font-size:1.05rem; letter-spacing:0.03em; color:var(--white); margin:0;">Catering Builder</h3>
+        <h3 id="calcModalTitle">Catering Builder</h3>
       </div>
       <div class="calc-header-offer">
         <span class="calc-header-offer-tag">Book Now Bonus</span>
-        <strong>Add Free Caesar Salad &amp; Breadsticks</strong>
+        <strong>Free Caesar Salad &amp; Breadsticks</strong>
+      </div>
+      <div class="calc-header-actions">
+        <button type="button" class="calc-header-reset" id="calcResetBtn" aria-label="Start over">&#8635; <span>Start Over</span></button>
+        <button type="button" class="calc-modal-close" id="calcClose" aria-label="Close calculator">&times;</button>
+      </div>
+      <div class="calc-reset-confirm" id="calcResetConfirm" hidden>
+        <span>Clear everything you've entered?</span>
+        <button type="button" id="calcResetYes">Yes, start over</button>
+        <button type="button" id="calcResetNo">Keep it</button>
       </div>
     </div>
+    <div class="calc-offer-ribbon" aria-hidden="true">Book Now Bonus: free Caesar salad &amp; breadsticks</div>
 
     <form class="calc-modal-body" id="calcForm" name="catering-booking-request" data-netlify="true" data-remove-prefix netlify-honeypot="bot-field">
       <input type="hidden" name="form-name" value="catering-booking-request">
       <input type="hidden" name="subject" id="sendSubject" value="New Catering Deposit Initiated">
+      <input type="hidden" name="Terms Agreed" id="sendTermsAgreed" value="Not yet">
       <p style="display:none;"><label>Don't fill this out: <input name="bot-field"></label></p>
 
+      <ol class="calc-steps" id="calcSteps" aria-label="Progress">
+        <li class="is-current" data-step="1"><span class="calc-step-num">1</span><span class="calc-step-label">Your Event</span></li>
+        <li data-step="2"><span class="calc-step-num">2</span><span class="calc-step-label">Your Menu</span></li>
+        <li data-step="3"><span class="calc-step-num">3</span><span class="calc-step-label">Your Quote</span></li>
+      </ol>
+
       <div class="calc-builder-grid">
-        <div class="calc-input-col">
+        <div class="calc-input-col" id="calcInputCol">
 
           <div id="calcPageA">
-            <div class="calc-progress" aria-label="Step 1 of 2">
-              <div class="calc-progress-segment is-filled"></div>
-              <div class="calc-progress-segment"></div>
-            </div>
-            <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required></div>
-            <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address"></div>
-            <div class="calc-field"><label for="sendPhone">Phone</label><input type="tel" id="sendPhone" name="phone" required pattern="^[\d\s\-\(\)\+\.]{10,}$" title="Enter a valid phone number (at least 10 digits)"></div>
+            <div class="calc-field"><label for="sendName">Name</label><input type="text" id="sendName" name="name" required autocomplete="name"></div>
+            <div class="calc-field"><label for="sendEmail">Email</label><input type="email" id="sendEmail" name="email" required autocomplete="email" inputmode="email" pattern="[^\s@]+@[^\s@]+\.[^\s@]+" title="Enter a valid email address"></div>
+            <div class="calc-field"><label for="sendPhone">Phone</label><input type="tel" id="sendPhone" name="phone" required autocomplete="tel" inputmode="tel" pattern="^[\d\s\-\(\)\+\.]{10,}$" title="Enter a valid phone number (at least 10 digits)"></div>
 
             <div class="calc-field">
               <label for="calcAddress">Event Address</label>
-              <input type="text" id="calcAddress" placeholder="Full address for the most accurate result" autocomplete="off">
+              <input type="text" id="calcAddress" placeholder="Street address, city" autocomplete="off">
               <div id="calcAddressSuggestions" class="calc-suggestions"></div>
             </div>
             <div class="calc-field-row">
@@ -436,32 +487,34 @@
           </div>
 
           <div id="calcPageB" class="calc-prices-hidden" style="display:none;">
-            <button type="button" id="calcBackBtn" class="calc-back-link">← Back</button>
-            <div class="calc-progress" aria-label="Step 2 of 2">
-              <div class="calc-progress-segment is-filled"></div>
-              <div class="calc-progress-segment is-filled"></div>
-            </div>
+            <button type="button" id="calcBackBtn" class="calc-back-link">&larr; Back to event details</button>
 
             <div class="calc-tile-group">
               <label>Choose Your Style</label>
               <div class="calc-tiles">
                 <button type="button" class="calc-tile is-selected" id="tileBuffet" data-style="buffet">
+                  <span class="calc-tile-tag" id="tileBuffetTag" hidden>25+ guests</span>
                   <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.4"/></svg>
                   <span class="calc-tile-text"><strong>Buffet</strong><span class="calc-price-hint">$19/person</span></span>
+                  <span class="calc-tile-desc">We cook and serve. Your choice of up to 5 pizzas.</span>
                 </button>
                 <button type="button" class="calc-tile" id="tileBYO" data-style="byo">
+                  <span class="calc-tile-tag" id="tileBYOTag" hidden>Up to 40 guests</span>
                   <svg viewBox="0 0 24 24" fill="none"><path d="M12 4 20 18H4L12 4Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="9.5" cy="14" r="1" fill="currentColor"/><circle cx="14" cy="15.2" r="1" fill="currentColor"/><path d="M18 5h3.2M19.6 3.4v3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                   <span class="calc-tile-text"><strong>Build Your Own</strong><span class="calc-price-hint">$25/person</span></span>
+                  <span class="calc-tile-desc">Each guest tops their own pie, we fire it fresh.</span>
                 </button>
                 <button type="button" class="calc-tile" id="tileWorkshop" data-style="workshop">
+                  <span class="calc-tile-tag" id="tileWorkshopTag" hidden>Up to 40 kids</span>
                   <svg viewBox="0 0 24 24" fill="none"><path d="M6 20h12L15 9a3 3 0 0 0-6 0L6 20Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="5" r="1.4" fill="currentColor"/><path d="M6 20h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                  <span class="calc-tile-text"><strong>Pizza Workshop</strong><span class="calc-price-hint">$25/person</span></span>
+                  <span class="calc-tile-text"><strong>Pizza Workshop</strong><span class="calc-price-hint">$25/kid</span></span>
+                  <span class="calc-tile-desc">Hands-on for kids' parties. Our crew guides every kid.</span>
                 </button>
               </div>
               <p class="calc-tile-description" id="workshopDescription" style="display:none;">Pizza Workshop is our hands-on option for kids' birthday parties: our staff guides each kid through topping their own pizza before we cook it fresh on-site.</p>
-              <p class="calc-hint" id="byoUnavailableNote" style="display:none;">Build Your Own is available for groups up to 40 guests.</p>
-              <p class="calc-hint" id="buffetUnavailableNote" style="display:none;">Buffet is available for groups of 25 or more.</p>
-              <p class="calc-hint" id="workshopUnavailableNote" style="display:none;">Pizza Workshop is available for groups up to 40 kids.</p>
+              <p class="calc-hint" id="byoUnavailableNote" hidden></p>
+              <p class="calc-hint" id="buffetUnavailableNote" hidden></p>
+              <p class="calc-hint" id="workshopUnavailableNote" hidden></p>
             </div>
 
             <div class="calc-tile-group" id="adultBuffetGroup" style="display:none;">
@@ -471,7 +524,7 @@
               </label>
               <div class="calc-gf-field" id="adultBuffetField" style="display:none;">
                 <input type="number" id="adultBuffetCount" min="1" max="100" placeholder="0" class="calc-gf-input"> <span class="calc-gf-input-label">adults, +$19/person</span>
-                <p class="calc-gf-disclaimer">Adult buffet includes the same fresh, brick-oven pizza, salad, and breadsticks, served alongside the kids' Pizza Workshop.</p>
+                <p class="calc-gf-disclaimer">Adult buffet includes the same fresh, stone-fired pizza, salad, and breadsticks, served alongside the kids' Pizza Workshop.</p>
               </div>
             </div>
 
@@ -480,11 +533,11 @@
               <div class="calc-extras-grid">
                 <button type="button" class="calc-extra-tile" id="caesarToggle">
                   <svg viewBox="0 0 24 24" fill="none"><path d="M4 11h16a8 8 0 0 1-16 0Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11c0-2 .8-4 2-5M12 11c0-2.3 1-4.6 2.5-6M16 11c0-1.8.6-3.5 1.6-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                  <span class="calc-extra-tile-text"><strong>Caesar Salad</strong><span class="calc-price-hint">$2/person</span></span>
+                  <span class="calc-extra-tile-text"><strong>Caesar Salad</strong><span class="calc-price-hint calc-price-free"><s>$2</s> Free</span></span>
                 </button>
                 <button type="button" class="calc-extra-tile" id="breadsticksToggle">
                   <svg viewBox="0 0 24 24" fill="none"><path d="M6 19 18 7M9 22 22 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                  <span class="calc-extra-tile-text"><strong>Breadsticks</strong><span class="calc-price-hint">$2/person</span></span>
+                  <span class="calc-extra-tile-text"><strong>Breadsticks</strong><span class="calc-price-hint calc-price-free"><s>$2</s> Free</span></span>
                 </button>
                 <button type="button" class="calc-extra-tile" id="ravioliToggle">
                   <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="5" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.6"/><path d="M5 5 19 19M19 5 5 19" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1.5 2.2"/></svg>
@@ -494,57 +547,75 @@
                   <svg viewBox="0 0 24 24" fill="none"><path d="M4 12h16l-1.5 7a2 2 0 0 1-2 1.6H7.5a2 2 0 0 1-2-1.6L4 12Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 12V8M12 8c-1.4 0-2.5-1-2.5-2.5S10.6 3 12 3s2.5 1 2.5 2.5S13.4 8 12 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
                   <span class="calc-extra-tile-text"><strong id="dessertToggleLabel">Dessert</strong><span class="calc-price-hint">$4/person</span></span>
                 </button>
+                <button type="button" class="calc-extra-tile" id="glutenFreeToggle">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M12 7c-2.5 0-4-1.5-4-4 2.5 0 4 1.5 4 4Zm0 0c2.5 0 4-1.5 4-4-2.5 0-4 1.5-4 4Zm0 5c-2.5 0-4-1.5-4-4 2.5 0 4 1.5 4 4Zm0 0c2.5 0 4-1.5 4-4-2.5 0-4 1.5-4 4Zm0 5c-2.5 0-4-1.5-4-4 2.5 0 4 1.5 4 4Zm0 0c2.5 0 4-1.5 4-4-2.5 0-4 1.5-4 4Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                  <span class="calc-extra-tile-text"><strong>Gluten-Free Crust</strong><span class="calc-price-hint">$3/person</span></span>
+                </button>
               </div>
               <div class="calc-dessert-options" id="dessertOptions" style="display:none;">
                 <button type="button" class="calc-segment is-active" id="cheesecakeOption">Cheesecake</button>
                 <button type="button" class="calc-segment" id="mousseOption">Chocolate Mousse Cake</button>
               </div>
+              <input type="checkbox" id="glutenFreeCheckbox" hidden>
+              <div class="calc-gf-field" id="glutenFreeField" style="display:none;">
+                <input type="number" id="glutenFreeCount" min="0" placeholder="0" class="calc-gf-input" inputmode="numeric"> <span class="calc-gf-input-label">guests need gluten-free, +$3 each</span>
+                <p class="calc-gf-disclaimer">We can accommodate gluten sensitivity, but can't guarantee against gluten allergy as we bake with flour on-site.</p>
+              </div>
             </div>
 
             <div class="calc-tile-group">
               <div class="calc-guest-count-head">
-                <label style="margin-bottom:0;" id="calcGuestCountLabel">Enter Guest Count</label>
-                <input type="number" id="calcGuestsNumber" min="20" max="250" value="20" class="calc-slider-number">
+                <label style="margin-bottom:0;" id="calcGuestCountLabel">Guest Count</label>
+                <input type="number" id="calcGuestsNumber" min="20" max="250" value="20" class="calc-slider-number" inputmode="numeric">
               </div>
               <div class="calc-slider-field" style="margin-bottom:0;">
-                <input type="range" id="calcGuestsSlider" min="20" max="250" step="1" value="20" class="calc-slider">
+                <input type="range" id="calcGuestsSlider" min="20" max="250" step="1" value="20" class="calc-slider" aria-label="Guest count">
                 <div class="calc-slider-range"><span>20</span><span>250+</span></div>
-              </div>
-
-              <label class="calc-gf-checkbox">
-                <input type="checkbox" id="glutenFreeCheckbox">
-                <span>Any guests with gluten sensitivity?</span>
-              </label>
-              <div class="calc-gf-field" id="glutenFreeField" style="display:none;">
-                <input type="number" id="glutenFreeCount" min="0" placeholder="0" class="calc-gf-input"> <span class="calc-gf-input-label">guests, +$3/person</span>
-                <p class="calc-gf-disclaimer">We can accommodate gluten sensitivity, but can't guarantee against gluten allergy as we bake with flour on-site.</p>
               </div>
             </div>
 
             <button type="button" class="btn btn-primary" id="calcCalculateBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate My Quote</button>
 
-            <p class="calc-hint">This is an estimated quote, if anything needs adjusting, we'll reach out once you confirm.</p>
+            <p class="calc-hint">This is an estimated quote. If anything needs adjusting, we'll reach out once you confirm.</p>
           </div>
-
-          <button type="button" id="calcResetBtn" class="calc-reset-link calc-reset-link-bottom">↺ Start Over</button>
         </div>
 
         <div class="calc-results" id="calcResults">
+        <button type="button" id="calcEditMenuBtn" class="calc-back-link calc-mobile-only">&larr; Edit your menu</button>
 
-        <p class="calc-results-waiting" id="calcResultsWaiting">Fill out the form to see your price here.</p>
+        <div id="calcEventCard" class="calc-event-card">
+          <span class="eyebrow">Your Event</span>
+          <ul class="calc-event-lines">
+            <li id="evWho" class="is-empty"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Your name</span></li>
+            <li id="evWhen" class="is-empty"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>Date and start time</span></li>
+            <li id="evWhere" class="is-empty"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/></svg><span>Event address</span></li>
+            <li id="evTravel" class="is-empty" hidden><svg viewBox="0 0 24 24" fill="none"><path d="M3 17h2l1.5-5h11L19 17h2M5 17a2 2 0 1 0 4 0M15 17a2 2 0 1 0 4 0M7.5 12l1.2-4h6.6l1.2 4" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span></span></li>
+            <li id="evMenu" class="is-empty"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.2" fill="currentColor"/><circle cx="14.5" cy="9" r="1.2" fill="currentColor"/><circle cx="13" cy="14.5" r="1.2" fill="currentColor"/></svg><span>Your menu</span></li>
+          </ul>
+          <p class="calc-results-waiting" id="calcResultsWaiting">Your quote appears here as soon as you press Calculate.</p>
+        </div>
 
         <div id="calcPricingBlock" style="display:none;">
-        <div class="calc-row"><span>Base food price</span><strong id="calcBase">-</strong></div>
-        <div class="calc-row" id="calcMilesRow"><span>Distance (round trip)</span><strong id="calcMiles">-</strong></div>
+        <div class="calc-quote-head">
+          <span class="eyebrow">Your Quote</span>
+          <h4 id="quoteTitle">Your event</h4>
+          <p class="calc-quote-meta" id="quoteMeta"></p>
+        </div>
+
+        <div id="calcLineItems"></div>
+        <div class="calc-row" style="display:none;"><span>Base food price</span><strong id="calcBase">-</strong></div>
+        <div class="calc-row calc-row-bonus" id="calcBonusRow" style="display:none;"><span id="calcBonusLabel">Book Now Bonus</span><strong id="calcBonusAmount">-</strong></div>
+        <div class="calc-row" id="calcMilesRow" style="display:none;"><span>Distance (round trip)</span><strong id="calcMiles">-</strong></div>
         <div class="calc-row" style="display:none;"><span>Mileage fee</span><strong id="calcMileageFee">-</strong></div>
-        <div class="calc-row" id="calcDriveTimeRow"><span>Drive time (round trip)</span><strong id="calcDriveTime">-</strong></div>
+        <div class="calc-row" id="calcDriveTimeRow" style="display:none;"><span>Drive time (round trip)</span><strong id="calcDriveTime">-</strong></div>
         <div class="calc-row" style="display:none;"><span>Crew size</span><strong id="calcCrew">-</strong></div>
         <div class="calc-row" style="display:none;"><span>Drive-time labor fee</span><strong id="calcDriveLabor">-</strong></div>
-        <div class="calc-row" id="calcTravelFeeRow"><span>Travel fee</span><strong id="calcLaborTravelTotal">-</strong></div>
-        <div class="calc-row"><span>Sales Tax</span><strong id="calcSalesTax">-</strong></div>
-        <div class="calc-row calc-total"><span>Total Quote</span><strong id="calcGrandTotal">-</strong></div>
+        <div class="calc-row" id="calcTravelFeeRow"><span id="calcTravelLabel">Travel</span><strong id="calcLaborTravelTotal">-</strong></div>
+        <div class="calc-row"><span>Sales tax (8.875%)</span><strong id="calcSalesTax">-</strong></div>
+        <div class="calc-row calc-total"><span>Estimated Total</span><strong id="calcGrandTotal">-</strong></div>
         <p class="calc-afterpay-note">or 4 interest-free payments of <strong id="calcAfterpayAmount">-</strong> with <span class="calc-afterpay-badge">Afterpay</span></p>
-        <div class="calc-row calc-deposit"><span>Deposit Due (50%)</span><strong id="calcDeposit">-</strong></div>
+        <div class="calc-row calc-deposit"><span>50% Deposit Due</span><strong id="calcDeposit">-</strong></div>
+        <p class="calc-emailed-note" id="calcEmailedNote" hidden></p>
 
         <input type="hidden" name="Guest Count" id="sendGuestCount">
         <input type="hidden" name="Service Time" id="sendServiceTime">
@@ -556,10 +627,10 @@
         <input type="hidden" name="Free Appetizers" id="sendAppetizers">
 
         <label class="calc-terms-checkbox">
-          <input type="checkbox" id="calcTermsAgree" checked>
+          <input type="checkbox" id="calcTermsAgree">
           <span>I agree to the <a href="terms.html" target="_blank" style="color:var(--ember); text-decoration:underline;">cancellation &amp; refund policy</a></span>
         </label>
-        <button type="button" class="btn btn-primary" id="calcSubmitBtn" style="width:100%; justify-content:center; margin-top:20px;">Pay Deposit</button>
+        <button type="button" class="btn btn-primary" id="calcSubmitBtn" style="width:100%; justify-content:center; margin-top:16px;" disabled>Pay Deposit</button>
         <button type="button" class="btn btn-outline" id="calcPizzaProBtn" style="width:100%; justify-content:center; margin-top:10px;">Talk to a Pizza Pro</button>
         <p class="calc-hint" id="calcSendStatus"></p>
         </div>
@@ -570,16 +641,28 @@
 </div>
 
 <div class="calc-popup-overlay" id="calcPaymentPopupOverlay">
-  <div class="calc-popup" role="dialog" aria-modal="true">
+  <div class="calc-popup" role="dialog" aria-modal="true" aria-labelledby="calcPaymentTitle">
     <button type="button" class="calc-modal-close" id="calcPaymentPopupClose" aria-label="Close">&times;</button>
-    <span class="eyebrow">Deposit Due (50%): <strong id="calcPaymentPopupAmount">-</strong></span>
-    <h3 style="margin:0 0 16px;">Choose How to Pay</h3>
-    <button type="button" class="btn btn-primary" id="calcSquarePayBtn" style="width:100%; justify-content:center; margin-bottom:10px;">Pay Now (Card)</button>
-    <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="calcAfterpayLink" style="width:100%; justify-content:center; margin-bottom:10px;">Pay with Afterpay</a>
-    <button type="button" class="btn btn-outline" id="calcNoDepositBtn" style="width:100%; justify-content:center;">Pay by Cash/Check</button>
+    <span class="eyebrow">50% Deposit Due: <strong id="calcPaymentPopupAmount">-</strong></span>
+    <h3 id="calcPaymentTitle" style="margin:0 0 18px;">Choose How to Pay</h3>
+
+    <div class="calc-pay-option">
+      <button type="button" class="btn btn-primary" id="calcSquarePayBtn"><span class="calc-btn-spinner" aria-hidden="true"></span><span class="calc-btn-label">Pay Now (Card)</span></button>
+      <p>Secure checkout by Square. Opens in a new tab, takes about a minute.</p>
+    </div>
+    <div class="calc-pay-option">
+      <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="calcAfterpayLink">Pay with Afterpay</a>
+      <p id="calcAfterpayDesc">Split the deposit into 4 interest-free payments.</p>
+    </div>
+    <div class="calc-pay-option">
+      <button type="button" class="btn btn-outline" id="calcNoDepositBtn">Pay by Cash/Check</button>
+      <p>We'll reach out within 1 to 2 business days to arrange payment. Your date is confirmed once the deposit arrives.</p>
+    </div>
+
     <p class="calc-hint" id="calcPaymentPopupStatus"></p>
     <a href="https://square.link/u/IAAisYRv" target="_blank" rel="noopener" class="btn btn-outline" id="payDepositBtn" style="display:none; width:100%; justify-content:center; margin-top:12px;">Open Payment Page: <span id="payDepositAmount"></span></a>
     <p class="calc-hint" id="calcNoDepositStatus"></p>
+    <p class="calc-trust-line"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> Card details are entered on Square's secure page, never on this site.</p>
   </div>
 </div>
 
@@ -588,8 +671,11 @@
     <button type="button" class="calc-modal-close" id="calcPizzaProPopupClose" aria-label="Close">&times;</button>
     <span class="eyebrow">Talk to a Pizza Pro</span>
     <h3 style="margin:0 0 10px;">Let's Talk It Over</h3>
-    <p class="muted" style="margin:0 0 16px;">Questions about your quote? Want to see what's possible? Give us a call, or leave a message and we'll call you.</p>
-    <a href="sms:+12092228926" class="btn btn-primary" style="width:100%; justify-content:center; margin-bottom:16px;">Call or Text (209) 222-8926</a>
+    <p class="muted" style="margin:0 0 16px;">Questions about your quote? Want to see what's possible? Call or text us, or leave a message and we'll call you.</p>
+    <div class="calc-choice-row" style="margin:0 0 16px;">
+      <a href="tel:+12092228926" class="btn btn-primary" style="flex:1; justify-content:center;">Call (209) 222-8926</a>
+      <a href="sms:+12092228926" class="btn btn-outline" style="flex:1; justify-content:center;">Text Us</a>
+    </div>
     <textarea id="calcPizzaProMessage" rows="3" placeholder="Optional: what would you like to discuss?" style="width:100%; padding:13px 14px; border:1.5px solid var(--line); border-radius:14px; font-family:var(--font-body); font-size:0.95rem; color:var(--ink); resize:vertical; box-sizing:border-box;"></textarea>
     <button type="button" class="btn btn-outline" id="calcPizzaProSendBtn" style="width:100%; justify-content:center; margin-top:12px;">Request a Callback Instead</button>
     <p class="calc-hint" id="calcPizzaProStatus"></p>
@@ -642,14 +728,14 @@ function submitFormToNetlify(subjectOverride){
 function sendCustomerConfirmation(type){
   const name = document.getElementById('sendName').value.trim();
   const email = document.getElementById('sendEmail').value.trim();
-  if(!name || !email) return;
+  if(!name || !email) return Promise.resolve(false);
 
   const eventTimeSelect = document.getElementById('eventTime');
   const eventTimeLabel = eventTimeSelect.selectedOptions && eventTimeSelect.selectedOptions[0]
     ? eventTimeSelect.selectedOptions[0].text
     : eventTimeSelect.value;
 
-  fetch('/.netlify/functions/send-confirmation-email', {
+  return fetch('/.netlify/functions/send-confirmation-email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -663,8 +749,11 @@ function sendCustomerConfirmation(type){
       totalQuote: document.getElementById('calcGrandTotal').textContent,
       depositAmount: document.getElementById('calcDeposit').textContent
     })
+  }).then(function(res){
+    return !!(res && res.ok);
   }).catch(function(err){
     console.error('Fireball estimator: customer confirmation email failed', err);
+    return false;
   });
 }
 
@@ -765,8 +854,16 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
 
   const submitBtn = this;
   submitBtn.disabled = true;
+  submitBtn.classList.add('is-loading');
   status.style.color = 'var(--stone)';
-  status.textContent = 'Sending...';
+  status.textContent = 'Setting up your secure payment page...';
+
+  // If the network is crawling, say so rather than leaving a spinner running in silence.
+  const slowTimer = setTimeout(function(){
+    if(submitBtn.classList.contains('is-loading')){
+      status.textContent = 'Still working. Slow connection? Hang tight, or call us at (209) 222-8926 and we will take the deposit by phone.';
+    }
+  }, 10000);
 
   const name = document.getElementById('sendName').value.trim();
   const depositAmountRaw = document.getElementById('sendDepositRaw').value;
@@ -774,6 +871,8 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
   const FALLBACK_SQUARE_LINK = 'https://square.link/u/IAAisYRv';
 
   function openPaymentPage(url){
+    clearTimeout(slowTimer);
+    submitBtn.classList.remove('is-loading');
     document.getElementById('payDepositBtn').href = url;
     document.getElementById('payDepositAmount').textContent = depositAmountDisplay;
     document.getElementById('payDepositBtn').style.display = 'flex';
@@ -935,6 +1034,133 @@ function formatCurrency(n){
   return n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 }
 
+let lastGrandTotal = 0;
+const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// "Saturday, Nov 15 at 5:00 PM" from the date and time fields, or '' if either is missing.
+function formatEventWhen(){
+  const dateVal = document.getElementById('eventDate').value;
+  const timeSel = document.getElementById('eventTime');
+  if(!dateVal) return '';
+  const parts = dateVal.split('-');
+  const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  if(isNaN(d.getTime())) return '';
+  let label = d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  if(timeSel.value && timeSel.selectedOptions && timeSel.selectedOptions[0]){
+    label += ' at ' + timeSel.selectedOptions[0].text;
+  }
+  return label;
+}
+
+// "Modesto" from "1000 Needham St, Modesto, California, USA".
+function shortCity(address){
+  if(!address) return '';
+  const parts = address.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  if(parts.length === 0) return '';
+  // "1000 Needham St, Modesto, California, USA" -> Modesto. "Modesto, CA, USA" -> Modesto.
+  return /^\d/.test(parts[0]) && parts.length > 1 ? parts[1] : parts[0];
+}
+
+// The right-hand card fills in as the customer types, so the panel is never a dead
+// box waiting for Calculate. Each line flips from placeholder grey to filled ink.
+function updateEventCard(){
+  const who = document.getElementById('evWho');
+  const when = document.getElementById('evWhen');
+  const where = document.getElementById('evWhere');
+  const travel = document.getElementById('evTravel');
+  const menu = document.getElementById('evMenu');
+
+  const name = document.getElementById('sendName').value.trim();
+  setCardLine(who, name ? (name + "'s event") : '', 'Your name');
+
+  setCardLine(when, formatEventWhen(), 'Date and start time');
+
+  const address = document.getElementById('calcAddress').value.trim();
+  setCardLine(where, (hasDistance && address) ? address : '', address ? 'Pick your address from the suggestions' : 'Event address');
+
+  if(hasDistance && lastCalc && lastCalc.roundTripMiles > 0){
+    travel.hidden = false;
+    const oneWay = Math.round(lastCalc.roundTripMiles / 2);
+    const free = lastCalc.roundTripMiles <= FREE_RADIUS_ROUND_TRIP_MILES;
+    setCardLine(travel, oneWay + ' miles from our kitchen' + (free ? ', travel included' : ''), '');
+  } else {
+    travel.hidden = true;
+  }
+
+  const onMenuStep = document.getElementById('calcPageB').style.display !== 'none' || hasCalculated;
+  if(onMenuStep && currentGuestCount > 0){
+    const styleLabel = selectedStyle === 'byo' ? 'Build Your Own' : (selectedStyle === 'workshop' ? 'Pizza Workshop' : 'Buffet');
+    const bits = [styleLabel + ' for ' + currentGuestCount + (selectedStyle === 'workshop' ? ' kids' : ' guests')];
+    const adults = getAdultBuffetCount();
+    if(adults > 0) bits.push(adults + ' adults on the buffet');
+    if(caesarAdded) bits.push('Caesar salad');
+    if(breadsticksAdded) bits.push('breadsticks');
+    if(ravioliAdded) bits.push('cheese ravioli');
+    if(dessertAdded) bits.push((cheesecakeSelected && mousseSelected) ? 'cheesecake and mousse cake' : cheesecakeSelected ? 'cheesecake' : mousseSelected ? 'mousse cake' : 'dessert');
+    const gf = getGlutenFreeCount();
+    if(gf > 0) bits.push(gf + ' gluten-free');
+    setCardLine(menu, bits.join(', '), 'Your menu');
+  } else {
+    setCardLine(menu, '', 'Your menu, next step');
+  }
+}
+function setCardLine(li, value, placeholder){
+  const span = li.querySelector('span');
+  if(value){
+    span.textContent = value;
+    li.classList.remove('is-empty');
+  } else {
+    span.textContent = placeholder;
+    li.classList.add('is-empty');
+  }
+}
+
+// Steps: 1 Your Event, 2 Your Menu, 3 Your Quote. On desktop the quote panel sits
+// beside the inputs the whole time; on phones step 3 is its own screen.
+let currentStep = 1;
+function refreshSteps(){
+  document.querySelectorAll('#calcSteps li').forEach(function(li){
+    const s = parseInt(li.getAttribute('data-step'), 10);
+    li.classList.toggle('is-current', s === currentStep);
+    li.classList.toggle('is-done', s < currentStep || (s === 3 && hasCalculated));
+    li.classList.toggle('is-reachable', s === 1 || (s === 2 && hasDistance) || (s === 3 && hasCalculated));
+  });
+}
+function setStep(n){
+  currentStep = n;
+  const modal = document.querySelector('.calc-modal');
+  modal.classList.toggle('step-1', n === 1);
+  modal.classList.toggle('step-2', n === 2);
+  modal.classList.toggle('step-3', n === 3);
+  document.getElementById('calcPageA').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('calcPageB').style.display = n === 1 ? 'none' : 'block';
+  refreshSteps();
+  modal.scrollTop = 0;
+  updateEventCard();
+}
+document.querySelectorAll('#calcSteps li').forEach(function(li){
+  li.addEventListener('click', function(){
+    const s = parseInt(li.getAttribute('data-step'), 10);
+    if(s === 1) setStep(1);
+    if(s === 2 && hasDistance) setStep(2);
+    if(s === 3 && hasCalculated) setStep(3);
+  });
+});
+
+// Counts the total up from zero on first reveal. Half a second, then exact.
+function animateTotal(el, target){
+  if(prefersReducedMotion || !target){ el.textContent = formatCurrency(target); return; }
+  const start = performance.now();
+  const duration = 650;
+  function tick(now){
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = formatCurrency(target * eased);
+    if(t < 1) requestAnimationFrame(tick); else el.textContent = formatCurrency(target);
+  }
+  requestAnimationFrame(tick);
+}
+
 const overlay = document.getElementById('calcOverlay');
 const openBtn = document.getElementById('openCalculatorBtn');
 const closeBtn = document.getElementById('calcClose');
@@ -999,10 +1225,17 @@ function getGlutenFreeCount(){
   return Math.min(val, combinedTotal); // can't exceed the combined total guest count, it's a subset
 }
 
+const glutenFreeToggle = document.getElementById('glutenFreeToggle');
 glutenFreeCheckbox.addEventListener('change', function(){
   glutenFreeField.style.display = this.checked ? 'block' : 'none';
+  glutenFreeToggle.classList.toggle('is-active', this.checked);
   if(!this.checked) glutenFreeCountInput.value = '';
   renderTotals();
+});
+glutenFreeToggle.addEventListener('click', function(){
+  glutenFreeCheckbox.checked = !glutenFreeCheckbox.checked;
+  glutenFreeCheckbox.dispatchEvent(new Event('change'));
+  if(glutenFreeCheckbox.checked) setTimeout(function(){ glutenFreeCountInput.focus(); }, 50);
 });
 glutenFreeCountInput.addEventListener('input', function(){
   renderTotals();
@@ -1089,12 +1322,17 @@ function updateStyleTileVisibility(){
   const buffetAllowed = currentGuestCount >= BUFFET_MIN_GUESTS;
   const workshopAllowed = currentGuestCount <= WORKSHOP_MAX_GUESTS;
 
-  tileBYO.hidden = !byoAllowed;
-  tileBuffet.hidden = !buffetAllowed;
-  tileWorkshop.hidden = !workshopAllowed;
-  byoUnavailableNote.style.display = byoAllowed ? 'none' : 'block';
-  buffetUnavailableNote.style.display = buffetAllowed ? 'none' : 'block';
-  workshopUnavailableNote.style.display = workshopAllowed ? 'none' : 'block';
+  // Tiles stay in place so the layout never jumps and the customer can still read
+  // what each style is. Unavailable ones dim and show the guest limit as a tag.
+  tileBYO.classList.toggle('is-unavailable', !byoAllowed);
+  tileBuffet.classList.toggle('is-unavailable', !buffetAllowed);
+  tileWorkshop.classList.toggle('is-unavailable', !workshopAllowed);
+  tileBYO.setAttribute('aria-disabled', String(!byoAllowed));
+  tileBuffet.setAttribute('aria-disabled', String(!buffetAllowed));
+  tileWorkshop.setAttribute('aria-disabled', String(!workshopAllowed));
+  document.getElementById('tileBYOTag').hidden = byoAllowed;
+  document.getElementById('tileBuffetTag').hidden = buffetAllowed;
+  document.getElementById('tileWorkshopTag').hidden = workshopAllowed;
 
   if(!byoAllowed && selectedStyle === 'byo'){
     selectedStyle = 'buffet';
@@ -1118,22 +1356,29 @@ function updateStyleTileVisibility(){
     adultBuffetField.style.display = 'none';
   }
 
-  document.getElementById('calcGuestCountLabel').textContent = selectedStyle === 'workshop' ? 'Enter Number of Kids' : 'Enter Guest Count';
+  document.getElementById('calcGuestCountLabel').textContent = selectedStyle === 'workshop' ? 'Number of Kids' : 'Guest Count';
 }
 
+function nudgeUnavailableTile(tile){
+  // A quick shake tells the customer the tap registered but the option is locked.
+  tile.classList.remove('is-nudge');
+  void tile.offsetWidth;
+  tile.classList.add('is-nudge');
+}
 tileBuffet.addEventListener('click', function(){
+  if(tileBuffet.classList.contains('is-unavailable')){ nudgeUnavailableTile(tileBuffet); return; }
   selectedStyle = 'buffet';
   updateStyleTileVisibility();
   renderTotals();
 });
 tileBYO.addEventListener('click', function(){
-  if(tileBYO.hidden) return;
+  if(tileBYO.classList.contains('is-unavailable')){ nudgeUnavailableTile(tileBYO); return; }
   selectedStyle = 'byo';
   updateStyleTileVisibility();
   renderTotals();
 });
 tileWorkshop.addEventListener('click', function(){
-  if(tileWorkshop.hidden) return;
+  if(tileWorkshop.classList.contains('is-unavailable')){ nudgeUnavailableTile(tileWorkshop); return; }
   selectedStyle = 'workshop';
   updateStyleTileVisibility();
   renderTotals();
@@ -1218,27 +1463,64 @@ function renderTotals(){
   const milesRow = document.getElementById('calcMilesRow');
   const driveTimeRow = document.getElementById('calcDriveTimeRow');
   const travelFeeRow = document.getElementById('calcTravelFeeRow');
+  const travelLabel = document.getElementById('calcTravelLabel');
+
+  // Itemized lines, written the way a customer reads a proposal: quantity x unit price.
+  const guestWord = selectedStyle === 'workshop' ? 'kids' : 'guests';
+  const lines = [];
+  lines.push({ label: guestCount + ' ' + guestWord + ' × ' + styleLabel + ' $' + pricePerGuest, amount: guestCount * pricePerGuest });
+  if(adultBuffetCount > 0) lines.push({ label: adultBuffetCount + ' adults × Buffet $' + ADULT_BUFFET_PRICE_PER_GUEST, amount: adultBuffetFee });
+  if(dessertAdded){
+    const dessertName = (cheesecakeSelected && mousseSelected) ? 'Dessert (both)' : cheesecakeSelected ? 'Cheesecake' : mousseSelected ? 'Chocolate Mousse Cake' : 'Dessert';
+    lines.push({ label: guestCount + ' × ' + dessertName + ' $' + DESSERT_PRICE_PER_GUEST, amount: dessertFee });
+  }
+  if(ravioliAdded) lines.push({ label: guestCount + ' × Cheese Ravioli $' + RAVIOLI_PRICE_PER_GUEST, amount: ravioliFee });
+  if(glutenFreeCount > 0) lines.push({ label: glutenFreeCount + ' × Gluten-Free Crust $' + GLUTEN_FREE_PRICE_PER_GUEST, amount: glutenFreeFee });
+  document.getElementById('calcLineItems').innerHTML = lines.map(function(l){
+    return '<div class="calc-row"><span>' + l.label + '</span><strong>' + formatCurrency(l.amount) + '</strong></div>';
+  }).join('');
+
+  // Book Now Bonus: Caesar salad and breadsticks are free, so show the value they're
+  // getting instead of leaving the customer to wonder why the $2 tiles didn't add up.
+  const bonusItems = [];
+  if(caesarAdded) bonusItems.push('Caesar salad');
+  if(breadsticksAdded) bonusItems.push('breadsticks');
+  const bonusValue = bonusItems.length * 2 * combinedGuestCount;
+  const bonusRow = document.getElementById('calcBonusRow');
+  if(bonusItems.length > 0){
+    bonusRow.style.display = 'flex';
+    document.getElementById('calcBonusLabel').textContent = 'Book Now Bonus: ' + bonusItems.join(' + ');
+    document.getElementById('calcBonusAmount').textContent = 'Free, $' + Math.round(bonusValue) + ' value';
+  } else {
+    bonusRow.style.display = 'none';
+  }
 
   if(hasDistance){
     const withinFreeRadius = roundTripMiles <= FREE_RADIUS_ROUND_TRIP_MILES;
     milesRow.style.display = withinFreeRadius ? 'none' : 'flex';
     driveTimeRow.style.display = withinFreeRadius ? 'none' : 'flex';
-    travelFeeRow.style.display = laborTravelTotal === 0 ? 'none' : 'flex';
+    // Travel always shows. Silence reads as "not added yet"; "Included" reads as a win.
+    travelFeeRow.style.display = 'flex';
+    if(laborTravelTotal === 0){
+      travelLabel.textContent = 'Travel (' + Math.round(roundTripMiles / 2) + ' mi, within our free radius)';
+      document.getElementById('calcLaborTravelTotal').textContent = 'Included';
+    } else {
+      travelLabel.textContent = 'Travel (' + Math.round(roundTripMiles / 2) + ' mi each way)';
+      document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
+    }
 
     document.getElementById('calcMiles').textContent = roundTripMiles.toFixed(1) + ' mi';
     document.getElementById('calcMileageFee').textContent = formatCurrency(mileageFee);
     document.getElementById('calcDriveTime').textContent = roundTripDriveHours.toFixed(1) + ' hr';
     document.getElementById('calcCrew').textContent = crew + ' people';
     document.getElementById('calcDriveLabor').textContent = formatCurrency(driveLaborFee);
-    document.getElementById('calcLaborTravelTotal').textContent = formatCurrency(laborTravelTotal);
     document.getElementById('calcSalesTax').textContent = formatCurrency(salesTax);
     document.getElementById('calcGrandTotal').textContent = formatCurrency(grandTotal);
     document.getElementById('calcAfterpayAmount').textContent = formatCurrency(grandTotal / 4);
     document.getElementById('calcDeposit').textContent = formatCurrency(depositDue);
-    if(!document.getElementById('calcSubmitBtn').disabled){
-      document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit';
-    }
+    document.getElementById('calcAfterpayDesc').textContent = 'Split the ' + formatCurrency(depositDue) + ' deposit into 4 interest-free payments of ' + formatCurrency(depositDue / 4) + '.';
     document.getElementById('sendDepositRaw').value = depositDue.toFixed(2);
+    lastGrandTotal = grandTotal;
   } else {
     milesRow.style.display = 'none';
     driveTimeRow.style.display = 'none';
@@ -1254,10 +1536,19 @@ function renderTotals(){
     document.getElementById('calcGrandTotal').textContent = '-';
     document.getElementById('calcAfterpayAmount').textContent = '-';
     document.getElementById('calcDeposit').textContent = '-';
-    if(!document.getElementById('calcSubmitBtn').disabled){
-      document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit';
-    }
   }
+
+  // Quote header reads like a proposal: whose event, when, where, how many.
+  const quoteName = document.getElementById('sendName').value.trim();
+  document.getElementById('quoteTitle').textContent = quoteName ? (quoteName.split(' ')[0] + "'s event") : 'Your event';
+  const metaBits = [];
+  const whenLabel = formatEventWhen();
+  if(whenLabel) metaBits.push(whenLabel);
+  metaBits.push(combinedGuestCount + ' ' + (selectedStyle === 'workshop' && adultBuffetCount === 0 ? 'kids' : 'guests'));
+  if(address) metaBits.push(shortCity(address));
+  document.getElementById('quoteMeta').textContent = metaBits.join(' · ');
+
+  updateEventCard();
 
   // Grouped, plain-language summaries sent to Fireball for internal double-checking.
   document.getElementById('sendGuestCount').value = guestCount +
@@ -1418,6 +1709,8 @@ addressInput.addEventListener('input', function(){
   if(addressSelectedFromSuggestion || hasDistance){
     addressSelectedFromSuggestion = false;
     hasDistance = false;
+    calcHint.textContent = '';
+    refreshSteps();
     renderTotals();
   }
   if(query.length < 4){
@@ -1454,6 +1747,7 @@ function resetBuilderDefaults(){
   breadsticksAdded = false;
   ravioliAdded = false;
   glutenFreeCheckbox.checked = false;
+  glutenFreeToggle.classList.remove('is-active');
   glutenFreeField.style.display = 'none';
   glutenFreeCountInput.value = '';
   ravioliToggle.classList.remove('is-active');
@@ -1496,20 +1790,21 @@ function resetEntireCalculator(){
   document.getElementById('calcAddress').value = '';
   document.getElementById('eventDate').value = '';
   document.getElementById('eventTime').value = '';
-  document.getElementById('calcTermsAgree').checked = true;
-  document.getElementById('calcPageA').style.display = 'block';
-  document.getElementById('calcPageB').style.display = 'none';
+  document.getElementById('calcTermsAgree').checked = false;
   document.getElementById('calcPageAHint').textContent = '';
-  document.getElementById('calcResultsWaiting').style.display = 'block';
+  document.getElementById('calcEventCard').style.display = 'block';
   document.getElementById('calcPricingBlock').style.display = 'none';
+  document.getElementById('calcEmailedNote').hidden = true;
   calcHint.textContent = '';
   addressSelectedFromSuggestion = false;
   document.getElementById('eventDate').min = getMinBookingDateString();
+  document.getElementById('calcCalculateBtn').textContent = 'Calculate My Quote';
   document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit';
-  document.getElementById('calcSubmitBtn').disabled = false;
+  document.getElementById('calcSubmitBtn').disabled = true;
   document.getElementById('calcSendStatus').textContent = '';
-  document.getElementById('calcSquarePayBtn').textContent = 'Pay Now (Card)';
+  document.getElementById('calcSquarePayBtn').querySelector('.calc-btn-label').textContent = 'Pay Now (Card)';
   document.getElementById('calcSquarePayBtn').disabled = false;
+  document.getElementById('calcSquarePayBtn').classList.remove('is-loading');
   document.getElementById('calcPaymentPopupStatus').textContent = '';
   document.getElementById('calcPaymentPopupOverlay').classList.remove('open');
   document.getElementById('payDepositBtn').style.display = 'none';
@@ -1522,46 +1817,57 @@ function resetEntireCalculator(){
   document.getElementById('calcPizzaProStatus').textContent = '';
   document.getElementById('calcPizzaProPopupOverlay').classList.remove('open');
   resetBuilderDefaults();
+  setStep(1);
 }
 
+// Opening the builder a second time keeps everything the customer already entered.
+// Someone who closes to read the FAQ should not lose their menu. Only Start Over clears.
+let calcInitialized = false;
+let focusBeforeOpen = null;
 function openCalc(){
   if(typeof gtag === 'function') gtag('event', 'calculator_opened');
   loadMapsScript().catch(function(err){ console.error('Fireball estimator: Maps script failed to load', err); });
+  focusBeforeOpen = document.activeElement;
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-  document.getElementById('calcTermsAgree').checked = true;
-  document.getElementById('calcPageA').style.display = 'block';
-  document.getElementById('calcPageB').style.display = 'none';
-  document.getElementById('calcPageAHint').textContent = '';
-  document.getElementById('calcResultsWaiting').style.display = 'block';
-  document.getElementById('calcPricingBlock').style.display = 'none';
-  calcHint.textContent = '';
-  addressSelectedFromSuggestion = false;
-  document.getElementById('eventDate').min = getMinBookingDateString();
-  document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit';
-  document.getElementById('calcSubmitBtn').disabled = false;
-  document.getElementById('calcSendStatus').textContent = '';
-  document.getElementById('calcSquarePayBtn').textContent = 'Pay Now (Card)';
-  document.getElementById('calcSquarePayBtn').disabled = false;
-  document.getElementById('calcPaymentPopupStatus').textContent = '';
-  document.getElementById('calcPaymentPopupOverlay').classList.remove('open');
-  document.getElementById('payDepositBtn').style.display = 'none';
-  document.getElementById('calcNoDepositBtn').textContent = 'Pay by Cash/Check';
-  document.getElementById('calcNoDepositBtn').disabled = false;
-  document.getElementById('calcNoDepositStatus').textContent = '';
-  document.getElementById('calcPizzaProMessage').value = '';
-  document.getElementById('calcPizzaProSendBtn').textContent = 'Request a Callback Instead';
-  document.getElementById('calcPizzaProSendBtn').disabled = false;
-  document.getElementById('calcPizzaProStatus').textContent = '';
-  document.getElementById('calcPizzaProPopupOverlay').classList.remove('open');
-  resetBuilderDefaults();
+  if(!calcInitialized){
+    calcInitialized = true;
+    resetEntireCalculator();
+  } else {
+    setStep(currentStep);
+  }
   getPlacesLib().then(function(){ newSessionToken(); });
+  setTimeout(function(){
+    const first = currentStep === 1 ? document.getElementById('sendName') : document.querySelector('.calc-modal');
+    if(first && first.focus) first.focus({ preventScroll: true });
+  }, 260);
 }
 function closeCalc(){
   overlay.classList.remove('open');
   document.body.style.overflow = '';
   document.getElementById('calcAddressSuggestions').classList.remove('open');
+  document.getElementById('calcResetConfirm').hidden = true;
+  if(focusBeforeOpen && focusBeforeOpen.focus) focusBeforeOpen.focus({ preventScroll: true });
 }
+
+// Keep Tab inside the builder while it's open.
+overlay.addEventListener('keydown', function(e){
+  if(e.key !== 'Tab' || !overlay.classList.contains('open')) return;
+  const focusable = overlay.querySelectorAll('button:not([disabled]):not([hidden]), [href], input:not([disabled]):not([hidden]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+  const visible = Array.prototype.filter.call(focusable, function(el){ return el.offsetParent !== null; });
+  if(visible.length === 0) return;
+  const first = visible[0];
+  const last = visible[visible.length - 1];
+  if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+});
+
+// The event card fills in as they type.
+['sendName', 'eventDate', 'eventTime'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', updateEventCard);
+  document.getElementById(id).addEventListener('change', updateEventCard);
+});
+document.querySelector('.calc-modal').setAttribute('tabindex', '-1');
 
 function validateContactFields(hintEl){
   const name = document.getElementById('sendName').value.trim();
@@ -1623,15 +1929,15 @@ document.getElementById('calcNextBtn').addEventListener('click', function(){
   hint.textContent = '';
 
   if(typeof gtag === 'function') gtag('event', 'quote_builder_advanced');
-  document.getElementById('calcPageA').style.display = 'none';
-  document.getElementById('calcPageB').style.display = 'block';
+  setStep(2);
 });
 
+const isMobileLayout = function(){ return window.matchMedia('(max-width: 759px)').matches; };
+
 document.getElementById('calcCalculateBtn').addEventListener('click', function(){
+  const firstTime = !hasCalculated;
   hasCalculated = true;
-  document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit';
-  document.getElementById('calcSubmitBtn').disabled = false;
-  document.getElementById('calcSquarePayBtn').textContent = 'Pay Now (Card)';
+  document.getElementById('calcSquarePayBtn').querySelector('.calc-btn-label').textContent = 'Pay Now (Card)';
   document.getElementById('calcSquarePayBtn').disabled = false;
   document.getElementById('calcNoDepositBtn').textContent = 'Pay by Cash/Check';
   document.getElementById('calcNoDepositBtn').disabled = false;
@@ -1640,26 +1946,71 @@ document.getElementById('calcCalculateBtn').addEventListener('click', function()
   document.getElementById('calcNoDepositStatus').textContent = '';
   document.getElementById('calcPageB').classList.remove('calc-prices-hidden');
   if(typeof gtag === 'function') gtag('event', 'quote_calculated');
-  document.getElementById('calcResultsWaiting').style.display = 'none';
+  document.getElementById('calcEventCard').style.display = 'none';
   document.getElementById('calcPricingBlock').style.display = 'block';
   renderTotals();
+  syncTermsState();
+
+  // Totals stay live from here on, so the button becomes a refresh, not a gate.
+  this.textContent = 'Update Quote';
+
+  // The reveal: count the total up, flash the panel, and on phones move to the quote screen.
+  if(firstTime) animateTotal(document.getElementById('calcGrandTotal'), lastGrandTotal);
+  const results = document.getElementById('calcResults');
+  results.classList.remove('is-revealed');
+  void results.offsetWidth;
+  results.classList.add('is-revealed');
+  if(isMobileLayout()){
+    setStep(3);
+  } else {
+    setStep(2);
+  }
 
   const name = document.getElementById('sendName').value.trim();
   submitFormToNetlify('Custom Quote Built: ' + name)
-    .then(function(){ sendCustomerConfirmation('quote'); })
+    .then(function(){ return sendCustomerConfirmation('quote'); })
+    .then(function(sent){
+      if(sent){
+        const note = document.getElementById('calcEmailedNote');
+        note.textContent = 'We emailed a copy of this quote to ' + document.getElementById('sendEmail').value.trim() + '.';
+        note.hidden = false;
+      }
+    })
     .catch(function(err){ console.error('Fireball estimator: build-quote lead capture failed', err); });
 });
 
-document.getElementById('calcBackBtn').addEventListener('click', function(){
-  document.getElementById('calcPageB').style.display = 'none';
-  document.getElementById('calcPageA').style.display = 'block';
+document.getElementById('calcBackBtn').addEventListener('click', function(){ setStep(1); });
+document.getElementById('calcEditMenuBtn').addEventListener('click', function(){ setStep(2); });
+
+// Start Over lives in the header with an inline confirm instead of a browser dialog.
+const resetConfirm = document.getElementById('calcResetConfirm');
+document.getElementById('calcResetBtn').addEventListener('click', function(){
+  resetConfirm.hidden = !resetConfirm.hidden;
+  if(!resetConfirm.hidden) document.getElementById('calcResetNo').focus();
+});
+document.getElementById('calcResetNo').addEventListener('click', function(){ resetConfirm.hidden = true; });
+document.getElementById('calcResetYes').addEventListener('click', function(){
+  resetConfirm.hidden = true;
+  resetEntireCalculator();
+  document.getElementById('sendName').focus();
 });
 
-document.getElementById('calcResetBtn').addEventListener('click', function(){
-  if(confirm('Start over? This will clear everything you\'ve entered so far.')){
-    resetEntireCalculator();
+// Terms must be ticked on purpose. Pay Deposit lights up when they are, and the
+// submission records it so there's a timestamped record of agreement.
+const termsCheckbox = document.getElementById('calcTermsAgree');
+function syncTermsState(){
+  const agreed = termsCheckbox.checked;
+  document.getElementById('calcSubmitBtn').disabled = !agreed || !hasCalculated;
+  document.getElementById('sendTermsAgreed').value = agreed ? ('Yes, ticked at ' + new Date().toISOString()) : 'Not yet';
+  const status = document.getElementById('calcSendStatus');
+  if(hasCalculated && !agreed){
+    status.style.color = 'var(--stone)';
+    status.textContent = 'Tick the policy box above to unlock Pay Deposit.';
+  } else if(status.textContent === 'Tick the policy box above to unlock Pay Deposit.'){
+    status.textContent = '';
   }
-});
+}
+termsCheckbox.addEventListener('change', syncTermsState);
 
 openBtn?.addEventListener('click', openCalc);
 document.getElementById('heroOpenCalculatorBtn')?.addEventListener('click', openCalc);
@@ -1782,7 +2133,13 @@ function runDistanceLookupNow(address){
       hasDistance = true;
       updateStyleTileVisibility();
       renderTotals();
-      calcHint.textContent = '';
+      // Tell them the address landed. A blank hint here used to leave people guessing.
+      const oneWayRounded = Math.round(oneWayMiles);
+      calcHint.textContent = '✓ Address confirmed, ' + oneWayRounded + ' mile' + (oneWayRounded === 1 ? '' : 's') + ' from our kitchen' +
+        (roundTripMiles <= FREE_RADIUS_ROUND_TRIP_MILES ? '. Travel is included.' : '.');
+      calcHint.style.color = '#2E7D32';
+      refreshSteps();
+      updateEventCard();
 
       // Capture as a lead now, before they decide whether to lock in.
       // Only once per session; editing the address further shouldn't spam duplicate leads.

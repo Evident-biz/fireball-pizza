@@ -60,11 +60,10 @@ gtag('config', 'G-YVX71FMKD8');
   border-bottom: 1px solid var(--line); font-size: 0.95rem;
 }
 .kz-lb-row:last-child{ border-bottom: none; }
-.kz-lb-rank{ width: 24px; color: var(--stone); font-size: 0.85rem; }
-.kz-lb-info{ flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.kz-lb-initials{ font-weight: 700; letter-spacing: 0.05em; color: var(--ink); }
-.kz-lb-date{ font-size: 0.7rem; color: var(--stone); font-weight: 400; letter-spacing: normal; }
-.kz-lb-score{ color: var(--ember); font-weight: 700; }
+.kz-lb-rank{ width: 28px; flex-shrink: 0; color: var(--stone); font-size: 0.85rem; }
+.kz-lb-initials{ width: 48px; flex-shrink: 0; font-weight: 700; letter-spacing: 0.05em; color: var(--ink); }
+.kz-lb-date{ flex: 1; font-family: var(--font-utility); font-size: 0.78rem; color: var(--stone); letter-spacing: 0; }
+.kz-lb-score{ color: var(--ember); font-weight: 700; font-family: var(--font-utility); }
 @media (max-width: 860px){
   .kz-game-wrap > .kz-game-card:last-child{ max-width: 520px; width: 100%; }
 }
@@ -120,6 +119,10 @@ gtag('config', 'G-YVX71FMKD8');
     <ol id="kzLeaderboardList" style="list-style:none; padding:0; margin:0; font-family:var(--font-utility);">
       <li style="color:var(--stone);">Loading...</li>
     </ol>
+    <div style="margin-top:22px; padding-top:18px; border-top:1px solid var(--line); text-align:center;">
+      <p class="muted" style="font-size:0.9rem; margin:0 0 10px;">Hungry after all that catching?</p>
+      <a href="catering.html" class="btn btn-primary" style="width:100%; justify-content:center;">Get a Catering Quote</a>
+    </div>
   </div>
 </div>
 
@@ -341,14 +344,23 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
     if(!rawDate) return '';
     const d = new Date(rawDate);
     if(isNaN(d.getTime())) return '';
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return mm + '/' + dd + '/' + d.getFullYear();
   }
 
   function fetchLeaderboard(){
-    fetch(LEADERBOARD_URL + '?t=' + Date.now(), { cache: 'no-store' })
+    // No cache-busting here on purpose: the Netlify function holds reads at the
+    // edge for 10 seconds so the board loads fast even with a burst of players.
+    fetch(LEADERBOARD_URL)
       .then(function(res){ return res.json(); })
       .then(function(data){
-        const entries = (data && data.leaderboard) || [];
+        // Only an actual array means "loaded fine". Anything else is a broken or
+        // malformed response and must not masquerade as an empty leaderboard.
+        if(!data || !Array.isArray(data.leaderboard)){
+          throw new Error('Malformed leaderboard response');
+        }
+        const entries = data.leaderboard;
         if(entries.length === 0){
           leaderboardList.innerHTML = '<li style="color:var(--stone); text-align:center; padding:10px 0;">No scores yet, be the first!</li>';
           return;
@@ -357,10 +369,8 @@ document.getElementById('navToggle')?.addEventListener('click', ()=>{
           const dateLabel = formatEntryDate(entry.date);
           return '<li class="kz-lb-row">' +
             '<span class="kz-lb-rank">#' + (i + 1) + '</span>' +
-            '<span class="kz-lb-info">' +
-              '<span class="kz-lb-initials">' + escapeHtml(entry.initials) + '</span>' +
-              (dateLabel ? '<span class="kz-lb-date">' + dateLabel + '</span>' : '') +
-            '</span>' +
+            '<span class="kz-lb-initials">' + escapeHtml(entry.initials) + '</span>' +
+            '<span class="kz-lb-date">' + dateLabel + '</span>' +
             '<span class="kz-lb-score">' + entry.score + '</span>' +
             '</li>';
         }).join('');
