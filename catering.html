@@ -479,6 +479,7 @@
                 </select>
               </div>
             </div>
+            <p class="calc-hint" id="calcDateHint" role="status" aria-live="polite"></p>
             <p class="calc-hint" id="calcHint"></p>
             <button type="button" class="btn btn-primary" id="calcNextBtn" style="width:100%; justify-content:center; margin-top:8px;">Next: Dining Options</button>
             <p class="calc-hint" id="calcPageAHint"></p>
@@ -570,6 +571,7 @@
                 <input type="range" id="calcGuestsSlider" min="20" max="250" step="1" value="20" class="calc-slider" aria-label="Guest count">
                 <div class="calc-slider-range"><span>20</span><span>250+</span></div>
               </div>
+              <p class="calc-hint" id="calcGuestHint" role="status" aria-live="polite"></p>
             </div>
 
             <button type="button" class="btn btn-primary" id="calcCalculateBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate My Quote</button>
@@ -696,6 +698,66 @@ window.addEventListener('scroll', function(){
 // Shared submitter, used both for the silent lead-capture on Calculate and the full Lock In submit.
 // Netlify Forms doesn't dedupe, so both stages land as separate submissions on purpose:
 // better to catch every opportunity (even if someone never finishes) than to risk missing one.
+// --- Date availability ---
+// One catering event per day, and on farmers market days (Thu/Sat) only 40+ guests.
+// The server decides (/api/availability); this just asks early so people find out before paying.
+// If the check itself fails we let them continue, and the server still refuses a taken date.
+let reachedMenuStep = false; // guest count only counts once they've been to the menu step
+let availabilityCheck = { key: '', promise: null, result: null };
+
+function checkAvailability(){
+  const date = document.getElementById('eventDate').value;
+  if(!date) return Promise.resolve(null);
+  const guests = reachedMenuStep ? String(currentGuestCount) : '';
+  const key = date + '|' + guests;
+  if(availabilityCheck.key === key && availabilityCheck.promise) return availabilityCheck.promise;
+  availabilityCheck = { key: key, result: null, promise: null };
+  availabilityCheck.promise = fetch('/api/availability?date=' + encodeURIComponent(date) + (guests ? '&guests=' + guests : ''))
+    .then(function(res){ return res.ok ? res.json() : null; })
+    .catch(function(err){ console.error('Fireball estimator: availability check failed', err); return null; })
+    .then(function(result){
+      if(availabilityCheck.key === key){
+        availabilityCheck.result = result;
+        showAvailability(result);
+      }
+      return result;
+    });
+  return availabilityCheck.promise;
+}
+
+function showAvailability(result){
+  const blocked = result && !result.available;
+  const message = result && result.message ? result.message : '';
+  const dateHint = document.getElementById('calcDateHint');
+  const guestHint = document.getElementById('calcGuestHint');
+  // Booked dates show by the date picker; the 40-guest rule shows by the guest count once that matters.
+  dateHint.textContent = result && (result.code === 'booked' || (result.code === 'market_day' && !reachedMenuStep)) ? message : '';
+  dateHint.style.color = blocked ? 'var(--ember)' : 'var(--stone)';
+  guestHint.textContent = result && reachedMenuStep && result.code !== 'booked' ? message : '';
+  guestHint.style.color = blocked ? 'var(--ember)' : 'var(--stone)';
+}
+
+// Resolves true if the date can be booked. On a blocked date, shows the reason in `statusEl`.
+function ensureDateAvailable(statusEl){
+  return checkAvailability().then(function(result){
+    if(result && !result.available){
+      statusEl.style.color = 'var(--ember)';
+      statusEl.textContent = result.message;
+      if(typeof gtag === 'function') gtag('event', 'date_unavailable', { reason: result.code });
+      return false;
+    }
+    return true;
+  });
+}
+
+document.getElementById('eventDate').addEventListener('change', checkAvailability);
+let availabilityDebounce = null;
+function scheduleAvailabilityCheck(){
+  if(!reachedMenuStep) return;
+  clearTimeout(availabilityDebounce);
+  availabilityDebounce = setTimeout(checkAvailability, 400);
+}
+
 // --- Staff portal sync ---
 // Every submission also saves to /api/leads, which keeps one order per visit in the staff
 // portal (status, payments, notes) and gives the customer their private order page.
@@ -878,10 +940,13 @@ document.getElementById('calcSubmitBtn').addEventListener('click', function(){
   const status = document.getElementById('calcSendStatus');
   if(!validateBookingReady(status)) return;
   status.textContent = '';
-  document.getElementById('calcPaymentPopupAmount').textContent = document.getElementById('calcDeposit').textContent;
-  document.getElementById('calcPaymentPopupStatus').textContent = '';
-  document.getElementById('calcPaymentPopupOverlay').classList.add('open');
-  if(typeof gtag === 'function') gtag('event', 'payment_options_opened');
+  ensureDateAvailable(status).then(function(ok){
+    if(!ok) return;
+    document.getElementById('calcPaymentPopupAmount').textContent = document.getElementById('calcDeposit').textContent;
+    document.getElementById('calcPaymentPopupStatus').textContent = '';
+    document.getElementById('calcPaymentPopupOverlay').classList.add('open');
+    if(typeof gtag === 'function') gtag('event', 'payment_options_opened');
+  });
 });
 
 document.getElementById('calcPaymentPopupClose').addEventListener('click', function(){
@@ -986,9 +1051,25 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
         })
       });
     })
-    .then(function(res){ return res && res.ok ? res.json() : Promise.reject(new Error('link creation failed')); })
+    .then(function(res){
+      if(res && res.status === 409){
+        return res.json().then(function(data){
+          const err = new Error(data.error || 'That date is not available.');
+          err.unavailable = true;
+          throw err;
+        });
+      }
+      return res && res.ok ? res.json() : Promise.reject(new Error('link creation failed'));
+    })
     .then(function(data){
       openPaymentPage(data.url);
+    })
+    .catch(function(err){
+      if(!err.unavailable) throw err;
+      clearTimeout(slowTimer);
+      submitBtn.classList.remove('is-loading');
+      status.style.color = 'var(--ember)';
+      status.textContent = err.message;
     })
     .catch(function(err){
       console.error('Fireball estimator: exact-amount payment link failed, falling back to static link', err);
@@ -1010,21 +1091,24 @@ document.getElementById('calcNoDepositBtn').addEventListener('click', function()
   status.style.color = 'var(--stone)';
   status.textContent = 'Sending...';
 
-  if(typeof gtag === 'function') gtag('event', 'reservation_confirmed', { method: 'cash_check' });
-  sendCustomerConfirmation('reservation');
+  ensureDateAvailable(status).then(function(ok){
+    if(!ok){ btn.disabled = false; return; }
+    if(typeof gtag === 'function') gtag('event', 'reservation_confirmed', { method: 'cash_check' });
+    sendCustomerConfirmation('reservation');
 
-  submitFormToNetlify('Date Confirmed, Deposit Not Collected')
-  .then(function(){
-    status.style.color = '#2E7D32';
-    status.textContent = "Got it. We'll follow up to confirm your date within 1 to 2 business days. Changed your mind? You can still recalculate or choose a different payment method.";
-  })
-  .catch(function(err){
-    console.error('Fireball estimator: no-deposit reservation failed', err);
-    status.style.color = 'var(--ember)';
-    status.textContent = "Couldn't send automatically. Please call or email us directly to confirm.";
-  })
-  .finally(function(){
-    btn.disabled = false;
+    submitFormToNetlify('Date Confirmed, Deposit Not Collected')
+    .then(function(){
+      status.style.color = '#2E7D32';
+      status.textContent = "Got it. We'll follow up to confirm your date within 1 to 2 business days. Changed your mind? You can still recalculate or choose a different payment method.";
+    })
+    .catch(function(err){
+      console.error('Fireball estimator: no-deposit reservation failed', err);
+      status.style.color = 'var(--ember)';
+      status.textContent = "Couldn't send automatically. Please call or email us directly to confirm.";
+    })
+    .finally(function(){
+      btn.disabled = false;
+    });
   });
 });
 
@@ -1268,6 +1352,7 @@ function setGuestCount(newCount, syncNumberField){
   document.getElementById('glutenFreeCount').max = currentGuestCount;
   updateStyleTileVisibility();
   renderTotals();
+  if(typeof scheduleAvailabilityCheck === 'function') scheduleAvailabilityCheck();
 }
 
 guestsSlider.addEventListener('input', function(){
@@ -1865,6 +1950,10 @@ function getMinBookingDateString(){
 
 function resetEntireCalculator(){
   if(typeof gtag === 'function') gtag('event', 'calculator_reset');
+  reachedMenuStep = false;
+  availabilityCheck = { key: '', promise: null, result: null };
+  document.getElementById('calcDateHint').textContent = '';
+  document.getElementById('calcGuestHint').textContent = '';
   document.getElementById('sendName').value = '';
   document.getElementById('sendEmail').value = '';
   document.getElementById('sendPhone').value = '';
@@ -2009,8 +2098,13 @@ document.getElementById('calcNextBtn').addEventListener('click', function(){
   }
   hint.textContent = '';
 
-  if(typeof gtag === 'function') gtag('event', 'quote_builder_advanced');
-  setStep(2);
+  ensureDateAvailable(hint).then(function(ok){
+    if(!ok) return;
+    reachedMenuStep = true;
+    checkAvailability();
+    if(typeof gtag === 'function') gtag('event', 'quote_builder_advanced');
+    setStep(2);
+  });
 });
 
 const isMobileLayout = function(){ return window.matchMedia('(max-width: 759px)').matches; };

@@ -12,6 +12,7 @@ import {
   amountToCollect, CATERING_STATUSES, INQUIRY_STATUSES, PAYMENT_METHODS, ORDER_TYPES,
 } from '../lib/orders.mjs';
 import { createLinkForOrder } from '../lib/deposit.mjs';
+import { MARKET_DAYS, MARKET_MIN_GUESTS } from '../lib/availability.mjs';
 import { SquareConfigError } from '../lib/square.mjs';
 import { sendEmail, layout, firstName, formatMoney, formatDate, portalUrl } from '../lib/email.mjs';
 import {
@@ -70,7 +71,10 @@ export default async (req, context) => {
 };
 
 function meta() {
-  return { cateringStatuses: CATERING_STATUSES, inquiryStatuses: INQUIRY_STATUSES, paymentMethods: PAYMENT_METHODS, types: ORDER_TYPES };
+  return {
+    cateringStatuses: CATERING_STATUSES, inquiryStatuses: INQUIRY_STATUSES, paymentMethods: PAYMENT_METHODS, types: ORDER_TYPES,
+    marketDays: MARKET_DAYS, marketMinGuests: MARKET_MIN_GUESTS,
+  };
 }
 
 async function loadOrThrow(store, id) {

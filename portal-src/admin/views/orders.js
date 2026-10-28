@@ -15,7 +15,7 @@ export const INQUIRY_CATEGORIES = ['Catering Inquiry', 'Event Booking', 'General
 function filterOrders(orders, f) {
   const today = todayIso();
   const q = f.q.toLowerCase();
-  const attentionIds = f.attention ? new Set(attentionItems(orders).map((i) => i.order.id)) : null;
+  const attentionIds = f.attention ? new Set(attentionItems(orders, state.meta).map((i) => i.order.id)) : null;
   const since = f.since === '7d' ? new Date(Date.now() - 7 * 86400000).toISOString() : f.since === '30d' ? new Date(Date.now() - 30 * 86400000).toISOString() : '';
   return orders.filter((o) => {
     if (f.type && o.type !== f.type) return false;

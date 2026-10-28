@@ -1,4 +1,5 @@
-import { state, invalidateOrders, loadStaff } from '../app.js';
+import { state, invalidateOrders, loadStaff, loadOrders } from '../app.js';
+import { dateProblems } from '../metrics.js';
 import { api } from '../api.js';
 import {
   html, mount, $, money, dateLabel, dateTimeLabel, ago, daysUntil, telHref, modal, confirmDialog, formValues, toast, copyText, todayIso,
@@ -11,6 +12,7 @@ export async function renderOrder({ main, id, isStale, setTitle }) {
   let data = await api('/orders/' + encodeURIComponent(id));
   if (isStale()) return;
   const staff = await loadStaff();
+  const allOrders = await loadOrders().catch(() => []);
   if (isStale()) return;
 
   // Every change returns the fresh order; re-render in place.
@@ -48,6 +50,11 @@ export async function renderOrder({ main, id, isStale, setTitle }) {
     const isCatering = o.type === 'catering';
     const statuses = isCatering ? meta.cateringStatuses : meta.inquiryStatuses;
     const days = daysUntil(o.event.date);
+    const problems = dateProblems(
+      { id: o.id, type: o.type, status: o.status, eventDate: o.event.date, guestCount: o.event.guestCount, name: o.customer.name },
+      allOrders.filter((x) => x.id !== o.id),
+      meta
+    );
     setTitle((o.customer.name || 'Order') + ' · ' + o.id);
 
     mount(main, html`
@@ -79,6 +86,10 @@ export async function renderOrder({ main, id, isStale, setTitle }) {
         </div>
       </div>
 
+      ${problems.map((p) => html`
+        <div class="banner banner-red"><span><strong>Date problem.</strong> ${p.text}.${p.others ? html` ${p.others.map((x) => html`<a href="#/orders/${x.id}">${x.id}</a> `)}` : ''}</span></div>`)}
+      ${o.flags.dateUnavailable && o.status === 'lead' ? html`
+        <div class="banner banner-gold"><span><strong>Tried to book an unavailable date.</strong> ${o.flags.dateUnavailable === 'booked' ? 'That date was already booked.' : 'It was a farmers market day with fewer than ' + meta.marketMinGuests + ' guests.'} The website didn't let them pay. Worth a call to offer another day.</span></div>` : ''}
       ${o.flags.customerMessage ? html`
         <div class="banner banner-gold"><span><strong>New message from the customer.</strong> See the notes below.</span><button class="btn btn-sm btn-ghost" data-act="msg-read">Mark read</button></div>` : ''}
       ${o.flags.callbackRequested ? html`

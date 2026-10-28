@@ -50,13 +50,22 @@ export function request(pathname, { method = 'GET', body, headers = {} } = {}) {
 
 export const context = { deploy: { context: 'production' } };
 
+// A different Monday-Wednesday date for every order, so test orders never collide on availability.
+let dayOffset = 0;
+export function uniqueWeekday() {
+  for (;;) {
+    const d = new Date(Date.UTC(2027, 0, 4) + dayOffset++ * 86400000);
+    if ([1, 2, 3].includes(d.getUTCDay())) return d.toISOString().slice(0, 10);
+  }
+}
+
 export function cateringPayload(overrides = {}) {
   return {
     kind: 'catering',
     clientRef: 'visit-' + Math.random().toString(36).slice(2) + '-0123456789',
     stage: 'quote_built',
     customer: { name: 'Jane Customer', email: 'Jane@Example.com', phone: '209-555-0100' },
-    event: { date: '2026-12-12', timeLabel: '5:00 PM', address: '123 Main St, Turlock, CA 95380, USA', guestCount: 60 },
+    event: { date: uniqueWeekday(), timeLabel: '5:00 PM', address: '123 Main St, Turlock, CA 95380, USA', guestCount: 60 },
     quote: { total: '1,240.50', deposit: '620.25', pricingSummary: 'Style: Buffet ($19/guest) | Grand Total: $1,240.50', serviceStyle: 'Buffet' },
     ...overrides,
   };

@@ -4,7 +4,7 @@
 import { test, before, after, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
-import { startBlobs, fakeExternalApis, request, context, cateringPayload, ORIGIN } from './helpers.mjs';
+import { startBlobs, fakeExternalApis, request, context, cateringPayload, uniqueWeekday, ORIGIN } from './helpers.mjs';
 
 // Identity is faked: tests pick who is "signed in".
 let currentUser = null;
@@ -28,7 +28,7 @@ const OWNER = { id: 'u1', email: 'owner@fireball.test', confirmedAt: '2026-01-01
 const STAFF = { id: 'u2', email: 'cook@fireball.test', confirmedAt: '2026-01-01', name: 'Cook', roles: ['staff'] };
 const NOBODY = { id: 'u3', email: 'rando@else.test', confirmedAt: '2026-01-01', name: 'Rando', roles: [] };
 
-let blobs, apis, leads, portal, adminApi, depositLink, webhook, confirmEmail;
+let blobs, apis, leads, portal, adminApi, depositLink, webhook, confirmEmail, availability;
 
 before(async () => {
   blobs = await startBlobs();
@@ -45,6 +45,7 @@ before(async () => {
   depositLink = (await import('../netlify/functions/create-deposit-link.mjs')).default;
   webhook = (await import('../netlify/functions/square-webhook.mjs')).default;
   confirmEmail = (await import('../netlify/functions/send-confirmation-email.mjs')).default;
+  availability = (await import('../netlify/functions/availability.mjs')).default;
 });
 
 after(async () => {
@@ -326,4 +327,102 @@ test('staff list: admins see roles, staff only see names', async () => {
   const staffView = await call(adminApi, '/api/admin/staff');
   assert.equal(staffView.body.staff[0].role, undefined);
   assert.equal((await call(adminApi, '/api/admin/staff/u1', { method: 'DELETE' })).status, 403);
+});
+
+// ---------- availability: one event per day, farmers market days need 40+ guests ----------
+
+const THURSDAY = '2027-06-03';
+const SATURDAY = '2027-06-05';
+const avail = (date, guests) => call(availability, '/api/availability?date=' + date + (guests === undefined ? '' : '&guests=' + guests));
+
+test('farmers market days (Thu/Sat) only take 40 or more guests', async () => {
+  assert.equal(new Date(THURSDAY + 'T00:00:00Z').getUTCDay(), 4);
+  assert.equal(new Date(SATURDAY + 'T00:00:00Z').getUTCDay(), 6);
+  const unknown = await avail(THURSDAY);
+  assert.equal(unknown.body.available, true, 'date alone is fine before guests are chosen');
+  assert.equal(unknown.body.code, 'market_day');
+  assert.match(unknown.body.message, /40 guests or more/);
+  assert.equal((await avail(SATURDAY, 39)).body.available, false);
+  assert.equal((await avail(SATURDAY, 39)).body.code, 'market_min');
+  assert.equal((await avail(SATURDAY, 40)).body.available, true);
+  assert.equal((await avail('2027-06-07', 20)).body.available, true, 'a Monday has no minimum');
+  assert.equal((await avail('not-a-date')).status, 400);
+
+  // Server enforcement: a 30-guest deposit on a market day stays a lead and is flagged.
+  const res = await call(leads, '/api/leads', { method: 'POST', body: cateringPayload({ stage: 'deposit_initiated', event: { date: THURSDAY, guestCount: 30 } }) });
+  assert.equal(res.body.available, false);
+  assert.equal(res.body.code, 'market_min');
+  const order = (await asAdmin('/orders/' + res.body.id)).body.order;
+  assert.equal(order.status, 'lead');
+  assert.equal(order.flags.dateUnavailable, 'market_min');
+});
+
+test('a Booked or Reserved event takes the date; leads and abandoned deposits do not', async () => {
+  const date = uniqueWeekday();
+  const first = await call(leads, '/api/leads', { method: 'POST', body: cateringPayload({ stage: 'deposit_initiated', event: { date, guestCount: 50 } }) });
+  assert.equal(first.body.available, true);
+  assert.equal((await avail(date, 50)).body.available, true, 'pending deposit does not hold the date');
+
+  // Second customer reserves the same date (cash/check): that holds it.
+  const second = await call(leads, '/api/leads', { method: 'POST', body: cateringPayload({ stage: 'reserved_no_deposit', event: { date, guestCount: 60 } }) });
+  assert.equal(second.body.available, true);
+  assert.equal((await asAdmin('/orders/' + second.body.id)).body.order.status, 'reserved');
+  const taken = await avail(date, 50);
+  assert.equal(taken.body.available, false);
+  assert.equal(taken.body.code, 'booked');
+
+  // Now the first customer can't get a deposit link or reserve.
+  const link = await call(depositLink, '/.netlify/functions/create-deposit-link', {
+    method: 'POST', body: { amount: 100, orderId: first.body.id, orderToken: tokenFrom(first.body.portalUrl) },
+  });
+  assert.equal(link.status, 409);
+  assert.equal(link.body.unavailable, true);
+  const pay = await call(portal, '/api/portal/order/pay', { method: 'POST', body: { id: first.body.id, t: tokenFrom(first.body.portalUrl) } });
+  assert.equal(pay.status, 409);
+  const retry = await call(leads, '/api/leads', { method: 'POST', body: { ...cateringPayload({ stage: 'reserved_no_deposit', event: { date, guestCount: 50 } }), clientRef: 'other-visit-0123456789abcdef' } });
+  assert.equal(retry.body.available, false);
+
+  // The holder itself is never blocked by its own date.
+  const own = await call(leads, '/api/leads', { method: 'POST', body: cateringPayload({ stage: 'deposit_initiated', event: { date: uniqueWeekday(), guestCount: 50 } }) });
+  assert.equal(own.body.available, true);
+});
+
+test('changing, cancelling or deleting a booking frees its date', async () => {
+  const date = uniqueWeekday();
+  const moved = uniqueWeekday();
+  const { id } = (await asAdmin('/orders', { method: 'POST', body: { type: 'catering', status: 'booked', customer: { name: 'Hold Test' }, event: { date, guestCount: 50 } } })).body;
+  assert.equal((await avail(date)).body.available, false);
+
+  let loaded = await asAdmin('/orders/' + id);
+  await asAdmin('/orders/' + id, { method: 'PATCH', body: { etag: loaded.body.etag, changes: { event: { date: moved } } } });
+  assert.equal((await avail(date)).body.available, true, 'old date freed');
+  assert.equal((await avail(moved)).body.available, false, 'new date held');
+
+  loaded = await asAdmin('/orders/' + id);
+  await asAdmin('/orders/' + id, { method: 'PATCH', body: { etag: loaded.body.etag, changes: { status: 'cancelled' } } });
+  assert.equal((await avail(moved)).body.available, true, 'cancelled frees the date');
+
+  loaded = await asAdmin('/orders/' + id);
+  await asAdmin('/orders/' + id, { method: 'PATCH', body: { etag: loaded.body.etag, changes: { status: 'booked' } } });
+  assert.equal((await avail(moved)).body.available, false);
+  await asAdmin('/orders/' + id, { method: 'DELETE' });
+  assert.equal((await avail(moved)).body.available, true, 'deleting frees the date');
+});
+
+test('a Square payment on a date that was taken meanwhile is recorded and flagged to staff', async () => {
+  const date = uniqueWeekday();
+  const late = await call(leads, '/api/leads', { method: 'POST', body: cateringPayload({ stage: 'deposit_initiated', event: { date, guestCount: 50 } }) });
+  const link = await call(depositLink, '/.netlify/functions/create-deposit-link', {
+    method: 'POST', body: { amount: 100, orderId: late.body.id, orderToken: tokenFrom(late.body.portalUrl) },
+  });
+  assert.equal(link.status, 200);
+  await asAdmin('/orders', { method: 'POST', body: { type: 'catering', status: 'booked', customer: { name: 'Got there first' }, event: { date, guestCount: 80 } } });
+  const event = {
+    type: 'payment.updated',
+    data: { object: { payment: { id: 'pay_conflict', order_id: 'sqorder_' + apis.calls.square.length, status: 'COMPLETED', amount_money: { amount: 10000 }, source_type: 'CARD' } } },
+  };
+  const res = await call(webhook, '/api/square/webhook', signedWebhook(event));
+  assert.equal(res.body.recorded, true);
+  const staffEmail = apis.calls.email.find((e) => /DATE CONFLICT/.test(e.subject));
+  assert.ok(staffEmail, 'staff alert says DATE CONFLICT');
 });
