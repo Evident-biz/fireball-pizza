@@ -1,6 +1,6 @@
 import { state, loadOrders, setQuery } from '../app.js';
 import { html, mount, $, money, todayIso, statusPill, dateLabel } from '../ui.js';
-import { catering } from '../metrics.js';
+import { catering, isMarketDay } from '../metrics.js';
 
 const SHOWN = ['lead', 'pending_deposit', 'reserved', 'booked', 'completed'];
 
@@ -55,7 +55,7 @@ export async function renderCalendar({ main, params, isStale, setTitle }) {
           ? html`<div class="cal-cell cal-empty" aria-hidden="true"></div>`
           : html`
             <div class="cal-cell ${iso(d) === today ? 'cal-today' : ''} ${iso(d) < today ? 'cal-past' : ''}" role="gridcell" aria-label="${dateLabel(iso(d))}">
-              <span class="cal-num">${d}</span>
+              <span class="cal-num">${d}</span>${isMarketDay(iso(d), state.meta) ? html`<span class="cal-market" title="Farmers market day: catering needs ${state.meta.marketMinGuests}+ guests">Market</span>` : ''}
               ${(byDay.get(d) || []).map((o) => html`
                 <a class="cal-event cal-${o.status}" href="#/orders/${o.id}" title="${o.name} · ${o.eventTime || ''} · ${o.guestCount || '?'} guests">
                   <span class="cal-time">${o.eventTime || ''}</span> ${o.name}

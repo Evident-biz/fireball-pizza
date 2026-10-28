@@ -9,9 +9,13 @@
 import { crmStore, getOrder, createOrder, updateOrder, lookupRef, setRef } from '../lib/store.mjs';
 import { blankOrder, logActivity, setAddress, advanceFromPublic, publicCanUpdate } from '../lib/orders.mjs';
 import { portalUrl } from '../lib/email.mjs';
+import { checkDate } from '../lib/availability.mjs';
 import { json, errorResponse, readJson, HttpError, str, num, money, isEmail, normalizeEmail, isIsoDate, newOrderId, newToken, sha256, siteUrl } from '../lib/util.mjs';
 
 const STAGES = ['quote_viewed', 'quote_built', 'callback_requested', 'deposit_initiated', 'reserved_no_deposit'];
+// Stages that would take the date. These are refused (the order stays a lead) when the date is unavailable.
+const BOOKING_STAGES = ['deposit_initiated', 'reserved_no_deposit'];
+
 const STAGE_LABELS = {
   quote_viewed: 'Viewed a quote on the website',
   quote_built: 'Built a custom quote on the website',
@@ -66,21 +70,22 @@ async function saveCatering(store, body, name, email, base) {
     fresh.portalToken = newToken();
     fresh.clientRefHash = refHash;
     applyCateringFields(fresh, body, name, email);
-    advanceFromPublic(fresh, stage);
+    const check = await availabilityFor(store, fresh, stage);
+    applyStage(fresh, stage, check);
     fresh.stages.push({ stage, at: fresh.createdAt });
-    logActivity(fresh, 'Website', STAGE_LABELS[stage]);
 
     // Claim the visit reference first. If a parallel request from the same visit won, update its order instead.
     const etag = await createWithFreshId(store, fresh, async (candidateId) => setRef(store, 'ref', refHash, candidateId, true));
-    if (etag) return json({ ok: true, id: fresh.id, portalUrl: portalUrl(base, fresh) });
+    if (etag) return json({ ok: true, id: fresh.id, portalUrl: portalUrl(base, fresh), ...availabilityReply(check) });
     id = await lookupRef(store, 'ref', refHash);
     if (!id) throw new Error('Visit reference vanished');
   }
 
   // The order may not be readable for a moment if a parallel request is still creating it.
   let updated = null;
+  let check = null;
   for (let attempt = 0; attempt < 3 && !updated; attempt++) {
-    updated = await updateOrder(store, id, (order) => {
+    updated = await updateOrder(store, id, async (order) => {
       order.stages.push({ stage, at: new Date().toISOString() });
       if (order.stages.length > 50) order.stages = order.stages.slice(-50);
       if (!publicCanUpdate(order)) {
@@ -89,13 +94,34 @@ async function saveCatering(store, body, name, email, base) {
         return;
       }
       applyCateringFields(order, body, name, email);
-      advanceFromPublic(order, stage);
-      logActivity(order, 'Website', STAGE_LABELS[stage]);
+      check = await availabilityFor(store, order, stage);
+      applyStage(order, stage, check);
     });
     if (!updated) await new Promise((r) => setTimeout(r, 300));
   }
   if (!updated) throw new Error('Order ' + id + ' for visit reference not found');
-  return json({ ok: true, id: updated.id, portalUrl: portalUrl(base, updated) });
+  return json({ ok: true, id: updated.id, portalUrl: portalUrl(base, updated), ...availabilityReply(check) });
+}
+
+async function availabilityFor(store, order, stage) {
+  if (!BOOKING_STAGES.includes(stage)) return null;
+  return checkDate(store, order.event.date, order.event.guestCount, order.id);
+}
+
+function applyStage(order, stage, check) {
+  if (check && !check.available) {
+    // Keep it as a lead so staff can follow up, but don't let it take the date.
+    order.flags.dateUnavailable = check.code;
+    logActivity(order, 'Website', 'Tried to book an unavailable date', check.message);
+    return;
+  }
+  if (BOOKING_STAGES.includes(stage)) delete order.flags.dateUnavailable;
+  advanceFromPublic(order, stage);
+  logActivity(order, 'Website', STAGE_LABELS[stage]);
+}
+
+function availabilityReply(check) {
+  return check && !check.available ? { available: false, code: check.code, message: check.message } : { available: true };
 }
 
 function applyCateringFields(order, body, name, email) {

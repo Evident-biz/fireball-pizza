@@ -157,6 +157,7 @@ export function summarize(order) {
     tags: order.tags,
     callbackRequested: !!order.flags.callbackRequested,
     customerMessage: !!order.flags.customerMessage,
+    dateUnavailable: order.flags.dateUnavailable || '',
     serviceStyle: order.event.serviceStyle,
     payments: order.payment.payments.filter((p) => !p.refunded).map((p) => ({ amount: p.amount, at: p.at, method: p.method })),
     source: order.source,

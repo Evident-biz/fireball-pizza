@@ -18,7 +18,7 @@ export async function renderDashboard({ main, isStale, setTitle }) {
   const bookedThisMonth = cat.filter((o) => WON.includes(o.status) && monthKey(o.eventDate) === thisMonth);
   const collected = paymentsInMonth(orders, thisMonth);
   const upcoming = upcomingEvents(orders, 60);
-  const attention = attentionItems(orders);
+  const attention = attentionItems(orders, state.meta);
 
   const months = monthsAround(5, 6);
   const chartData = months.map((key) => {

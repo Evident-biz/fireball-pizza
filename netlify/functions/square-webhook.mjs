@@ -10,6 +10,7 @@ import { verifySquareSignature } from '../lib/square.mjs';
 import { crmStore, updateOrder, lookupRef } from '../lib/store.mjs';
 import { addPayment, logActivity, paidTotal, balanceDue } from '../lib/orders.mjs';
 import { sendEmail, layout, firstName, formatMoney, formatDate, portalUrl, staffNotifyAddress } from '../lib/email.mjs';
+import { checkDate } from '../lib/availability.mjs';
 import { json, errorResponse, siteUrl } from '../lib/util.mjs';
 
 const PAYMENT_METHOD_BY_SOURCE = { CARD: 'card', BUY_NOW_PAY_LATER: 'afterpay', CASH: 'cash', WALLET: 'card' };
@@ -71,11 +72,16 @@ export default async (req, context) => {
     }
   });
 
-  if (recorded && order) await notify(order, amount, wasFirstPayment, siteUrl(req));
+  if (recorded && order) {
+    // The money is in either way. If the date was taken in the meantime, make sure staff see it.
+    const check = await checkDate(store, order.event.date, order.event.guestCount, order.id).catch(() => null);
+    const conflict = check && !check.available ? check.message : '';
+    await notify(order, amount, wasFirstPayment, siteUrl(req), conflict);
+  }
   return json({ ok: true, recorded });
 };
 
-async function notify(order, amount, wasFirstPayment, base) {
+async function notify(order, amount, wasFirstPayment, base, conflict) {
   const balance = balanceDue(order);
   const rows = [
     ['Order', order.id],
@@ -99,9 +105,12 @@ async function notify(order, amount, wasFirstPayment, base) {
     }),
     sendEmail({
       to: staffNotifyAddress(),
-      subject: 'Payment received: ' + order.customer.name + ' ' + formatMoney(amount) + ' (' + order.id + ')',
+      subject: (conflict ? 'DATE CONFLICT, ' : '') + 'Payment received: ' + order.customer.name + ' ' + formatMoney(amount) + ' (' + order.id + ')',
       html: layout({
-        paragraphs: ['A Square payment was matched to a catering order and recorded automatically.'],
+        paragraphs: [
+          'A Square payment was matched to a catering order and recorded automatically.',
+          ...(conflict ? ['Heads up: this date was not available when the payment came in. ' + conflict + ' Check the calendar and contact the customer.'] : []),
+        ],
         rows: [['Customer', order.customer.name], ...rows],
         button: { label: 'Open in staff portal', url: base + '/admin/#/orders/' + order.id },
       }),

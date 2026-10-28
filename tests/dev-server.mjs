@@ -35,6 +35,7 @@ Object.assign(process.env, { RESEND_API_KEY: 'dev', SQUARE_ACCESS_TOKEN: 'dev', 
 const fn = async (name) => (await import('../netlify/functions/' + name + '.mjs')).default;
 const routes = [
   ['/api/leads', await fn('leads')],
+  ['/api/availability', await fn('availability')],
   ['/api/portal/', await fn('portal')],
   ['/api/admin/', await fn('admin-api')],
   ['/.netlify/functions/create-deposit-link', await fn('create-deposit-link')],

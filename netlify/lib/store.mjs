@@ -6,6 +6,7 @@
 //   email/<sha256(email)>/<id>      empty marker, lets the customer portal find a customer's orders
 //   sq/<squareOrderId>              -> order id, lets the Square webhook find the order a payment belongs to
 //   magic/<token>                   one-time "my orders" sign-in link for customers
+//   hold/<date>/<id>                empty marker: this order (Booked or Reserved) holds that date
 //
 // Blobs is last-write-wins. Every order write goes through an ETag check (onlyIfMatch),
 // so two people saving the same order at once get a conflict instead of silently
@@ -13,6 +14,7 @@
 
 import { getStore } from '@netlify/blobs';
 import { sha256 } from './util.mjs';
+import { holdKey } from './availability.mjs';
 
 // Deploy previews and branch deploys get their own store so testing never touches real orders.
 export function crmStore(context) {
@@ -36,18 +38,35 @@ export async function getOrder(store, id) {
 }
 
 export async function createOrder(store, order) {
+  const previousHold = order.holdKey || '';
+  order.holdKey = holdKey(order);
   const result = await store.setJSON('order/' + order.id, order, { onlyIfNew: true });
-  if (!result.modified) return null;
+  if (!result.modified) {
+    order.holdKey = previousHold;
+    return null;
+  }
   if (order.customer?.email) await indexEmail(store, order.customer.email, order.id);
+  if (order.holdKey) await store.set(order.holdKey, '');
   return result.etag;
 }
 
 // Returns the new ETag, or null when someone else changed the order since `etag` was read.
+// Also moves the order's date marker when its status or date changed.
 export async function writeOrder(store, order, etag) {
   // Never fall back to an unconditional write: without an ETag there is no conflict check.
   if (!etag) return null;
+  const previousHold = order.holdKey || '';
+  order.holdKey = holdKey(order);
   const result = await store.setJSON('order/' + order.id, order, { onlyIfMatch: etag });
-  return result.modified ? result.etag : null;
+  if (!result.modified) {
+    order.holdKey = previousHold;
+    return null;
+  }
+  if (order.holdKey !== previousHold) {
+    if (order.holdKey) await store.set(order.holdKey, '');
+    if (previousHold) await store.delete(previousHold);
+  }
+  return result.etag;
 }
 
 // Read-modify-write with retries, for server-side updates (webhooks, customer requests)
@@ -87,6 +106,7 @@ export async function deleteOrder(store, order) {
   if (order.customer?.email) await store.delete('email/' + sha256(order.customer.email.toLowerCase()) + '/' + order.id);
   if (order.clientRefHash) await store.delete('ref/' + order.clientRefHash);
   for (const sq of order.payment?.squareOrderIds || []) await store.delete('sq/' + sq);
+  if (order.holdKey) await store.delete(order.holdKey);
 }
 
 export async function indexEmail(store, email, id) {
