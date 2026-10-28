@@ -2,7 +2,7 @@ import { state, loadOrders, setQuery } from '../app.js';
 import { html, mount, $, money, todayIso, statusPill, dateLabel } from '../ui.js';
 import { catering, isMarketDay } from '../metrics.js';
 
-const SHOWN = ['lead', 'pending_deposit', 'reserved', 'booked', 'completed'];
+const SHOWN = ['lead', 'pending_deposit', 'reserved', 'date_check', 'booked', 'completed'];
 
 export async function renderCalendar({ main, params, isStale, setTitle }) {
   setTitle('Calendar');

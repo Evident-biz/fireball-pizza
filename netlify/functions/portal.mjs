@@ -13,7 +13,6 @@ import { crmStore, getOrder, updateOrder, orderIdsForEmail } from '../lib/store.
 import { customerView, logActivity } from '../lib/orders.mjs';
 import { amountToCollect, createLinkForOrder } from '../lib/deposit.mjs';
 import { SquareConfigError } from '../lib/square.mjs';
-import { checkDate } from '../lib/availability.mjs';
 import { sendEmail, layout, firstName, portalUrl, staffNotifyAddress, formatDate } from '../lib/email.mjs';
 import { json, errorResponse, readJson, HttpError, str, isEmail, normalizeEmail, newToken, newNoteId, safeEqual, sha256, siteUrl } from '../lib/util.mjs';
 
@@ -88,11 +87,6 @@ async function payLink(store, req) {
   const due = amountToCollect(order);
   if (!due) {
     throw new HttpError(400, 'There is nothing to pay online for this order right now.');
-  }
-  // A deposit on an order that doesn't hold its date yet would take a date we may not have.
-  if (due.kind === 'deposit' && !['booked', 'reserved'].includes(order.status)) {
-    const check = await checkDate(store, order.event.date, order.event.guestCount, order.id);
-    if (!check.available) throw new HttpError(409, check.message);
   }
   try {
     const link = await createLinkForOrder(store, order.id, { amount: due.amount, kind: due.kind, by: 'Customer' });

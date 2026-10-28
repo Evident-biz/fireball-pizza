@@ -9,7 +9,7 @@
 .portal-status{ margin-bottom: 24px; }
 .portal-pill{ display: inline-block; font-weight: 700; font-size: .82rem; padding: 4px 12px; border-radius: 999px; background: var(--line); color: var(--ink); white-space: nowrap; }
 .portal-pill-booked, .portal-pill-completed, .portal-pill-replied{ background: #E6F2E7; color: #2E7D32; }
-.portal-pill-pending_deposit, .portal-pill-reserved, .portal-pill-open{ background: #FDF3DF; color: #8A5A00; }
+.portal-pill-pending_deposit, .portal-pill-reserved, .portal-pill-date_check, .portal-pill-open{ background: #FDF3DF; color: #8A5A00; }
 .portal-pill-lead, .portal-pill-new{ background: #E7EFF9; color: #1F5FAD; }
 .portal-pill-cancelled, .portal-pill-lost{ background: #FBE7E4; color: var(--ember-dark); }
 .portal-steps{ list-style: none; display: flex; padding: 0; margin: 0 0 28px; }

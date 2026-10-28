@@ -26,7 +26,7 @@ export async function renderReports({ main, params, isStale, setTitle }) {
     const cat = catering(inPeriod);
     const won = cat.filter((o) => WON.includes(o.status));
     const lost = cat.filter((o) => ['lost', 'cancelled'].includes(o.status));
-    const open = cat.filter((o) => ['lead', 'pending_deposit', 'reserved'].includes(o.status));
+    const open = cat.filter((o) => ['lead', 'pending_deposit', 'reserved', 'date_check'].includes(o.status));
     const inquiries = inPeriod.filter((o) => o.type === 'inquiry');
     const revenue = sum(won, (o) => o.total);
     const guests = sum(won, (o) => o.guestCount);
@@ -34,7 +34,7 @@ export async function renderReports({ main, params, isStale, setTitle }) {
     const avgLead = leadDays.length ? Math.round(leadDays.reduce((a, b) => a + b, 0) / leadDays.length) : null;
 
     // Funnel: how far each catering lead got.
-    const reachedDeposit = cat.filter((o) => ['pending_deposit', 'reserved', 'booked', 'completed'].includes(o.status) || o.paid > 0).length;
+    const reachedDeposit = cat.filter((o) => ['pending_deposit', 'reserved', 'date_check', 'booked', 'completed'].includes(o.status) || o.paid > 0).length;
     const funnel = [
       { label: 'Quotes started', value: cat.length },
       { label: 'Started booking (deposit or reservation)', value: reachedDeposit, sub: pct(reachedDeposit, cat.length) + ' of quotes' },

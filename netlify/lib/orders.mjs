@@ -6,6 +6,7 @@ export const CATERING_STATUSES = [
   { id: 'lead', label: 'Lead', help: 'Built or viewed a quote, nothing committed yet' },
   { id: 'pending_deposit', label: 'Deposit Pending', help: 'Opened the payment page, payment not confirmed' },
   { id: 'reserved', label: 'Reserved', help: 'Date held, paying by cash or check' },
+  { id: 'date_check', label: 'Date to Confirm', help: 'Wants a date that may not work (already booked, or a market day under 40 guests). Call to confirm.' },
   { id: 'booked', label: 'Booked', help: 'Deposit paid or confirmed by staff' },
   { id: 'completed', label: 'Completed', help: 'Event is done' },
   { id: 'cancelled', label: 'Cancelled', help: 'Customer cancelled' },
@@ -34,7 +35,9 @@ const STAGE_TO_STATUS = {
   deposit_initiated: 'pending_deposit',
   reserved_no_deposit: 'reserved',
 };
-const PUBLIC_LADDER = ['lead', 'pending_deposit', 'reserved'];
+const PUBLIC_LADDER = ['lead', 'pending_deposit', 'reserved', 'date_check'];
+// Statuses where the customer has committed but nothing is confirmed yet.
+export const AWAITING_CONFIRMATION = ['lead', 'pending_deposit', 'reserved', 'date_check'];
 
 export function isValidStatus(type, status) {
   const list = type === 'catering' ? CATERING_STATUSES : INQUIRY_STATUSES;
@@ -178,7 +181,7 @@ export function customerView(order) {
     id: order.id,
     type: order.type,
     status: order.status,
-    statusLabel: statusLabel(order.type, order.status),
+    statusLabel: order.status === 'date_check' ? 'Confirming your date' : statusLabel(order.type, order.status),
     createdAt: order.createdAt,
     customer: { name: order.customer.name, email: order.customer.email, phone: order.customer.phone },
     event: order.event,

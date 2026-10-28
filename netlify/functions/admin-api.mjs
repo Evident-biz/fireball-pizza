@@ -224,7 +224,7 @@ async function recordPayment(store, id, req, user, base) {
   const order = await updateOrder(store, id, (o) => {
     addPayment(o, { amount, method, note: str(body.note, 300), at, by: user.name });
     logActivity(o, user.name, 'Payment recorded', formatMoney(amount) + ' ' + method);
-    if (body.markBooked && ['lead', 'pending_deposit', 'reserved'].includes(o.status)) {
+    if (body.markBooked && ['lead', 'pending_deposit', 'reserved', 'date_check'].includes(o.status)) {
       o.status = 'booked';
       logActivity(o, user.name, 'Status changed', 'Booked');
     }

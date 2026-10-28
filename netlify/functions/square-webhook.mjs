@@ -53,7 +53,8 @@ export default async (req, context) => {
   const amount = ((payment.amount_money?.amount || 0) + (payment.tip_money?.amount || 0)) / 100;
   let recorded = false;
   let wasFirstPayment = false;
-  const order = await updateOrder(store, orderId, (o) => {
+  let conflict = '';
+  const order = await updateOrder(store, orderId, async (o) => {
     wasFirstPayment = paidTotal(o) === 0;
     recorded = addPayment(o, {
       amount,
@@ -66,23 +67,28 @@ export default async (req, context) => {
     // Square sends created and updated events for the same payment. Only the first one counts.
     if (!recorded) return false;
     logActivity(o, 'Square', 'Payment received', formatMoney(amount) + ' via ' + (payment.source_type || 'card').toLowerCase());
-    if (['lead', 'pending_deposit', 'reserved'].includes(o.status)) {
-      o.status = 'booked';
-      logActivity(o, 'Square', 'Status changed', 'Booked (deposit paid)');
+    if (['lead', 'pending_deposit', 'reserved', 'date_check'].includes(o.status)) {
+      // A date that breaks a rule waits for staff instead of being booked automatically.
+      const check = await checkDate(store, o.event.date, o.event.guestCount, o.id).catch(() => null);
+      conflict = check && !check.available ? check.message : '';
+      if (conflict || o.status === 'date_check') {
+        if (check && !check.available) o.flags.dateUnavailable = check.code;
+        o.status = 'date_check';
+        logActivity(o, 'Square', 'Status changed', 'Date to Confirm (deposit paid, date needs checking)');
+      } else {
+        o.status = 'booked';
+        logActivity(o, 'Square', 'Status changed', 'Booked (deposit paid)');
+      }
     }
   });
 
-  if (recorded && order) {
-    // The money is in either way. If the date was taken in the meantime, make sure staff see it.
-    const check = await checkDate(store, order.event.date, order.event.guestCount, order.id).catch(() => null);
-    const conflict = check && !check.available ? check.message : '';
-    await notify(order, amount, wasFirstPayment, siteUrl(req), conflict);
-  }
+  if (recorded && order) await notify(order, amount, wasFirstPayment, siteUrl(req), conflict);
   return json({ ok: true, recorded });
 };
 
 async function notify(order, amount, wasFirstPayment, base, conflict) {
   const balance = balanceDue(order);
+  const needsConfirming = order.status === 'date_check';
   const rows = [
     ['Order', order.id],
     ['Event date', formatDate(order.event.date)],
@@ -94,10 +100,16 @@ async function notify(order, amount, wasFirstPayment, base, conflict) {
   await Promise.all([
     sendEmail({
       to: order.customer.email,
-      subject: wasFirstPayment ? 'Your Fireball Pizza catering deposit is confirmed' : 'Payment received for your Fireball Pizza order',
+      subject: needsConfirming
+        ? 'We received your Fireball Pizza deposit'
+        : wasFirstPayment ? 'Your Fireball Pizza catering deposit is confirmed' : 'Payment received for your Fireball Pizza order',
       html: layout({
         greeting: 'Hi ' + firstName(order.customer.name) + ',',
-        paragraphs: [wasFirstPayment ? 'We received your deposit and your date is officially booked.' : 'Thanks, we received your payment.'],
+        paragraphs: [
+          needsConfirming
+            ? "Thanks, we received your deposit. We need to double-check our schedule for your date, and we'll confirm with you within 1 to 2 business days."
+            : wasFirstPayment ? 'We received your deposit and your date is officially booked.' : 'Thanks, we received your payment.',
+        ],
         rows,
         button: { label: 'View your order', url: portalUrl(base, order) },
         footerNote: "We'll follow up with any final details before your event.",
@@ -105,11 +117,11 @@ async function notify(order, amount, wasFirstPayment, base, conflict) {
     }),
     sendEmail({
       to: staffNotifyAddress(),
-      subject: (conflict ? 'DATE CONFLICT, ' : '') + 'Payment received: ' + order.customer.name + ' ' + formatMoney(amount) + ' (' + order.id + ')',
+      subject: (needsConfirming ? 'CONFIRM DATE, ' : '') + 'Payment received: ' + order.customer.name + ' ' + formatMoney(amount) + ' (' + order.id + ')',
       html: layout({
         paragraphs: [
           'A Square payment was matched to a catering order and recorded automatically.',
-          ...(conflict ? ['Heads up: this date was not available when the payment came in. ' + conflict + ' Check the calendar and contact the customer.'] : []),
+          ...(needsConfirming ? ['This date needs confirming before it counts as booked: ' + (conflict || 'it was flagged when the customer booked.') + ' Check the calendar, call the customer, then set the order to Booked or offer another date.'] : []),
         ],
         rows: [['Customer', order.customer.name], ...rows],
         button: { label: 'Open in staff portal', url: base + '/admin/#/orders/' + order.id },

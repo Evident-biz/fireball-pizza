@@ -13,7 +13,8 @@ import { checkDate } from '../lib/availability.mjs';
 import { json, errorResponse, readJson, HttpError, str, num, money, isEmail, normalizeEmail, isIsoDate, newOrderId, newToken, sha256, siteUrl } from '../lib/util.mjs';
 
 const STAGES = ['quote_viewed', 'quote_built', 'callback_requested', 'deposit_initiated', 'reserved_no_deposit'];
-// Stages that would take the date. These are refused (the order stays a lead) when the date is unavailable.
+// Stages where the customer commits to a date. On a date that breaks a rule they still go
+// through, but the order is flagged and lands in "Date to Confirm" instead of holding the date.
 const BOOKING_STAGES = ['deposit_initiated', 'reserved_no_deposit'];
 
 const STAGE_LABELS = {
@@ -109,15 +110,16 @@ async function availabilityFor(store, order, stage) {
 }
 
 function applyStage(order, stage, check) {
-  if (check && !check.available) {
-    // Keep it as a lead so staff can follow up, but don't let it take the date.
-    order.flags.dateUnavailable = check.code;
-    logActivity(order, 'Website', 'Tried to book an unavailable date', check.message);
-    return;
-  }
-  if (BOOKING_STAGES.includes(stage)) delete order.flags.dateUnavailable;
   advanceFromPublic(order, stage);
   logActivity(order, 'Website', STAGE_LABELS[stage]);
+  if (check && !check.available) {
+    order.flags.dateUnavailable = check.code;
+    // A cash/check reservation would normally hold the date; this one waits for staff instead.
+    if (order.status === 'reserved') order.status = 'date_check';
+    logActivity(order, 'Website', 'Date needs confirming', check.code === 'booked' ? 'Another event is already on this date' : 'Farmers market day with under 40 guests');
+  } else if (BOOKING_STAGES.includes(stage)) {
+    delete order.flags.dateUnavailable;
+  }
 }
 
 function availabilityReply(check) {

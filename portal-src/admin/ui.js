@@ -96,7 +96,7 @@ export function telHref(phone) {
 // ---------- status pills ----------
 
 const STATUS_TONE = {
-  lead: 'blue', pending_deposit: 'gold', reserved: 'gold', booked: 'green', completed: 'gray', cancelled: 'red', lost: 'gray',
+  lead: 'blue', pending_deposit: 'gold', reserved: 'gold', date_check: 'red', booked: 'green', completed: 'gray', cancelled: 'red', lost: 'gray',
   new: 'blue', open: 'gold', replied: 'green', closed: 'gray', spam: 'red',
 };
 
