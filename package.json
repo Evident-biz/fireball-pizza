@@ -1,0 +1,21 @@
+{
+  "name": "fireball-pizza",
+  "private": true,
+  "description": "Fireball Pizza website, staff portal and customer order portal",
+  "scripts": {
+    "build": "node scripts/build-portal.mjs",
+    "test": "node --test --experimental-test-module-mocks tests/*.test.mjs",
+    "dev:preview": "node --experimental-test-module-mocks tests/dev-server.mjs 8888 --seed"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.1.7",
+    "@netlify/functions": "^6.0.3",
+    "@netlify/identity": "^2.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

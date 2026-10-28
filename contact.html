@@ -188,6 +188,18 @@ document.getElementById('contactForm').addEventListener('submit', function(e){
   const params = new URLSearchParams();
   data.forEach(function(value, key){ params.append(key, value); });
 
+  // Also saves the message to the staff portal inbox. Netlify Forms still gets it either way.
+  fetch('/api/leads', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      kind: 'contact',
+      botField: data.get('bot-field') || '',
+      customer: { name: data.get('name'), email: data.get('email') },
+      inquiry: { category: data.get('inquiry_type'), message: data.get('message') }
+    })
+  }).catch(function(err){ console.error('Fireball contact form: staff portal save failed', err); });
+
   fetch('/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
