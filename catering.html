@@ -696,7 +696,82 @@ window.addEventListener('scroll', function(){
 // Shared submitter, used both for the silent lead-capture on Calculate and the full Lock In submit.
 // Netlify Forms doesn't dedupe, so both stages land as separate submissions on purpose:
 // better to catch every opportunity (even if someone never finishes) than to risk missing one.
+// --- Staff portal sync ---
+// Every submission also saves to /api/leads, which keeps one order per visit in the staff
+// portal (status, payments, notes) and gives the customer their private order page.
+// This runs beside Netlify Forms, never instead of it, and never blocks the booking flow.
+const portalVisitRef = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2));
+let portalOrder = null; // { id, token, portalUrl } once the first save lands
+let portalSync = Promise.resolve(null);
+
+function portalStageFor(subject){
+  if(/^Quote Viewed/.test(subject)) return 'quote_viewed';
+  if(/^Custom Quote Built/.test(subject)) return 'quote_built';
+  if(/^Pizza Pro Callback/.test(subject)) return 'callback_requested';
+  if(/^Date Confirmed, Deposit Not Collected/.test(subject)) return 'reserved_no_deposit';
+  return 'deposit_initiated';
+}
+
+function saveToPortal(stage){
+  const val = function(id){ const el = document.getElementById(id); return el ? el.value : ''; };
+  const timeSelect = document.getElementById('eventTime');
+  const pricing = val('sendPricing');
+  const styleMatch = pricing.match(/^Style: ([^(|]+)/);
+  const bot = document.querySelector('#calcForm [name="bot-field"]');
+  const payload = {
+    kind: 'catering',
+    clientRef: portalVisitRef,
+    stage: stage,
+    botField: bot ? bot.value : '',
+    customer: { name: val('sendName').trim(), email: val('sendEmail').trim(), phone: val('sendPhone').trim() },
+    event: {
+      date: val('eventDate'),
+      timeLabel: timeSelect && timeSelect.value && timeSelect.selectedOptions[0] ? timeSelect.selectedOptions[0].text : '',
+      address: val('calcAddress').trim() || val('sendAddress'),
+      guestCount: val('sendGuestCount') || currentGuestCount
+    },
+    quote: {
+      total: lastGrandTotal || document.getElementById('calcGrandTotal').textContent,
+      deposit: val('sendDepositRaw'),
+      pricingSummary: pricing,
+      extras: val('sendAppetizers'),
+      distance: val('sendDistance'),
+      driveLabor: val('sendDriveLabor'),
+      serviceTime: val('sendServiceTime'),
+      serviceStyle: styleMatch ? styleMatch[1].trim() : ''
+    },
+    callbackMessage: stage === 'callback_requested' ? val('sendPizzaProMessage') : ''
+  };
+  if(!payload.customer.name || !payload.customer.email) return portalSync;
+
+  // Chained so the saves land in order and the first one creates the order.
+  portalSync = portalSync.catch(function(){ return null; }).then(function(){
+    return fetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function(res){ return res.ok ? res.json() : null; })
+      .then(function(data){
+        if(data && data.id && data.portalUrl){
+          portalOrder = { id: data.id, token: new URL(data.portalUrl, location.origin).searchParams.get('t'), portalUrl: data.portalUrl };
+        }
+        return portalOrder;
+      })
+      .catch(function(err){
+        console.error('Fireball estimator: staff portal save failed', err);
+        return portalOrder;
+      });
+  });
+  return portalSync;
+}
+
+// The saved order, waiting at most `ms` so a slow save never holds up payment.
+function portalOrderSoon(ms){
+  return Promise.race([
+    portalSync.catch(function(){ return null; }),
+    new Promise(function(resolve){ setTimeout(function(){ resolve(portalOrder); }, ms); })
+  ]);
+}
+
 function submitFormToNetlify(subjectOverride){
+  saveToPortal(portalStageFor(subjectOverride || document.getElementById('sendSubject').value));
   const form = document.getElementById('calcForm');
   const data = new FormData(form);
   if(subjectOverride) data.set('subject', subjectOverride);
@@ -733,20 +808,24 @@ function sendCustomerConfirmation(type){
     ? eventTimeSelect.selectedOptions[0].text
     : eventTimeSelect.value;
 
-  return fetch('/.netlify/functions/send-confirmation-email', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      type: type,
-      name: name,
-      email: email,
-      eventDate: document.getElementById('eventDate').value,
-      eventTime: eventTimeLabel,
-      address: document.getElementById('calcAddress').value,
-      guestCount: document.getElementById('sendGuestCount').value,
-      totalQuote: document.getElementById('calcGrandTotal').textContent,
-      depositAmount: document.getElementById('calcDeposit').textContent
-    })
+  return portalOrderSoon(4000).then(function(order){
+    return fetch('/.netlify/functions/send-confirmation-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId: order ? order.id : '',
+        orderToken: order ? order.token : '',
+        type: type,
+        name: name,
+        email: email,
+        eventDate: document.getElementById('eventDate').value,
+        eventTime: eventTimeLabel,
+        address: document.getElementById('calcAddress').value,
+        guestCount: document.getElementById('sendGuestCount').value,
+        totalQuote: document.getElementById('calcGrandTotal').textContent,
+        depositAmount: document.getElementById('calcDeposit').textContent
+      })
+    });
   }).then(function(res){
     return !!(res && res.ok);
   }).catch(function(err){
@@ -894,14 +973,18 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
   })
   .finally(function(){
     // Payment page always opens here, whether lead capture above succeeded or not.
-    fetch('/.netlify/functions/create-deposit-link', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount: depositAmountRaw,
-        description: 'Fireball Pizza Catering Deposit: ' + name,
-        referenceId: name
-      })
+    portalOrderSoon(4000).then(function(order){
+      return fetch('/.netlify/functions/create-deposit-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: depositAmountRaw,
+          description: 'Fireball Pizza Catering Deposit: ' + name + (order ? ' (' + order.id + ')' : ''),
+          referenceId: order ? order.id : name,
+          orderId: order ? order.id : '',
+          orderToken: order ? order.token : ''
+        })
+      });
     })
     .then(function(res){ return res && res.ok ? res.json() : Promise.reject(new Error('link creation failed')); })
     .then(function(data){

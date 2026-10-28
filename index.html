@@ -2,6 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>
+// Netlify Identity emails (staff invites, password resets) link to the home page with a token
+// in the URL hash. Send those straight to the staff sign-in page, which knows what to do with them.
+if(/(invite|recovery|confirmation|email_change)_token=/.test(location.hash)){ location.replace('/admin/login.html' + location.hash); }
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fireball Pizza | Mobile Pizza Catering, Modesto CA</title>
 <meta name="description" content="Fresh, stone oven pizza catering for weddings, corporate events, and private parties in the Modesto area.">

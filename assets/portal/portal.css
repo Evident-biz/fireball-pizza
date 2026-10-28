@@ -1,0 +1,58 @@
+/* Customer order portal. Builds on assets/style.css. */
+.portal{ background: var(--paper); min-height: 70vh; padding: 48px 0 72px; }
+.portal-wrap{ max-width: 860px; }
+.portal h1{ font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 8px; }
+.portal h2{ font-size: 1.35rem; margin-bottom: 12px; }
+.portal-loading{ padding: 40px 0; }
+.portal-card{ background: var(--white); border: 1px solid var(--line); border-radius: 8px; padding: 24px; margin-bottom: 18px; display: block; color: inherit; }
+.portal-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+.portal-status{ margin-bottom: 24px; }
+.portal-pill{ display: inline-block; font-weight: 700; font-size: .82rem; padding: 4px 12px; border-radius: 999px; background: var(--line); color: var(--ink); white-space: nowrap; }
+.portal-pill-booked, .portal-pill-completed, .portal-pill-replied{ background: #E6F2E7; color: #2E7D32; }
+.portal-pill-pending_deposit, .portal-pill-reserved, .portal-pill-open{ background: #FDF3DF; color: #8A5A00; }
+.portal-pill-lead, .portal-pill-new{ background: #E7EFF9; color: #1F5FAD; }
+.portal-pill-cancelled, .portal-pill-lost{ background: #FBE7E4; color: var(--ember-dark); }
+.portal-steps{ list-style: none; display: flex; padding: 0; margin: 0 0 28px; }
+.portal-steps li{ flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; font-size: .85rem; color: var(--stone); }
+.portal-steps li::before{ content: ""; position: absolute; top: 9px; left: -50%; width: 100%; height: 2px; background: var(--line); z-index: 0; }
+.portal-steps li:first-child::before{ display: none; }
+.portal-steps li.done::before{ background: var(--ember); }
+.portal-steps .dot{ width: 20px; height: 20px; border-radius: 50%; background: var(--white); border: 2px solid var(--line); position: relative; z-index: 1; }
+.portal-steps li.done{ color: var(--ink); font-weight: 600; }
+.portal-steps li.done .dot{ background: var(--ember); border-color: var(--ember); box-shadow: inset 0 0 0 3px var(--white); }
+.portal-pay{ display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; border-color: var(--results-border); background: var(--results-bg); }
+.portal-pay h2{ margin: 0; }
+.portal-amount{ font-family: var(--font-display); font-size: 2.2rem; margin: 0; line-height: 1.1; }
+.portal-facts{ margin: 0; display: grid; gap: 10px; }
+.portal-facts div{ display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.portal-facts dt{ color: var(--stone); font-size: .9rem; }
+.portal-facts dd{ margin: 0; text-align: right; font-weight: 600; word-break: break-word; }
+.portal-payments{ list-style: none; padding: 0; margin: 12px 0 0; font-size: .9rem; }
+.portal-payments li{ display: flex; justify-content: space-between; padding: 4px 0; color: var(--stone); }
+.portal-breakdown summary{ cursor: pointer; font-weight: 700; }
+.portal-breakdown ul{ list-style: none; padding: 12px 0 0; margin: 0; font-size: .9rem; }
+.portal-breakdown li{ display: flex; justify-content: space-between; gap: 16px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.portal-breakdown li span:last-child{ text-align: right; }
+.portal-messages{ list-style: none; padding: 0; margin: 0; }
+.portal-messages li{ border-bottom: 1px solid var(--line); padding: 8px 0; }
+.portal-messages p{ margin: 4px 0 0; white-space: pre-wrap; }
+.portal-order-list{ list-style: none; padding: 0; margin: 16px 0; }
+.portal-order-link{ display: flex; justify-content: space-between; align-items: center; gap: 16px; text-decoration: none; }
+.portal-order-link:hover{ border-color: var(--ember); }
+.portal-order-link div{ display: flex; flex-direction: column; }
+.portal-private{ margin-top: 24px; }
+.portal-private a{ color: var(--ember); text-decoration: underline; }
+.portal .small{ font-size: .85rem; }
+.portal .field input, .portal .field textarea{ width: 100%; }
+.portal form .btn{ margin-top: 12px; }
+.portal .sr-only{ position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.portal-foot{ background: var(--ink); color: rgba(255,255,255,.75); padding: 28px 0; font-size: .9rem; }
+.portal-foot a{ color: var(--white); text-decoration: underline; }
+.portal-foot .muted{ color: rgba(255,255,255,.5); margin: 0; }
+@media (max-width: 700px){
+  .portal{ padding: 28px 0 56px; }
+  .portal-grid{ grid-template-columns: 1fr; }
+  .portal-card{ padding: 18px; }
+  .portal-steps li{ font-size: .72rem; }
+  .portal-pay .btn{ width: 100%; justify-content: center; }
+}

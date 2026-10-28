@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Sign in | Fireball Staff Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="icon" href="/assets/favicon/favicon.ico?v=6" sizes="any">
+<link rel="stylesheet" href="/assets/admin/admin.css">
+</head>
+<body class="admin login-page">
+<main class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <img src="/assets/images/logo.png" alt="Fireball Pizza" width="64" height="64">
+      <p class="eyebrow">Staff Portal</p>
+    </div>
+
+    <section id="loadingPanel" data-panel>
+      <p class="muted center">Checking your session…</p>
+    </section>
+
+    <section id="loginPanel" data-panel hidden>
+      <h1>Sign in</h1>
+      <form id="loginForm" novalidate>
+        <label class="block">Email<input name="email" type="email" autocomplete="username" required></label>
+        <label class="block">Password<input name="password" type="password" autocomplete="current-password" required></label>
+        <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+        <p class="form-msg" role="alert"></p>
+      </form>
+      <p class="center small"><a href="#" id="forgotLink">Forgot your password?</a></p>
+    </section>
+
+    <section id="forgotPanel" data-panel hidden>
+      <h1>Reset password</h1>
+      <p class="muted">Enter your email and we'll send you a link to set a new password.</p>
+      <form id="forgotForm" novalidate>
+        <label class="block">Email<input name="email" type="email" autocomplete="username" required></label>
+        <button class="btn btn-primary btn-block" type="submit">Send reset link</button>
+        <p class="form-msg" role="status"></p>
+      </form>
+      <p class="center small"><a href="#" data-back>Back to sign in</a></p>
+    </section>
+
+    <section id="invitePanel" data-panel hidden>
+      <h1>Welcome to the team</h1>
+      <p class="muted">Set up your account to get into the staff portal.</p>
+      <form id="inviteForm" novalidate>
+        <label class="block">Your name<input name="fullName" autocomplete="name" placeholder="Shown on notes and assignments"></label>
+        <label class="block">Choose a password<input name="password" type="password" autocomplete="new-password" minlength="10" required></label>
+        <label class="block">Type it again<input name="confirm" type="password" autocomplete="new-password" required></label>
+        <button class="btn btn-primary btn-block" type="submit">Create account</button>
+        <p class="form-msg" role="alert"></p>
+      </form>
+    </section>
+
+    <section id="resetPanel" data-panel hidden>
+      <h1>Set a new password</h1>
+      <form id="resetForm" novalidate>
+        <label class="block">New password<input name="password" type="password" autocomplete="new-password" minlength="10" required></label>
+        <label class="block">Type it again<input name="confirm" type="password" autocomplete="new-password" required></label>
+        <button class="btn btn-primary btn-block" type="submit">Save password</button>
+        <p class="form-msg" role="alert"></p>
+      </form>
+    </section>
+  </div>
+  <p class="center small muted"><a href="/">← Back to fireball.pizza</a></p>
+</main>
+<script src="/assets/admin/login.js"></script>
+</body>
+</html>
