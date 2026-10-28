@@ -293,6 +293,7 @@ a.list-row:hover{ background: var(--paper); text-decoration: none; }
 .cal-booked, .cal-completed{ background: var(--green-wash); border-color: var(--green); }
 .cal-reserved, .cal-pending_deposit{ background: var(--gold-wash); border-color: var(--gold); }
 .cal-lead{ background: var(--blue-wash); border-color: var(--blue); }
+.cal-date_check{ background: var(--red-wash); border-color: var(--ember); }
 @media (max-width: 700px){
   .calendar{ display: none; }
 }

@@ -88,8 +88,8 @@ export async function renderOrder({ main, id, isStale, setTitle }) {
 
       ${problems.map((p) => html`
         <div class="banner banner-red"><span><strong>Date problem.</strong> ${p.text}.${p.others ? html` ${p.others.map((x) => html`<a href="#/orders/${x.id}">${x.id}</a> `)}` : ''}</span></div>`)}
-      ${o.flags.dateUnavailable && o.status === 'lead' ? html`
-        <div class="banner banner-gold"><span><strong>Tried to book an unavailable date.</strong> ${o.flags.dateUnavailable === 'booked' ? 'That date was already booked.' : 'It was a farmers market day with fewer than ' + meta.marketMinGuests + ' guests.'} The website didn't let them pay. Worth a call to offer another day.</span></div>` : ''}
+      ${o.flags.dateUnavailable && ['lead', 'pending_deposit', 'reserved', 'date_check'].includes(o.status) ? html`
+        <div class="banner banner-gold"><span><strong>Date needs confirming.</strong> ${o.flags.dateUnavailable === 'booked' ? 'Another event was already on this date when they booked.' : 'It\u2019s a farmers market day with fewer than ' + meta.marketMinGuests + ' guests.'} The customer was told we'll confirm within 1 to 2 business days. Call them, then set the status to Booked or Reserved, or offer another date.</span></div>` : ''}
       ${o.flags.customerMessage ? html`
         <div class="banner banner-gold"><span><strong>New message from the customer.</strong> See the notes below.</span><button class="btn btn-sm btn-ghost" data-act="msg-read">Mark read</button></div>` : ''}
       ${o.flags.callbackRequested ? html`
@@ -294,7 +294,7 @@ export async function renderOrder({ main, id, isStale, setTitle }) {
             <label>Date received<input name="date" type="date" value="${todayIso()}"></label>
             <label>Note<input name="note" placeholder="Check #, Square receipt…"></label>
           </div>
-          ${['lead', 'pending_deposit', 'reserved'].includes(data.order.status) ? html`<label class="check"><input type="checkbox" name="markBooked" checked> Mark this order Booked</label>` : ''}
+          ${['lead', 'pending_deposit', 'reserved', 'date_check'].includes(data.order.status) ? html`<label class="check"><input type="checkbox" name="markBooked" checked> Mark this order Booked</label>` : ''}
           <p class="muted small">Card payments through a payment link from this system record themselves. Use this for cash, checks, Afterpay, and anything paid another way.</p>`,
         onSubmit: async (form) => {
           const v = formValues(form);

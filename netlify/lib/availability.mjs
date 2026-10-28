@@ -1,5 +1,8 @@
 // Catering date availability.
 //
+// Nothing is ever refused. A date that breaks a rule is still accepted, the customer is told
+// we'll confirm it, and the order is flagged (status "Date to Confirm") for staff to check.
+//
 // Rules:
 //   1. One catering event per day. A date is taken once any catering order on it is
 //      Booked or Reserved. Leads and abandoned deposit pages don't hold a date.
@@ -39,18 +42,19 @@ export async function checkDate(store, date, guests, excludeId = '') {
     return {
       available: false,
       code: 'booked',
-      message: "We're already booked for an event that day. Please pick another date, or call us at (209) 222-8926 and we'll see what we can do.",
+      message: "Heads up: we may already have an event that day. You can still book, and we'll confirm your date within 1 to 2 business days.",
       conflicts: taken,
     };
   }
   if (isMarketDay(date)) {
-    const rule = "Thursdays and Saturdays we're at " + MARKET_NAME + ', so on those days we can only cater events of ' + MARKET_MIN_GUESTS + ' guests or more.';
+    const rule = "Thursdays and Saturdays we're at " + MARKET_NAME + ', so on those days we usually cater events of ' + MARKET_MIN_GUESTS + ' guests or more.';
+    const confirm = rule + " You can still book, and we'll confirm your date within 1 to 2 business days.";
     if (guests === null || guests === undefined || guests === '') {
       // Guest count not chosen yet: the date is fine, but tell them the rule up front.
       return { available: true, code: 'market_day', marketDay: true, message: rule };
     }
     const ok = Number(guests) >= MARKET_MIN_GUESTS;
-    return { available: ok, code: ok ? 'market_ok' : 'market_min', marketDay: true, message: ok ? '' : rule };
+    return { available: ok, code: ok ? 'market_ok' : 'market_min', marketDay: true, message: ok ? '' : confirm };
   }
   return { available: true, code: 'open', message: '' };
 }

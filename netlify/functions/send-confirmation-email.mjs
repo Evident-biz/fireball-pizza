@@ -48,11 +48,15 @@ export default async (req, context) => {
   if (!copy) return errorResponse(400, 'Unknown confirmation type');
 
   let button = null;
+  let dateNote = '';
   if (orderId && orderToken) {
     try {
       const found = await getOrder(crmStore(context), orderId);
       if (found && safeEqual(found.order.portalToken, orderToken)) {
         button = { label: type === 'deposit' ? 'View or pay for your order' : 'View your order', url: portalUrl(siteUrl(req), found.order) };
+        if (found.order.flags?.dateUnavailable && type !== 'quote') {
+          dateNote = "We need to double-check our schedule for your date, and we'll confirm with you within 1 to 2 business days.";
+        }
       }
     } catch (err) {
       console.error('Fireball confirmation email: order lookup failed', err);
@@ -61,7 +65,8 @@ export default async (req, context) => {
 
   const html = layout({
     greeting: 'Hi ' + firstName(name) + ',',
-    paragraphs: [copy.intro],
+    // A flagged reservation hasn't actually reserved anything yet, so don't say it has.
+    paragraphs: dateNote ? [type === 'reservation' ? "Thanks, we got your booking request." : copy.intro, dateNote] : [copy.intro],
     rows: [
       ['Event date', /^\d{4}-\d{2}-\d{2}$/.test(eventDate || '') ? formatDate(eventDate) : ''],
       ['Start time', eventTime],
@@ -75,6 +80,7 @@ export default async (req, context) => {
   });
 
   // Don't fail the customer's booking flow over this. Problems are logged and reported as not sent.
-  const result = await sendEmail({ to: email, subject: copy.subject, html });
+  const subject = dateNote && type === 'reservation' ? 'We got your Fireball Pizza catering request' : copy.subject;
+  const result = await sendEmail({ to: email, subject, html });
   return json(result.skipped ? { skipped: true } : { sent: !!result.sent, id: result.id });
 };

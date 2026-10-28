@@ -699,9 +699,9 @@ window.addEventListener('scroll', function(){
 // Netlify Forms doesn't dedupe, so both stages land as separate submissions on purpose:
 // better to catch every opportunity (even if someone never finishes) than to risk missing one.
 // --- Date availability ---
-// One catering event per day, and on farmers market days (Thu/Sat) only 40+ guests.
-// The server decides (/api/availability); this just asks early so people find out before paying.
-// If the check itself fails we let them continue, and the server still refuses a taken date.
+// One catering event per day, and on farmers market days (Thu/Sat) usually only 40+ guests.
+// Nobody is turned away: on a date that breaks a rule we show a heads-up that we'll confirm
+// the date, and the order lands in the staff portal as "Date to Confirm".
 let reachedMenuStep = false; // guest count only counts once they've been to the menu step
 let availabilityCheck = { key: '', promise: null, result: null };
 
@@ -726,27 +726,25 @@ function checkAvailability(){
 }
 
 function showAvailability(result){
-  const blocked = result && !result.available;
+  const flagged = result && !result.available;
   const message = result && result.message ? result.message : '';
   const dateHint = document.getElementById('calcDateHint');
   const guestHint = document.getElementById('calcGuestHint');
   // Booked dates show by the date picker; the 40-guest rule shows by the guest count once that matters.
   dateHint.textContent = result && (result.code === 'booked' || (result.code === 'market_day' && !reachedMenuStep)) ? message : '';
-  dateHint.style.color = blocked ? 'var(--ember)' : 'var(--stone)';
+  dateHint.style.color = flagged ? '#8A5A00' : 'var(--stone)';
   guestHint.textContent = result && reachedMenuStep && result.code !== 'booked' ? message : '';
-  guestHint.style.color = blocked ? 'var(--ember)' : 'var(--stone)';
+  guestHint.style.color = flagged ? '#8A5A00' : 'var(--stone)';
 }
 
-// Resolves true if the date can be booked. On a blocked date, shows the reason in `statusEl`.
-function ensureDateAvailable(statusEl){
+// Never blocks. On a date that needs confirming, shows the heads-up in `statusEl` and carries on.
+function noteDateAvailability(statusEl){
   return checkAvailability().then(function(result){
     if(result && !result.available){
-      statusEl.style.color = 'var(--ember)';
+      statusEl.style.color = '#8A5A00';
       statusEl.textContent = result.message;
-      if(typeof gtag === 'function') gtag('event', 'date_unavailable', { reason: result.code });
-      return false;
+      if(typeof gtag === 'function') gtag('event', 'date_needs_confirming', { reason: result.code });
     }
-    return true;
   });
 }
 
@@ -940,8 +938,7 @@ document.getElementById('calcSubmitBtn').addEventListener('click', function(){
   const status = document.getElementById('calcSendStatus');
   if(!validateBookingReady(status)) return;
   status.textContent = '';
-  ensureDateAvailable(status).then(function(ok){
-    if(!ok) return;
+  noteDateAvailability(status).then(function(){
     document.getElementById('calcPaymentPopupAmount').textContent = document.getElementById('calcDeposit').textContent;
     document.getElementById('calcPaymentPopupStatus').textContent = '';
     document.getElementById('calcPaymentPopupOverlay').classList.add('open');
@@ -971,9 +968,11 @@ document.getElementById('calcAfterpayLink').addEventListener('click', function(e
   // Confirmation email and analytics fire right away, independent of the
   // lead-capture call below, so a failure there can't take these out too.
   if(typeof gtag === 'function') gtag('event', 'deposit_initiated', { method: 'afterpay' });
+  const leadCapture = submitFormToNetlify(document.getElementById('sendSubject').value);
+  // Queued after the order save above, so the email knows if the date needs confirming.
   sendCustomerConfirmation('deposit');
 
-  submitFormToNetlify(document.getElementById('sendSubject').value)
+  leadCapture
   .then(function(){
     status.style.color = '#2E7D32';
     status.textContent = "Opening the Afterpay-enabled payment page in a new tab. Changed your mind? You can still recalculate or choose a different payment method.";
@@ -1024,9 +1023,11 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
   // Confirmation email and analytics fire right away, independent of the
   // lead-capture call below, so a failure there can't take these out too.
   if(typeof gtag === 'function') gtag('event', 'deposit_initiated', { method: 'square' });
+  const leadCapture = submitFormToNetlify(document.getElementById('sendSubject').value);
+  // Queued after the order save above, so the email knows if the date needs confirming.
   sendCustomerConfirmation('deposit');
 
-  submitFormToNetlify(document.getElementById('sendSubject').value)
+  leadCapture
   .then(function(){
     status.style.color = '#2E7D32';
     status.textContent = "Opening the payment page for " + depositAmountDisplay + "\u2026 didn't open? Use the button below. Changed your mind? You can still recalculate or choose a different payment method.";
@@ -1051,25 +1052,9 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
         })
       });
     })
-    .then(function(res){
-      if(res && res.status === 409){
-        return res.json().then(function(data){
-          const err = new Error(data.error || 'That date is not available.');
-          err.unavailable = true;
-          throw err;
-        });
-      }
-      return res && res.ok ? res.json() : Promise.reject(new Error('link creation failed'));
-    })
+    .then(function(res){ return res && res.ok ? res.json() : Promise.reject(new Error('link creation failed')); })
     .then(function(data){
       openPaymentPage(data.url);
-    })
-    .catch(function(err){
-      if(!err.unavailable) throw err;
-      clearTimeout(slowTimer);
-      submitBtn.classList.remove('is-loading');
-      status.style.color = 'var(--ember)';
-      status.textContent = err.message;
     })
     .catch(function(err){
       console.error('Fireball estimator: exact-amount payment link failed, falling back to static link', err);
@@ -1091,12 +1076,12 @@ document.getElementById('calcNoDepositBtn').addEventListener('click', function()
   status.style.color = 'var(--stone)';
   status.textContent = 'Sending...';
 
-  ensureDateAvailable(status).then(function(ok){
-    if(!ok){ btn.disabled = false; return; }
+  noteDateAvailability(status).then(function(){
     if(typeof gtag === 'function') gtag('event', 'reservation_confirmed', { method: 'cash_check' });
+    const leadCapture = submitFormToNetlify('Date Confirmed, Deposit Not Collected');
     sendCustomerConfirmation('reservation');
 
-    submitFormToNetlify('Date Confirmed, Deposit Not Collected')
+    leadCapture
     .then(function(){
       status.style.color = '#2E7D32';
       status.textContent = "Got it. We'll follow up to confirm your date within 1 to 2 business days. Changed your mind? You can still recalculate or choose a different payment method.";
@@ -2098,8 +2083,7 @@ document.getElementById('calcNextBtn').addEventListener('click', function(){
   }
   hint.textContent = '';
 
-  ensureDateAvailable(hint).then(function(ok){
-    if(!ok) return;
+  noteDateAvailability(hint).then(function(){
     reachedMenuStep = true;
     checkAvailability();
     if(typeof gtag === 'function') gtag('event', 'quote_builder_advanced');

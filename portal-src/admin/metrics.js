@@ -2,7 +2,7 @@
 
 import { todayIso, addDaysIso, daysUntil } from './ui.js';
 
-export const OPEN_PIPELINE = ['lead', 'pending_deposit', 'reserved'];
+export const OPEN_PIPELINE = ['lead', 'pending_deposit', 'reserved', 'date_check'];
 export const WON = ['booked', 'completed'];
 export const HOLDING = ['booked', 'reserved'];
 
@@ -64,7 +64,10 @@ export function attentionItems(orders, meta) {
     }
     if (o.customerMessage) items.push({ order: o, rank: 0, reason: 'Customer sent a message' });
     if (o.callbackRequested && !['cancelled', 'lost', 'completed'].includes(o.status)) items.push({ order: o, rank: 1, reason: 'Wants a callback' });
-    if (o.dateUnavailable && o.status === 'lead') items.push({ order: o, rank: 2, reason: o.dateUnavailable === 'booked' ? 'Wanted a date we already have booked. Offer another day?' : 'Wanted a market day with under 40 guests. Offer another day?' });
+    if (o.dateUnavailable && OPEN_PIPELINE.includes(o.status)) {
+      const why = o.dateUnavailable === 'booked' ? 'another event is already that day' : 'farmers market day with under 40 guests';
+      items.push({ order: o, rank: 0, reason: (o.status === 'date_check' ? 'Confirm the date: ' : 'Date needs checking: ') + why + (o.paid > 0 ? ' (deposit paid)' : '') });
+    }
     if (o.type === 'inquiry' && o.status === 'new') items.push({ order: o, rank: 2, reason: 'New inquiry: ' + (o.category || 'General') });
     if (o.type !== 'catering') continue;
     const days = daysUntil(o.eventDate);
@@ -77,7 +80,7 @@ export function attentionItems(orders, meta) {
     if (o.status === 'booked' && days !== null && days >= 0 && days <= 7 && o.balance > 0) {
       items.push({ order: o, rank: 4, reason: 'Event in ' + days + ' days, balance due' });
     }
-    if (['lead', 'pending_deposit', 'reserved', 'booked'].includes(o.status) && o.eventDate && o.eventDate < today) {
+    if ([...OPEN_PIPELINE, 'booked'].includes(o.status) && o.eventDate && o.eventDate < today) {
       items.push({ order: o, rank: 5, reason: 'Event date has passed. Mark it completed or lost?' });
     }
   }
@@ -88,7 +91,7 @@ export function upcomingEvents(orders, days = 60) {
   const today = todayIso();
   const until = addDaysIso(today, days);
   return catering(orders)
-    .filter((o) => ['booked', 'reserved', 'pending_deposit'].includes(o.status) && o.eventDate && o.eventDate >= today && o.eventDate <= until)
+    .filter((o) => ['booked', 'reserved', 'pending_deposit', 'date_check'].includes(o.status) && o.eventDate && o.eventDate >= today && o.eventDate <= until)
     .sort((a, b) => (a.eventDate + (a.eventTime || '')).localeCompare(b.eventDate + (b.eventTime || '')));
 }
 

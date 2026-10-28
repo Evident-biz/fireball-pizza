@@ -1,6 +1,7 @@
 // Public date check for the catering builder.
 //   GET /api/availability?date=YYYY-MM-DD&guests=60
-// Says whether the date can be booked, and why not. Never reveals who booked a date.
+// Says whether the date is clear. When it isn't, the booking is still accepted and
+// `message` tells the customer we'll confirm. Never reveals who booked a date.
 
 import { crmStore } from '../lib/store.mjs';
 import { checkDate, MARKET_DAYS, MARKET_MIN_GUESTS } from '../lib/availability.mjs';
