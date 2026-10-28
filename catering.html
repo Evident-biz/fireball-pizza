@@ -700,8 +700,9 @@ window.addEventListener('scroll', function(){
 // better to catch every opportunity (even if someone never finishes) than to risk missing one.
 // --- Date availability ---
 // One catering event per day, and on farmers market days (Thu/Sat) usually only 40+ guests.
-// Nobody is turned away: on a date that breaks a rule we show a heads-up that we'll confirm
-// the date, and the order lands in the staff portal as "Date to Confirm".
+// Nobody is turned away: on a date that breaks a rule, "Pay Deposit" becomes "Request This
+// Date", which sends the request with no payment. Staff confirm the date ("Date to Confirm"
+// in the staff portal) and then send the deposit link.
 let reachedMenuStep = false; // guest count only counts once they've been to the menu step
 let availabilityCheck = { key: '', promise: null, result: null };
 
@@ -735,6 +736,33 @@ function showAvailability(result){
   dateHint.style.color = flagged ? '#8A5A00' : 'var(--stone)';
   guestHint.textContent = result && reachedMenuStep && result.code !== 'booked' ? message : '';
   guestHint.style.color = flagged ? '#8A5A00' : 'var(--stone)';
+  document.getElementById('calcSubmitBtn').textContent = flagged ? 'Request This Date' : 'Pay Deposit';
+}
+
+function dateNeedsConfirming(){
+  return !!(availabilityCheck.result && !availabilityCheck.result.available);
+}
+
+// Sends the booking as a date request: no payment, staff confirm the date first.
+function requestDate(statusEl){
+  const btn = document.getElementById('calcSubmitBtn');
+  btn.disabled = true;
+  statusEl.style.color = 'var(--stone)';
+  statusEl.textContent = 'Sending your request...';
+  if(typeof gtag === 'function') gtag('event', 'date_requested', { reason: availabilityCheck.result ? availabilityCheck.result.code : '' });
+  const leadCapture = submitFormToNetlify('Date Requested, Needs Confirmation: ' + document.getElementById('sendName').value.trim());
+  sendCustomerConfirmation('reservation');
+  leadCapture
+    .then(function(){
+      statusEl.style.color = '#2E7D32';
+      statusEl.textContent = "Request received. We'll confirm your date within 1 to 2 business days, then send you a link for the deposit. Nothing has been charged.";
+    })
+    .catch(function(err){
+      console.error('Fireball estimator: date request failed', err);
+      statusEl.style.color = 'var(--ember)';
+      statusEl.textContent = "Couldn't send automatically. Please call us at (209) 222-8926 to request this date.";
+    })
+    .finally(function(){ btn.disabled = false; });
 }
 
 // Never blocks. On a date that needs confirming, shows the heads-up in `statusEl` and carries on.
@@ -769,6 +797,7 @@ function portalStageFor(subject){
   if(/^Custom Quote Built/.test(subject)) return 'quote_built';
   if(/^Pizza Pro Callback/.test(subject)) return 'callback_requested';
   if(/^Date Confirmed, Deposit Not Collected/.test(subject)) return 'reserved_no_deposit';
+  if(/^Date Requested/.test(subject)) return 'date_requested';
   return 'deposit_initiated';
 }
 
@@ -939,6 +968,7 @@ document.getElementById('calcSubmitBtn').addEventListener('click', function(){
   if(!validateBookingReady(status)) return;
   status.textContent = '';
   noteDateAvailability(status).then(function(){
+    if(dateNeedsConfirming()){ requestDate(status); return; }
     document.getElementById('calcPaymentPopupAmount').textContent = document.getElementById('calcDeposit').textContent;
     document.getElementById('calcPaymentPopupStatus').textContent = '';
     document.getElementById('calcPaymentPopupOverlay').classList.add('open');
@@ -1052,9 +1082,24 @@ document.getElementById('calcSquarePayBtn').addEventListener('click', function()
         })
       });
     })
-    .then(function(res){ return res && res.ok ? res.json() : Promise.reject(new Error('link creation failed')); })
+    .then(function(res){
+      if(res && res.status === 409){
+        // The date needs confirming first: send it as a request instead of opening payment.
+        const err = new Error('needs confirmation');
+        err.needsConfirmation = true;
+        throw err;
+      }
+      return res && res.ok ? res.json() : Promise.reject(new Error('link creation failed'));
+    })
     .then(function(data){
       openPaymentPage(data.url);
+    })
+    .catch(function(err){
+      if(!err.needsConfirmation) throw err;
+      clearTimeout(slowTimer);
+      submitBtn.classList.remove('is-loading');
+      document.getElementById('calcPaymentPopupOverlay').classList.remove('open');
+      requestDate(document.getElementById('calcSendStatus'));
     })
     .catch(function(err){
       console.error('Fireball estimator: exact-amount payment link failed, falling back to static link', err);
@@ -1077,6 +1122,12 @@ document.getElementById('calcNoDepositBtn').addEventListener('click', function()
   status.textContent = 'Sending...';
 
   noteDateAvailability(status).then(function(){
+    if(dateNeedsConfirming()){
+      document.getElementById('calcPaymentPopupOverlay').classList.remove('open');
+      btn.disabled = false;
+      requestDate(document.getElementById('calcSendStatus'));
+      return;
+    }
     if(typeof gtag === 'function') gtag('event', 'reservation_confirmed', { method: 'cash_check' });
     const leadCapture = submitFormToNetlify('Date Confirmed, Deposit Not Collected');
     sendCustomerConfirmation('reservation');

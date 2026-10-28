@@ -107,7 +107,13 @@ function applyChanges(order, changes) {
 
   if (changes.status !== undefined) {
     if (!isValidStatus(order.type, changes.status)) throw new HttpError(400, 'Unknown status');
+    const wasDateCheck = order.status === 'date_check';
     set('Status', statusLabel(order.type, order.status), statusLabel(order.type, changes.status), () => (order.status = changes.status));
+    // Moving it out of Date to Confirm is the confirmation; the website can take payment again.
+    if (wasDateCheck && changes.status !== 'date_check' && order.flags.dateUnavailable) {
+      delete order.flags.dateUnavailable;
+      log.push('Date confirmed');
+    }
   }
   if (changes.assignee !== undefined) set('Assigned to', order.assignee, str(changes.assignee, 120), (v) => (order.assignee = v));
   if (Array.isArray(changes.tags)) {

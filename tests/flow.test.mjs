@@ -350,17 +350,18 @@ test('farmers market days (Thu/Sat) under 40 guests are accepted but flagged for
   assert.equal((await avail('2027-06-07', 20)).body.available, true, 'a Monday has no minimum');
   assert.equal((await avail('not-a-date')).status, 400);
 
-  // A 30-guest deposit on a market day goes through, flagged.
-  const res = await call(leads, '/api/leads', { method: 'POST', body: cateringPayload({ stage: 'deposit_initiated', event: { date: THURSDAY, guestCount: 30 } }) });
+  // A 30-guest request on a market day is accepted as Date to Confirm, with no payment taken.
+  const res = await call(leads, '/api/leads', { method: 'POST', body: cateringPayload({ stage: 'date_requested', event: { date: THURSDAY, guestCount: 30 } }) });
   assert.equal(res.status, 200);
   assert.equal(res.body.available, false);
   const order = (await asAdmin('/orders/' + res.body.id)).body.order;
-  assert.equal(order.status, 'pending_deposit');
+  assert.equal(order.status, 'date_check');
   assert.equal(order.flags.dateUnavailable, 'market_min');
   const link = await call(depositLink, '/.netlify/functions/create-deposit-link', {
     method: 'POST', body: { amount: 100, orderId: res.body.id, orderToken: tokenFrom(res.body.portalUrl) },
   });
-  assert.equal(link.status, 200, 'they can still pay');
+  assert.equal(link.status, 409, 'no deposit until the date is confirmed');
+  assert.equal(link.body.needsConfirmation, true);
 });
 
 test('a second booking on a taken date is accepted as "Date to Confirm" and does not take the date', async () => {
@@ -389,16 +390,38 @@ test('a second booking on a taken date is accepted as "Date to Confirm" and does
   assert.match(email.html, /confirm with you within 1 to 2 business days/);
   assert.ok(!/date is reserved/.test(email.html));
 
-  // Customer page says so too, and paying still works.
+  // Customer page says so too, with no Pay button until it's confirmed.
   const t = tokenFrom(second.body.portalUrl);
   const page = await call(portal, '/api/portal/order?id=' + second.body.id + '&t=' + t);
   assert.equal(page.body.order.statusLabel, 'Confirming your date');
-  assert.equal((await call(portal, '/api/portal/order/pay', { method: 'POST', body: { id: second.body.id, t } })).status, 200);
+  assert.equal(page.body.order.amountDue, null);
+  assert.equal((await call(portal, '/api/portal/order/pay', { method: 'POST', body: { id: second.body.id, t } })).status, 400);
 
-  // Staff confirming it (Booked) is allowed.
+  // Staff confirm it (Reserved): the flag clears and the customer can pay the deposit.
   const loaded = await asAdmin('/orders/' + second.body.id);
-  const ok = await asAdmin('/orders/' + second.body.id, { method: 'PATCH', body: { etag: loaded.body.etag, changes: { status: 'booked' } } });
+  const ok = await asAdmin('/orders/' + second.body.id, { method: 'PATCH', body: { etag: loaded.body.etag, changes: { status: 'reserved' } } });
   assert.equal(ok.status, 200);
+  assert.equal(ok.body.order.flags.dateUnavailable, undefined);
+  assert.ok(ok.body.order.activity.at(-1).detail.includes('Date confirmed'));
+  assert.equal(ok.body.computed.amountDue.kind, 'deposit');
+  assert.equal((await call(portal, '/api/portal/order/pay', { method: 'POST', body: { id: second.body.id, t } })).status, 200);
+});
+
+test('"Request This Date" on a flagged date: no payment, and the email says nothing was charged', async () => {
+  const date = uniqueWeekday();
+  await asAdmin('/orders', { method: 'POST', body: { type: 'catering', status: 'booked', customer: { name: 'Already here' }, event: { date, guestCount: 80 } } });
+  const res = await call(leads, '/api/leads', { method: 'POST', body: cateringPayload({ stage: 'date_requested', event: { date, guestCount: 50 } }) });
+  const order = (await asAdmin('/orders/' + res.body.id)).body.order;
+  assert.equal(order.status, 'date_check');
+  assert.equal(order.payment.depositLinkUrl, '');
+  await call(confirmEmail, '/.netlify/functions/send-confirmation-email', {
+    method: 'POST', body: { type: 'reservation', name: 'Jane', email: 'jane@example.com', orderId: res.body.id, orderToken: tokenFrom(res.body.portalUrl) },
+  });
+  assert.match(apis.calls.email.at(-1).html, /Nothing has been charged/);
+
+  // On a clear date the same request just reserves it.
+  const clear = await call(leads, '/api/leads', { method: 'POST', body: cateringPayload({ stage: 'date_requested', event: { date: uniqueWeekday(), guestCount: 50 } }) });
+  assert.equal((await asAdmin('/orders/' + clear.body.id)).body.order.status, 'reserved');
 });
 
 test('changing, cancelling or deleting a booking frees its date', async () => {

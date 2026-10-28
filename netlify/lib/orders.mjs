@@ -34,6 +34,7 @@ const STAGE_TO_STATUS = {
   callback_requested: 'lead',
   deposit_initiated: 'pending_deposit',
   reserved_no_deposit: 'reserved',
+  date_requested: 'reserved',
 };
 const PUBLIC_LADDER = ['lead', 'pending_deposit', 'reserved', 'date_check'];
 // Statuses where the customer has committed but nothing is confirmed yet.
@@ -110,8 +111,9 @@ export function balanceDue(order) {
 }
 
 // Deposit if nothing has been paid yet, otherwise the remaining balance.
+// Nothing is collected online while the date is unconfirmed; staff confirm first.
 export function amountToCollect(order) {
-  if (order.type !== 'catering' || ['cancelled', 'lost'].includes(order.status)) return null;
+  if (order.type !== 'catering' || ['cancelled', 'lost', 'date_check'].includes(order.status) || order.flags?.dateUnavailable) return null;
   if (paidTotal(order) === 0 && order.quote.deposit > 0) return { amount: order.quote.deposit, kind: 'deposit' };
   const balance = balanceDue(order);
   if (balance > 0) return { amount: balance, kind: 'balance' };
