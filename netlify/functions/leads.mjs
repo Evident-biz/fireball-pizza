@@ -12,10 +12,10 @@ import { portalUrl } from '../lib/email.mjs';
 import { checkDate } from '../lib/availability.mjs';
 import { json, errorResponse, readJson, HttpError, str, num, money, isEmail, normalizeEmail, isIsoDate, newOrderId, newToken, sha256, siteUrl } from '../lib/util.mjs';
 
-const STAGES = ['quote_viewed', 'quote_built', 'callback_requested', 'deposit_initiated', 'reserved_no_deposit'];
+const STAGES = ['quote_viewed', 'quote_built', 'callback_requested', 'deposit_initiated', 'reserved_no_deposit', 'date_requested'];
 // Stages where the customer commits to a date. On a date that breaks a rule they still go
 // through, but the order is flagged and lands in "Date to Confirm" instead of holding the date.
-const BOOKING_STAGES = ['deposit_initiated', 'reserved_no_deposit'];
+const BOOKING_STAGES = ['deposit_initiated', 'reserved_no_deposit', 'date_requested'];
 
 const STAGE_LABELS = {
   quote_viewed: 'Viewed a quote on the website',
@@ -23,6 +23,7 @@ const STAGE_LABELS = {
   callback_requested: 'Asked for a callback from a Pizza Pro',
   deposit_initiated: 'Opened the deposit payment page',
   reserved_no_deposit: 'Reserved the date, paying by cash or check',
+  date_requested: 'Requested a date that needs confirming (no payment taken)',
 };
 
 export default async (req, context) => {
@@ -114,8 +115,8 @@ function applyStage(order, stage, check) {
   logActivity(order, 'Website', STAGE_LABELS[stage]);
   if (check && !check.available) {
     order.flags.dateUnavailable = check.code;
-    // A cash/check reservation would normally hold the date; this one waits for staff instead.
-    if (order.status === 'reserved') order.status = 'date_check';
+    // It would normally hold the date or go to payment; instead it waits for staff to confirm.
+    if (['reserved', 'pending_deposit'].includes(order.status)) order.status = 'date_check';
     logActivity(order, 'Website', 'Date needs confirming', check.code === 'booked' ? 'Another event is already on this date' : 'Farmers market day with under 40 guests');
   } else if (BOOKING_STAGES.includes(stage)) {
     delete order.flags.dateUnavailable;

@@ -32,7 +32,13 @@ export default async (req, context) => {
     try {
       const store = crmStore(context);
       const found = await getOrder(store, orderId);
-      if (found && safeEqual(found.order.portalToken, orderToken)) linked = { store, order: found.order };
+      if (found && safeEqual(found.order.portalToken, orderToken)) {
+        linked = { store, order: found.order };
+        // Flagged dates are confirmed by staff before any money is taken.
+        if (found.order.status === 'date_check' || found.order.flags?.dateUnavailable) {
+          return json({ error: "We'll confirm your date before taking a deposit.", needsConfirmation: true }, 409);
+        }
+      }
     } catch (err) {
       console.error('Fireball deposit link: could not look up order', orderId, err);
     }

@@ -66,7 +66,11 @@ export default async (req, context) => {
   const html = layout({
     greeting: 'Hi ' + firstName(name) + ',',
     // A flagged reservation hasn't actually reserved anything yet, so don't say it has.
-    paragraphs: dateNote ? [type === 'reservation' ? "Thanks, we got your booking request." : copy.intro, dateNote] : [copy.intro],
+    paragraphs: dateNote
+      ? (type === 'reservation'
+        ? ['Thanks, we got your booking request.', dateNote + " Once it's confirmed, we'll send you a link for the deposit. Nothing has been charged."]
+        : [copy.intro, dateNote])
+      : [copy.intro],
     rows: [
       ['Event date', /^\d{4}-\d{2}-\d{2}$/.test(eventDate || '') ? formatDate(eventDate) : ''],
       ['Start time', eventTime],
