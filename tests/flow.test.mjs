@@ -39,6 +39,14 @@ before(async () => {
   process.env.SQUARE_WEBHOOK_SIGNATURE_KEY = 'sigkey';
   process.env.ADMIN_EMAILS = 'owner@fireball.test';
   process.env.URL = ORIGIN;
+  process.env.GOOGLE_CALENDAR_ICS_URL = 'https://calendar.test/private/basic.ics';
+  globalThis.__testCalendarIcs = [
+    'BEGIN:VCALENDAR',
+    'BEGIN:VEVENT', 'UID:w1', 'SUMMARY:Johnson wedding (booked by phone)', 'DTSTART;TZID=America/Los_Angeles:20270712T170000', 'DTEND;TZID=America/Los_Angeles:20270712T220000', 'END:VEVENT',
+    'BEGIN:VEVENT', 'UID:m1', 'SUMMARY:Modesto Farmers Market', 'DTSTART;VALUE=DATE:20270714', 'DTEND;VALUE=DATE:20270715', 'END:VEVENT',
+    'BEGIN:VEVENT', 'UID:r1', 'SUMMARY:Reserved Co (added after confirming)', 'DTSTART;VALUE=DATE:20270719', 'DTEND;VALUE=DATE:20270720', 'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n');
   leads = (await import('../netlify/functions/leads.mjs')).default;
   portal = (await import('../netlify/functions/portal.mjs')).default;
   adminApi = (await import('../netlify/functions/admin-api.mjs')).default;
@@ -469,4 +477,35 @@ test('a paid deposit on a taken date goes to "Date to Confirm", not Booked, and 
   const customer = sent.find((e) => e.to[0] === 'jane@example.com');
   assert.equal(customer.subject, 'We received your Fireball Pizza deposit');
   assert.ok(!/officially booked/.test(customer.html));
+});
+
+// ---------- private Google Calendar ----------
+
+test('a day with an event on the private Google Calendar counts as taken (farmers market events ignored)', async () => {
+  const wedding = await avail('2027-07-12', 60);
+  assert.equal(wedding.body.available, false);
+  assert.equal(wedding.body.code, 'booked');
+  assert.ok(!JSON.stringify(wedding.body).includes('Johnson'), 'calendar titles never reach customers');
+  assert.equal((await avail('2027-07-14', 20)).body.available, true, 'a "Farmers Market" event is not a booking');
+
+  const req = await call(leads, '/api/leads', { method: 'POST', body: cateringPayload({ stage: 'date_requested', event: { date: '2027-07-12', guestCount: 60 } }) });
+  assert.equal((await asAdmin('/orders/' + req.body.id)).body.order.status, 'date_check');
+
+  const staffView = await asAdmin('/google-calendar?from=2027-07-01&to=2027-07-31');
+  assert.equal(staffView.body.configured, true);
+  assert.deepEqual(staffView.body.days['2027-07-12'], ['Johnson wedding (booked by phone)']);
+  assert.equal(staffView.body.days['2027-07-14'], undefined);
+});
+
+test("a confirmed booking isn't flagged against its own Google Calendar event when it pays", async () => {
+  // Staff confirmed this one (Reserved) and put it on Google Calendar; then the customer pays the deposit.
+  const { id } = (await asAdmin('/orders', { method: 'POST', body: { type: 'catering', status: 'reserved', customer: { name: 'Reserved Co', email: 'rc@example.com' }, event: { date: '2027-07-19', guestCount: 60 }, quote: { total: 1000, deposit: 500 } } })).body;
+  const link = await asAdmin('/orders/' + id + '/payment-link', { method: 'POST', body: {} });
+  assert.equal(link.status, 200);
+  const event = {
+    type: 'payment.updated',
+    data: { object: { payment: { id: 'pay_reserved_gcal', order_id: 'sqorder_' + apis.calls.square.length, status: 'COMPLETED', amount_money: { amount: 50000 }, source_type: 'CARD' } } },
+  };
+  await call(webhook, '/api/square/webhook', signedWebhook(event));
+  assert.equal((await asAdmin('/orders/' + id)).body.order.status, 'booked');
 });

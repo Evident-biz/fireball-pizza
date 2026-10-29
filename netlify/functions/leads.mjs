@@ -107,6 +107,8 @@ async function saveCatering(store, body, name, email, base) {
 
 async function availabilityFor(store, order, stage) {
   if (!BOOKING_STAGES.includes(stage)) return null;
+  // Already holding its date (and not flagged): it's this customer's own booking, nothing to re-check.
+  if (['reserved', 'booked'].includes(order.status) && !order.flags.dateUnavailable) return null;
   return checkDate(store, order.event.date, order.event.guestCount, order.id);
 }
 

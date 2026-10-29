@@ -69,7 +69,8 @@ export default async (req, context) => {
     logActivity(o, 'Square', 'Payment received', formatMoney(amount) + ' via ' + (payment.source_type || 'card').toLowerCase());
     if (['lead', 'pending_deposit', 'reserved', 'date_check'].includes(o.status)) {
       // A date that breaks a rule waits for staff instead of being booked automatically.
-      const check = await checkDate(store, o.event.date, o.event.guestCount, o.id).catch(() => null);
+      // Reserved orders already hold their date (and may be on Google Calendar), so they aren't re-checked.
+      const check = o.status === 'reserved' ? null : await checkDate(store, o.event.date, o.event.guestCount, o.id).catch(() => null);
       conflict = check && !check.available ? check.message : '';
       if (conflict || o.status === 'date_check') {
         if (check && !check.available) o.flags.dateUnavailable = check.code;

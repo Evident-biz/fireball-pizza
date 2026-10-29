@@ -9,8 +9,12 @@
 //   2. Thursdays and Saturdays we're at the Modesto Farmers Market, so catering on those
 //      days is only accepted for 40 or more guests.
 //
+// A day with an event on the private Google Calendar (see gcal.mjs) also counts as taken.
+//
 // Taken dates are tracked with marker keys (hold/<date>/<orderId>) that store.mjs keeps in
 // sync on every order write, so checking a date is one small list call.
+
+import { busyDates } from './gcal.mjs';
 
 export const HOLDING_STATUSES = ['booked', 'reserved'];
 export const MARKET_DAYS = [4, 6]; // Thursday, Saturday (0 = Sunday)
@@ -38,12 +42,15 @@ export async function holdsOn(store, date) {
 export async function checkDate(store, date, guests, excludeId = '') {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) return { available: true, code: 'no_date', message: '' };
   const taken = (await holdsOn(store, date)).filter((id) => id !== excludeId);
-  if (taken.length) {
+  const calendarEvents = (await busyDates(store)).get(date) || [];
+  if (taken.length || calendarEvents.length) {
     return {
       available: false,
       code: 'booked',
       message: "Heads up: we may already have an event that day. You can still book, and we'll confirm your date within 1 to 2 business days.",
+      // Internal only (order ids and calendar titles); never sent to customers.
       conflicts: taken,
+      calendarEvents,
     };
   }
   if (isMarketDay(date)) {

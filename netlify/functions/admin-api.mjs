@@ -13,6 +13,7 @@ import {
 } from '../lib/orders.mjs';
 import { createLinkForOrder } from '../lib/deposit.mjs';
 import { MARKET_DAYS, MARKET_MIN_GUESTS } from '../lib/availability.mjs';
+import { busyDates, calendarConfigured } from '../lib/gcal.mjs';
 import { SquareConfigError } from '../lib/square.mjs';
 import { sendEmail, layout, firstName, formatMoney, formatDate, portalUrl } from '../lib/email.mjs';
 import {
@@ -53,6 +54,14 @@ export default async (req, context) => {
     }
 
     if (resource === 'export.csv' && method === 'GET') return await exportCsv(store);
+
+    // Google Calendar events by day, for the portal calendar and order pages.
+    if (resource === 'google-calendar' && method === 'GET') {
+      const from = url.searchParams.get('from') || '';
+      const to = url.searchParams.get('to') || '9999-12-31';
+      const busy = [...(await busyDates(store))].filter(([d]) => d >= from && d <= to);
+      return json({ configured: calendarConfigured(), days: Object.fromEntries(busy) });
+    }
 
     if (resource === 'staff') {
       if (!id && method === 'GET') return await listStaff(user);

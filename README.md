@@ -55,6 +55,8 @@ Every catering quote, booking and contact message is saved as an order in **Netl
    - `ADMIN_EMAILS`: comma-separated owner emails. These always have admin access once their email is confirmed.
    - `STAFF_NOTIFY_EMAIL`: where customer messages and payment alerts go (defaults to eat@fireball.pizza).
    - `SQUARE_WEBHOOK_SIGNATURE_KEY`: from step 4.
+   - `GOOGLE_CALENDAR_ICS_URL` (optional): the private Google Calendar's **Secret address in iCal format** (Google Calendar > Settings > that calendar > Integrate calendar). Any event on a day makes that day count as taken for website bookings. Keep it secret: anyone with it can read the calendar.
+   - `CALENDAR_IGNORE_KEYWORDS` (optional): comma-separated words; calendar events whose title contains one don't count. Defaults to `farmers market`.
    - Already set: `RESEND_API_KEY`, `SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_ENVIRONMENT`.
 3. **First login:** in Identity > Users, invite the owner email. Accept the invite (the link lands on the home page and forwards to `/admin/login.html`). After that, invite staff from the portal's Staff page.
 4. **Square webhook:** Square Developer Dashboard > Webhooks > Add subscription. URL `https://fireball.pizza/api/square/webhook`, events `payment.created` and `payment.updated`. Copy the signature key into `SQUARE_WEBHOOK_SIGNATURE_KEY`. If the site is served from another domain, set `SQUARE_WEBHOOK_URL` to the exact URL registered in Square.
@@ -62,5 +64,7 @@ Every catering quote, booking and contact message is saved as an order in **Netl
 ### Things to know
 
 - Deploy previews and branch deploys use their own Blobs store, so testing never touches real orders. Staff logins are shared across all deploys.
+- Catering dates: one event per day, and Thursdays/Saturdays (farmers market) usually 40+ guests. A date that breaks a rule, or has anything on the private Google Calendar, is still accepted: "Pay Deposit" becomes "Request This Date", no payment is taken, and the order lands in **Date to Confirm**. Set it to Booked or Reserved to confirm, and the customer can then pay.
+- Google Calendar changes reach the website within about 5 minutes.
 - Afterpay goes through a fixed Square link that isn't tied to an order, so record those payments by hand (Record payment).
 - Order data lives in Netlify. Use **Export CSV** on the Orders page for backups.
