@@ -31,6 +31,10 @@ export function fakeExternalApis() {
       linkCount++;
       return Response.json({ payment_link: { id: 'pl_' + linkCount, url: 'https://square.link/u/test' + linkCount, order_id: 'sqorder_' + linkCount } });
     }
+    if (u.includes('calendar.test')) {
+      calls.calendar = (calls.calendar || 0) + 1;
+      return new Response(globalThis.__testCalendarIcs || 'BEGIN:VCALENDAR\r\nEND:VCALENDAR', { headers: { 'Content-Type': 'text/calendar' } });
+    }
     if (u.includes('api.resend.com')) {
       calls.email.push(JSON.parse(init.body));
       return Response.json({ id: 'email_' + calls.email.length });

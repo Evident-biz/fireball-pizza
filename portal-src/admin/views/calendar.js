@@ -1,4 +1,5 @@
 import { state, loadOrders, setQuery } from '../app.js';
+import { api } from '../api.js';
 import { html, mount, $, money, todayIso, statusPill, dateLabel } from '../ui.js';
 import { catering, isMarketDay } from '../metrics.js';
 
@@ -11,6 +12,9 @@ export async function renderCalendar({ main, params, isStale, setTitle }) {
   const today = todayIso();
   let month = /^\d{4}-\d{2}$/.test(params.get('m') || '') ? params.get('m') : today.slice(0, 7);
   let showLeads = params.get('leads') === '1';
+  // Events from the private Google Calendar (optional; empty when it isn't connected).
+  const gcal = await api('/google-calendar').catch(() => ({ configured: false, days: {} }));
+  if (isStale()) return;
 
   const draw = () => {
     const [y, m] = month.split('-').map(Number);
@@ -40,6 +44,7 @@ export async function renderCalendar({ main, params, isStale, setTitle }) {
           <p class="muted">${booked.length} booked event${booked.length === 1 ? '' : 's'} · ${money(booked.reduce((s, o) => s + (o.total || 0), 0), { cents: false })} · ${booked.reduce((s, o) => s + (o.guestCount || 0), 0)} guests</p>
         </div>
         <div class="page-actions">
+          ${gcal.configured ? html`<span class="muted small"><span class="cal-gcal-key"></span> Google Calendar</span>` : ''}
           <label class="check"><input type="checkbox" id="leadsToggle" ${showLeads ? 'checked' : ''}> Show unbooked leads</label>
           <div class="btn-group">
             <button class="btn btn-ghost" id="prevMonth" aria-label="Previous month">‹</button>
@@ -56,6 +61,7 @@ export async function renderCalendar({ main, params, isStale, setTitle }) {
           : html`
             <div class="cal-cell ${iso(d) === today ? 'cal-today' : ''} ${iso(d) < today ? 'cal-past' : ''}" role="gridcell" aria-label="${dateLabel(iso(d))}">
               <span class="cal-num">${d}</span>${isMarketDay(iso(d), state.meta) ? html`<span class="cal-market" title="Farmers market day: catering needs ${state.meta.marketMinGuests}+ guests">Market</span>` : ''}
+              ${(gcal.days[iso(d)] || []).map((title) => html`<span class="cal-event cal-gcal" title="Google Calendar: ${title}">${title}</span>`)}
               ${(byDay.get(d) || []).map((o) => html`
                 <a class="cal-event cal-${o.status}" href="#/orders/${o.id}" title="${o.name} · ${o.eventTime || ''} · ${o.guestCount || '?'} guests">
                   <span class="cal-time">${o.eventTime || ''}</span> ${o.name}

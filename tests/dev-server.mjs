@@ -32,6 +32,14 @@ await startBlobs();
 fakeExternalApis();
 Object.assign(process.env, { RESEND_API_KEY: 'dev', SQUARE_ACCESS_TOKEN: 'dev', SQUARE_LOCATION_ID: 'dev', URL: 'http://localhost:' + port });
 
+// A sample private Google Calendar so the calendar view has something to show.
+process.env.GOOGLE_CALENDAR_ICS_URL = 'https://calendar.test/private/basic.ics';
+const icsDay = (offset) => { const d = new Date(); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10).replace(/-/g, ''); };
+globalThis.__testCalendarIcs = ['BEGIN:VCALENDAR',
+  'BEGIN:VEVENT', 'UID:dev1', 'SUMMARY:Garcia quinceañera (phone)', 'DTSTART;VALUE=DATE:' + icsDay(11), 'DTEND;VALUE=DATE:' + icsDay(12), 'END:VEVENT',
+  'BEGIN:VEVENT', 'UID:dev2', 'SUMMARY:Brewery pop-up', 'DTSTART;VALUE=DATE:' + icsDay(16), 'DTEND;VALUE=DATE:' + icsDay(17), 'END:VEVENT',
+  'END:VCALENDAR'].join('\r\n');
+
 const fn = async (name) => (await import('../netlify/functions/' + name + '.mjs')).default;
 const routes = [
   ['/api/leads', await fn('leads')],

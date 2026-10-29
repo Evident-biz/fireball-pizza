@@ -13,6 +13,7 @@ export async function renderOrder({ main, id, isStale, setTitle }) {
   if (isStale()) return;
   const staff = await loadStaff();
   const allOrders = await loadOrders().catch(() => []);
+  const gcal = await api('/google-calendar').catch(() => ({ days: {} }));
   if (isStale()) return;
 
   // Every change returns the fresh order; re-render in place.
@@ -90,6 +91,8 @@ export async function renderOrder({ main, id, isStale, setTitle }) {
         <div class="banner banner-red"><span><strong>Date problem.</strong> ${p.text}.${p.others ? html` ${p.others.map((x) => html`<a href="#/orders/${x.id}">${x.id}</a> `)}` : ''}</span></div>`)}
       ${o.flags.dateUnavailable && ['lead', 'pending_deposit', 'reserved', 'date_check'].includes(o.status) ? html`
         <div class="banner banner-gold"><span><strong>Date needs confirming.</strong> ${o.flags.dateUnavailable === 'booked' ? 'Another event was already on this date when they booked.' : 'It\u2019s a farmers market day with fewer than ' + meta.marketMinGuests + ' guests.'} The customer was told we'll confirm within 1 to 2 business days. Call them, then set the status to Booked or Reserved, or offer another date.</span></div>` : ''}
+      ${o.type === 'catering' && o.event.date && (gcal.days[o.event.date] || []).length ? html`
+        <div class="banner banner-gold"><span><strong>On your Google Calendar that day:</strong> ${(gcal.days[o.event.date] || []).join(', ')}</span></div>` : ''}
       ${o.flags.customerMessage ? html`
         <div class="banner banner-gold"><span><strong>New message from the customer.</strong> See the notes below.</span><button class="btn btn-sm btn-ghost" data-act="msg-read">Mark read</button></div>` : ''}
       ${o.flags.callbackRequested ? html`
