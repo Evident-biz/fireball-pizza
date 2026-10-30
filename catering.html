@@ -479,7 +479,6 @@
                 </select>
               </div>
             </div>
-            <p class="calc-hint" id="calcDateHint" role="status" aria-live="polite"></p>
             <p class="calc-hint" id="calcHint"></p>
             <button type="button" class="btn btn-primary" id="calcNextBtn" style="width:100%; justify-content:center; margin-top:8px;">Next: Dining Options</button>
             <p class="calc-hint" id="calcPageAHint"></p>
@@ -571,7 +570,6 @@
                 <input type="range" id="calcGuestsSlider" min="20" max="250" step="1" value="20" class="calc-slider" aria-label="Guest count">
                 <div class="calc-slider-range"><span>20</span><span>250+</span></div>
               </div>
-              <p class="calc-hint" id="calcGuestHint" role="status" aria-live="polite"></p>
             </div>
 
             <button type="button" class="btn btn-primary" id="calcCalculateBtn" style="width:100%; justify-content:center; margin-top:8px;">Calculate My Quote</button>
@@ -626,6 +624,7 @@
         <input type="hidden" id="sendDepositRaw">
         <input type="hidden" name="Free Appetizers" id="sendAppetizers">
 
+        <p class="calc-hint" id="calcDateNote" role="status" aria-live="polite" hidden></p>
         <label class="calc-terms-checkbox">
           <input type="checkbox" id="calcTermsAgree">
           <span>I agree to the <a href="terms.html" target="_blank" style="color:var(--ember); text-decoration:underline;">cancellation &amp; refund policy</a></span>
@@ -726,16 +725,14 @@ function checkAvailability(){
   return availabilityCheck.promise;
 }
 
+// Nothing shows until they've built their quote (so we always capture the lead first).
+// After that the note sits right above the deposit button.
 function showAvailability(result){
-  const flagged = result && !result.available;
-  const message = result && result.message ? result.message : '';
-  const dateHint = document.getElementById('calcDateHint');
-  const guestHint = document.getElementById('calcGuestHint');
-  // Booked dates show by the date picker; the 40-guest rule shows by the guest count once that matters.
-  dateHint.textContent = result && (result.code === 'booked' || (result.code === 'market_day' && !reachedMenuStep)) ? message : '';
-  dateHint.style.color = flagged ? '#8A5A00' : 'var(--stone)';
-  guestHint.textContent = result && reachedMenuStep && result.code !== 'booked' ? message : '';
-  guestHint.style.color = flagged ? '#8A5A00' : 'var(--stone)';
+  const flagged = !!(hasCalculated && result && !result.available);
+  const note = document.getElementById('calcDateNote');
+  note.textContent = flagged ? result.message : '';
+  note.style.color = '#8A5A00';
+  note.hidden = !flagged;
   document.getElementById('calcSubmitBtn').textContent = flagged ? 'Request This Date' : 'Pay Deposit';
 }
 
@@ -1988,8 +1985,9 @@ function resetEntireCalculator(){
   if(typeof gtag === 'function') gtag('event', 'calculator_reset');
   reachedMenuStep = false;
   availabilityCheck = { key: '', promise: null, result: null };
-  document.getElementById('calcDateHint').textContent = '';
-  document.getElementById('calcGuestHint').textContent = '';
+  document.getElementById('calcDateNote').textContent = '';
+  document.getElementById('calcDateNote').hidden = true;
+  document.getElementById('calcSubmitBtn').textContent = 'Pay Deposit';
   document.getElementById('sendName').value = '';
   document.getElementById('sendEmail').value = '';
   document.getElementById('sendPhone').value = '';
@@ -2134,12 +2132,10 @@ document.getElementById('calcNextBtn').addEventListener('click', function(){
   }
   hint.textContent = '';
 
-  noteDateAvailability(hint).then(function(){
-    reachedMenuStep = true;
-    checkAvailability();
-    if(typeof gtag === 'function') gtag('event', 'quote_builder_advanced');
-    setStep(2);
-  });
+  reachedMenuStep = true;
+  checkAvailability(); // runs quietly; shown only after the quote is built
+  if(typeof gtag === 'function') gtag('event', 'quote_builder_advanced');
+  setStep(2);
 });
 
 const isMobileLayout = function(){ return window.matchMedia('(max-width: 759px)').matches; };
@@ -2160,6 +2156,9 @@ document.getElementById('calcCalculateBtn').addEventListener('click', function()
   document.getElementById('calcPricingBlock').style.display = 'block';
   renderTotals();
   syncTermsState();
+  // Quote is built and the lead is captured: now it's fine to show a date heads-up.
+  showAvailability(availabilityCheck.result);
+  checkAvailability();
 
   // Totals stay live from here on, so the button becomes a refresh, not a gate.
   this.textContent = 'Update Quote';
