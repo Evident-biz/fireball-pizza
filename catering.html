@@ -1372,6 +1372,22 @@ let hasDistance = false; // whether lastCalc has real address-based numbers yet
 let hasCalculated = false; // whether the customer has pressed Calculate My Quote yet
 let quoteViewedCaptured = false; // only fire the "Quote Viewed" lead once per session
 
+// "Quote Viewed" lead: only once we can actually follow up, so it waits for a name and a
+// valid email as well as a confirmed address, whichever comes last. Without contact info
+// the email was useless (an address and a price, nobody to call).
+function captureQuoteViewed(){
+  if(quoteViewedCaptured || !hasDistance) return;
+  const name = document.getElementById('sendName').value.trim();
+  const email = document.getElementById('sendEmail').value.trim();
+  if(!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+  quoteViewedCaptured = true;
+  submitFormToNetlify('Quote Viewed: ' + (currentGuestCount ? currentGuestCount + ' guests, ' : '') + document.getElementById('calcAddress').value.trim())
+    .catch(function(err){ console.error('Fireball estimator: lead capture failed', err); });
+}
+['sendName', 'sendEmail', 'sendPhone'].forEach(function(id){
+  document.getElementById(id).addEventListener('change', captureQuoteViewed);
+});
+
 // --- Guest count slider + number input: kept in sync both ways ---
 let currentGuestCount = 0;
 const guestsNumberEl = document.getElementById('calcGuestsNumber');
@@ -2132,6 +2148,7 @@ document.getElementById('calcNextBtn').addEventListener('click', function(){
   }
   hint.textContent = '';
 
+  captureQuoteViewed();
   reachedMenuStep = true;
   checkAvailability(); // runs quietly; shown only after the quote is built
   if(typeof gtag === 'function') gtag('event', 'quote_builder_advanced');
@@ -2352,11 +2369,7 @@ function runDistanceLookupNow(address){
 
       // Capture as a lead now, before they decide whether to lock in.
       // Only once per session; editing the address further shouldn't spam duplicate leads.
-      if(!quoteViewedCaptured){
-        quoteViewedCaptured = true;
-        submitFormToNetlify('Quote Viewed: ' + currentGuestCount + ' guests, ' + address)
-          .catch(function(err){ console.error('Fireball estimator: lead capture failed', err); });
-      }
+      captureQuoteViewed();
     } catch(err){
       console.error('Fireball estimator: error processing result', err);
       calcHint.textContent = "Something went wrong calculating the estimate. We will confirm manually when we follow up.";
